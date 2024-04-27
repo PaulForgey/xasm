@@ -57,6 +57,7 @@ inputName   = $6a   ; root source filename
 listLFN     = $6c   ; listing output LFN
 emitX       = $6d   ; X preservation during emit
 emitY       = $6e   ; Y preservation during emit
+argZ        = $6f   ; zp arg for bbs/bbc
 
     .fi ; zpAsm
 

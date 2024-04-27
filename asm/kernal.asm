@@ -40,6 +40,8 @@ UDTIM   =$ffea
 SCREEN  =$ffed
 PLOT    =$fff0
 IOBASE  =$fff3
+MCIOUT  =$feb1
+MACPTR  =$ff44
 
     .fi ; kernalAsm
 

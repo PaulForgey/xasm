@@ -431,14 +431,20 @@ lineIsn:
     bne :gob
     inx             ; consume ,
     lda lineBuf,x
-    inx             ; consume x or y (expected)
     jsr ePet
     and #$7f        ; normalize case
     cmp #'x
     beq :absx
     cmp #'y
     beq :absy
-    ; fall thru
+    
+    lda arg
+    sta argZ        ; zp,rel
+    jsr lineEval
+
+    lda #modeBitRel
+    sta isnMode
+    jmp :go
 
 :modeError:
     lda #errorMode
@@ -446,11 +452,13 @@ lineIsn:
     rts
 
 :absx
+    inx             ; consume 'x'
     lda #modeAbsX   ; abs,x
     sta isnMode
     bra :gob
 
 :absy
+    inx             ; consume 'y'
     lda #modeAbsY   ; abs,y
     sta isnMode
     ; fall thru
@@ -529,7 +537,7 @@ lineIsn:
     sta isnBit
     lda isnMode
     cmp #modeAbs
-    bne :modeErrorb
+    bne :notbit
     lda #modeBitZero
     sta isnMode
 
@@ -549,6 +557,9 @@ lineIsn:
     beq :rel
     cmp #modeBitRel 
     bne :notrel
+
+    lda argZ
+    jsr lineEmit    ; zp arg of bitRel
 
 :rel
     lda pass
