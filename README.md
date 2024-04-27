@@ -86,7 +86,8 @@ TODO: allow a filename syntax specifying a device number, e.g. `@8:output`.
 
 All literals resolve to 16 bit integers. Zero page or immediate values will take the lower 8 bits.
 
-| - | - |
+| Literal |   |
+| ------- | - |
 | `65` | Decimal number. |
 | `$41` | Hexadecimal number. |
 | `%1000001` | Binary number. |
