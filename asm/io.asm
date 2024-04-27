@@ -452,16 +452,28 @@ ioFlushAlways:
     jsr CLRCHN
     ldx #2
     jsr CHKOUT
-    bcs :error
-    ldy #0
+    bcs :done
+
+    lda ioOutPtr    ; try to write entire buffer
+    ldx #<ioBuf     ; invariant: 0; this is page aligned
+    ldy #>ioBuf
+    jsr MCIOUT
+    bcs :slow       ; not supported
+
+    cpx ioOutPtr    ; did we write everything?
+    beq :done
+    bra :loop       ; byte bang the rest
+
+:slow
+    ldx #0          ; byte bang
 :loop
-    lda ioBuf,y
+    lda ioBuf,x
     jsr CHROUT
-    iny
-    cpy ioOutPtr
+    inx
+    cpx ioOutPtr
     bne :loop
+:done
     stz ioOutPtr
-:error
     jsr CLRCHN
     ldx ioLFN
     beq :noread
