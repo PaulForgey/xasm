@@ -20,7 +20,7 @@ Create `hello.asm`:
 
 ```
 	.or $2000
-	dw. *		; load ,8,1 header
+	.dw *		; load ,8,1 header
 	.or $2000
 
 CHROUT	=$ffd2
@@ -33,7 +33,7 @@ start:
 	jsr CHROUT
 	inx
 	bne :loop
-:out
+:done
 	rts
 
 hello:
