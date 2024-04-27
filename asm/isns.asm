@@ -25,8 +25,7 @@ isnGet:
     lsr
     lsr
     lsr
-    ora isn2
-    sta isn2
+    tsb isn2
     lda isn1
     asl
     asl
@@ -37,8 +36,7 @@ isnGet:
     lda lineBuf+2,x
     sec
     sbc #'a
-    ora isn1
-    sta isn1
+    tsb isn1
 
     ; incr=1 element (2 bytes per entry)
     ldy #2

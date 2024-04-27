@@ -194,9 +194,8 @@ lineAsm:
 :EL
     bit lineIfd     ; have we chosen our destiny
     bpl :else
-    lda lineIfs     ; prior destiny has already been set
-    ora #$80
-    sta lineIfs     ; stay false
+    lda #$80        ; prior destiny has already been set
+    tsb lineIfs
     jmp lineAssertEnd
 
 :else
@@ -210,9 +209,8 @@ lineAsm:
 
     bit lineIfd     ; have we chosen our destiny
     bpl :elseif
-    lda lineIfs     ; prior destiny has already been set
-    ora #$80
-    sta lineIfs     ; stay false
+    lda #$80        ; stay false
+    tsb lineIfs     ; prior destiny has already been set
     rts
     
 :elseif
@@ -221,8 +219,7 @@ lineAsm:
     asl lineIfs
     lda arg+1       ; top of ifs stack becomes condition
     and #$80
-    ora lineIfd     ; destiny set
-    sta lineIfd
+    tsb lineIfd     ; destiny set
     eor #$80
     asl
     ror lineIfs

@@ -145,7 +145,7 @@ ioCopyName:
 :done
     ldx ptr
     rts
-    
+
 ;
 ; print string a/x/y with CR
 ; all preserved
@@ -308,13 +308,12 @@ ioPop:
     sta ioDev
 
     iny             ; LFN
-    lda ioStack,y
-    sta ioLFN
+    ldx ioStack,y
+    stx ioLFN
     
     sty ioPtr
     
     beq :zero       ; do not redirect from 0
-    tax
     jmp CHKIN       ; this also becomes our current input
 :zero    
     rts 
