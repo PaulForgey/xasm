@@ -86,10 +86,11 @@ TODO: allow a filename syntax specifying a device number, e.g. `@8:output`.
 
 All literals resolve to 16 bit integers. Zero page or immediate values will take the lower 8 bits.
 
-`65` Decimal number.
-`$41` Hexadecimal number.
-`%1000001` Binary number.
-`'A` Character.
+| - | - |
+| `65` | Decimal number. |
+| `$41` | Hexadecimal number. |
+| `%1000001` | Binary number. |
+| `'A` | Character. |
 
 ### Labels
 
@@ -203,6 +204,7 @@ dword:
 
 	.or * % $100	; set PC to next page bounary
 buffer:			; buffer points at PC
+```
 
 ## Program Counter
 
