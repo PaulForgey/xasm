@@ -53,7 +53,7 @@ run
 ? hello.asm;hello
 ```
 
-The `?` is the prompt for the source, destiation, and listing files. Only the source file is mandatory. If no desitaiton file is given, no binary is written. For example,
+The `?` is the prompt for the source, destination, and listing files. Only the source file is mandatory. If no destinaton file is given, no binary is written. For example,
 ```
 ? hello.asm;;hello.lst
 ```
@@ -317,4 +317,19 @@ Data byte. Emits an 8 bit value. Mutiple values may be separated with commas. St
 	.db >msbFirst,<msbFirst
 	.db * ; low 8 bits of PC
 ```
+
+## Self Building
+A GitHub action to self build as a PR check and generate the binary and listing for releases is planned.
+
+In the meantime, the recommended manual process to self test is this:
+
+```
+^ xasm
+? xasm.asm;@:xasm2
+^ xasm2
+? xasm.asm;@:xasm3
+verify "xasm3",8,1
+```
+
+There is also `test.asm` whose resulting listing output should be compared to verify proper opcode generation.
 
