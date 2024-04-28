@@ -1,0 +1,256 @@
+1000:         zero=$50
+1000:         abs=$5040
+1000:         
+1000:6d 40 50     adc abs
+1003:7d 40 50     adc abs,x
+1006:79 40 50     adc abs,y
+1009:69 00        adc #0
+100b:65 50        adc zero
+100d:61 50        adc (zero,x)
+100f:75 50        adc zero,x
+1011:72 50        adc (zero)
+1013:71 50        adc (zero),y
+1015:         
+1015:2d 40 50     and abs
+1018:3d 40 50     and abs,x
+101b:39 40 50     and abs,y
+101e:29 00        and #0
+1020:25 50        and zero
+1022:21 50        and (zero,x)
+1024:35 50        and zero,x
+1026:32 50        and (zero)
+1028:31 50        and (zero),y
+102a:         
+102a:0e 40 50     asl abs
+102d:1e 40 50     asl abs,x
+1030:0a           asl
+1031:06 50        asl zero
+1033:16 50        asl zero,x
+1035:         
+1035:0f 50 fd     bbr0 zero,*
+1038:1f 50 fd     bbr1 zero,*
+103b:2f 50 fd     bbr2 zero,*
+103e:3f 50 fd     bbr3 zero,*
+1041:4f 50 fd     bbr4 zero,*
+1044:5f 50 fd     bbr5 zero,*
+1047:6f 50 fd     bbr6 zero,*
+104a:7f 50 fd     bbr7 zero,*
+104d:             
+104d:8f 50 fd     bbs0 zero,*
+1050:9f 50 fd     bbs1 zero,*
+1053:af 50 fd     bbs2 zero,*
+1056:bf 50 fd     bbs3 zero,*
+1059:cf 50 fd     bbs4 zero,*
+105c:df 50 fd     bbs5 zero,*
+105f:ef 50 fd     bbs6 zero,*
+1062:ff 50 fd     bbs7 zero,*
+1065:         
+1065:90 fe        bcc *
+1067:b0 fe        bcs *
+1069:f0 fe        beq *
+106b:             
+106b:2c 40 50     bit abs
+106e:3c 40 50     bit abs,x
+1071:89 00        bit #0
+1073:24 50        bit zero
+1075:34 50        bit zero,x
+1077:         
+1077:30 fe        bmi *
+1079:d0 fe        bne *
+107b:10 fe        bpl *
+107d:80 fe        bra *
+107f:         
+107f:00           brk
+1080:         
+1080:50 fe        bvc *
+1082:70 fe        bvs *
+1084:         
+1084:18           clc
+1085:d8           cld
+1086:58           cli
+1087:b8           clv
+1088:         
+1088:cd 40 50     cmp abs
+108b:dd 40 50     cmp abs,x
+108e:d9 40 50     cmp abs,y
+1091:c9 00        cmp #0
+1093:c5 50        cmp zero
+1095:c1 50        cmp (zero,x)
+1097:d5 50        cmp zero,x
+1099:d2 50        cmp (zero)
+109b:d1 50        cmp (zero),y
+109d:         
+109d:ec 40 50     cpx abs
+10a0:e0 00        cpx #0
+10a2:e4 50        cpx zero
+10a4:             
+10a4:cc 40 50     cpy abs
+10a7:c0 00        cpy #0
+10a9:c4 50        cpy zero
+10ab:         
+10ab:ce 40 50     dec abs
+10ae:de 40 50     dec abs,x
+10b1:3a           dec 
+10b2:c6 50        dec zero
+10b4:d6 50        dec zero,x
+10b6:         
+10b6:ca           dex
+10b7:88           dey
+10b8:         
+10b8:4d 40 50     eor abs
+10bb:5d 40 50     eor abs,x
+10be:59 40 50     eor abs,y
+10c1:49 00        eor #0
+10c3:45 50        eor zero
+10c5:41 50        eor (zero,x)
+10c7:55 50        eor zero,x
+10c9:52 50        eor (zero)
+10cb:51 50        eor (zero),y
+10cd:         
+10cd:ee 40 50     inc abs
+10d0:fe 40 50     inc abs,x
+10d3:1a           inc
+10d4:e6 50        inc zero
+10d6:f6 50        inc zero,x
+10d8:         
+10d8:e8           inx
+10d9:c8           iny
+10da:         
+10da:4c 40 50     jmp abs
+10dd:7c 40 50     jmp (abs,x)
+10e0:6c 40 50     jmp (abs)
+10e3:         
+10e3:20 40 50     jsr abs
+10e6:         
+10e6:ad 40 50     lda abs
+10e9:bd 40 50     lda abs,x
+10ec:b9 40 50     lda abs,y
+10ef:a9 00        lda #0
+10f1:a5 50        lda zero
+10f3:a1 50        lda (zero,x)
+10f5:b5 50        lda zero,x
+10f7:b2 50        lda (zero)
+10f9:b1 50        lda (zero),y
+10fb:         
+10fb:ae 40 50     ldx abs
+10fe:be 40 50     ldx abs,y
+1101:a2 00        ldx #0
+1103:a6 50        ldx zero
+1105:b6 50        ldx zero,y
+1107:         
+1107:ac 40 50     ldy abs
+110a:bc 40 50     ldy abs,x
+110d:a0 00        ldy #0
+110f:a4 50        ldy zero
+1111:b4 50        ldy zero,x
+1113:         
+1113:4e 40 50     lsr abs
+1116:5e 40 50     lsr abs,x
+1119:4a           lsr 
+111a:46 50        lsr zero
+111c:56 50        lsr zero,x
+111e:         
+111e:ea           nop
+111f:         
+111f:0d 40 50     ora abs
+1122:1d 40 50     ora abs,x
+1125:19 40 50     ora abs,y
+1128:09 00        ora #0
+112a:05 50        ora zero
+112c:01 50        ora (zero,x)
+112e:15 50        ora zero,x
+1130:12 50        ora (zero)
+1132:11 50        ora (zero),y
+1134:         
+1134:48           pha
+1135:08           php
+1136:da           phx
+1137:5a           phy
+1138:68           pla
+1139:28           plp
+113a:fa           plx
+113b:7a           ply
+113c:         
+113c:07 50        rmb0 zero
+113e:17 50        rmb1 zero
+1140:27 50        rmb2 zero
+1142:37 50        rmb3 zero
+1144:47 50        rmb4 zero
+1146:57 50        rmb5 zero
+1148:67 50        rmb6 zero
+114a:77 50        rmb7 zero
+114c:         
+114c:2e 40 50     rol abs
+114f:3e 40 50     rol abs,x
+1152:2a           rol
+1153:26 50        rol zero
+1155:36 50        rol zero,x
+1157:           
+1157:6e 40 50     ror abs
+115a:7e 40 50     ror abs,x
+115d:6a           ror
+115e:66 50        ror zero
+1160:76 50        ror zero,x
+1162:         
+1162:40           rti
+1163:60           rts
+1164:         
+1164:ed 40 50     sbc abs
+1167:fd 40 50     sbc abs,x
+116a:f9 40 50     sbc abs,y
+116d:e9 00        sbc #0
+116f:e5 50        sbc zero
+1171:e1 50        sbc (zero,x)
+1173:f5 50        sbc zero,x
+1175:f2 50        sbc (zero)
+1177:f1 50        sbc (zero),y
+1179:         
+1179:38           sec
+117a:f8           sed
+117b:78           sei
+117c:         
+117c:87 50        smb0 zero
+117e:97 50        smb1 zero
+1180:a7 50        smb2 zero
+1182:b7 50        smb3 zero
+1184:c7 50        smb4 zero
+1186:d7 50        smb5 zero
+1188:e7 50        smb6 zero
+118a:f7 50        smb7 zero
+118c:         
+118c:8d 40 50     sta abs
+118f:9d 40 50     sta abs,x
+1192:99 40 50     sta abs,y
+1195:85 50        sta zero
+1197:81 50        sta (zero,x)
+1199:95 50        sta zero,x
+119b:92 50        sta (zero)
+119d:91 50        sta (zero),y
+119f:         
+119f:db           stp
+11a0:         
+11a0:8e 40 50     stx abs
+11a3:86 50        stx zero
+11a5:96 50        stx zero,y
+11a7:         
+11a7:8c 40 50     sty abs
+11aa:84 50        sty zero
+11ac:94 50        sty zero,x
+11ae:         
+11ae:9c 40 50     stz abs
+11b1:9e 40 50     stz abs,x
+11b4:64 50        stz zero
+11b6:74 50        stz zero,x
+11b8:         
+11b8:aa           tax
+11b9:a8           tay
+11ba:             
+11ba:14 50        trb zero
+11bc:04 50        tsb zero
+11be:         
+11be:ba           tsx
+11bf:8a           txa
+11c0:9a           txs
+11c1:98           tya
+11c2:cb           wai
+11c3:
