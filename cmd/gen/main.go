@@ -201,7 +201,7 @@ func main() {
 		h[bits.Reverse8(uint8(n))>>1] = s
 	}
 
-	fmt.Println("isns:")
+	fmt.Printf("*=*%%100\nisns:\n")
 
 	total := 0
 
@@ -241,7 +241,15 @@ func main() {
 		}
 		panic(s)
 	}
-	for s, o := range ops {
+
+	sorted := make([]string, 0, len(ops))
+	for s := range ops {
+		sorted = append(sorted, s)
+	}
+	sort.Strings(sorted)
+
+	for _, s := range sorted {
+		o := ops[s]
 		fmt.Printf(":%s\n", s)
 		fmt.Printf(" .db ")
 		comma := false

@@ -26,7 +26,7 @@ options=$bf00
     lda #$ff
     sta ePtr
     bra begin
-    
+
 usage:
     ldx #<usageStr
     ldy #>usageStr
@@ -34,13 +34,19 @@ usage:
     jmp exit
 
 begin:
+    stz $00             ; select system bank for params
+    lda #4
+    sta $01             ; select rom bank 4
+    jsr getOpt
+    cmp #0
+    bne :got
     jsr askArgs         ; get interactively
     cmp #0
     beq usage
 :got
     jsr ioCopySourceName
     sta inputOpt        ; source filename length
-    lda ptr    
+    lda ptr
     sta inputName
     lda ptr+1
     sta inputName+1
@@ -51,7 +57,7 @@ begin:
     jsr ioCopyDestName
     sta outOpt          ; dest filename length
     stx outName
-    sty outName+1    
+    sty outName+1
 :nooutOpt
 
     jsr getOpt          ; listing
@@ -63,7 +69,7 @@ begin:
     sta listName
     lda ptr+1
     sta listName+1
-:nolistOpt    
+:nolistOpt
 
 asmPass:
     stz symScope
@@ -86,7 +92,7 @@ asmPass:
     inc
     jsr ioPrintHex
     lda #13             ; cr
-    jsr CHROUT    
+    jsr CHROUT
 
 :line
     jsr ioListing       ; possibly show pc for listing
@@ -96,7 +102,7 @@ asmPass:
     beq :next
 
     jsr lineAsm         ; assemble line
-    jsr asmError        ; poll for error     
+    jsr asmError        ; poll for error
 
     lda pass
     bpl :line           ; listing output in second pass, if enabled
@@ -105,7 +111,7 @@ asmPass:
 
     jsr ioPadListing
 
-    ldx #0    
+    ldx #0
 :listLine
     lda lineBuf,x
     beq :listed         ; eof
@@ -119,7 +125,7 @@ asmPass:
     jsr ioEmit
     bra :line
 
-:next    
+:next
     lda pass            ; maybe done if non-z pass
     bne :listing
     inc                 ; pass++
@@ -137,7 +143,7 @@ asmPass:
     sta emit
     lda #>ioEmit
     sta emit+1
-    jmp asmPass         ; go around again    
+    jmp asmPass         ; go around again
 
 :listing
     jsr ioClose         ; flush and close output or listing
@@ -182,7 +188,7 @@ askArgs:
     jsr CHROUT
     stz optPtr
     jmp getOpt
-    
+
 asmDone:
     ldx #<symendStr     ; "symend="
     ldy #>symendStr
@@ -210,7 +216,7 @@ exit:
     ldx asmSP           ; get top level stack pointer
     txs
     rts                 ; exit out completely    
-    
+
 asmError:
     lda error           ; error non-z?
     beq :fine

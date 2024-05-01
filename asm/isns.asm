@@ -14,13 +14,13 @@ isnGet:
     ;
     lda lineBuf,x
     sec
-    sbc #'a 
+    sbc #'a
     asl
     asl
     sta isn2
     lda lineBuf+1,x
     sec
-    sbc #'a     
+    sbc #'a
     sta isn1
     lsr
     lsr
@@ -46,7 +46,7 @@ isnGet:
     lda isn2        ; hi cmp
     cmp isns+1,y
     bne :cmp        ; if =, continue with lo cmp
-    
+
     lda isn1        ; lo cmp
     cmp isns,y
     beq :found      ; if =, found
@@ -59,7 +59,7 @@ isnGet:
 :lo
     jsr :next       ; advance
     bcs :not
-    
+
     asl incr        ; double incr for next advance
     bcc :loop
 :not
@@ -68,7 +68,7 @@ isnGet:
 :found
     clc             ; C=0 to indicate found
     sty isnOp
-    rts    
+    rts
 
 :next
     tya             ; y += incr
@@ -89,7 +89,7 @@ opResolve:
 
     ; can we zp this?
     lda arg+1       ; no, it is a 16 bit arg
-    bne :try    
+    bne :try
 
     lda isnMode     ; does this have a potential zp version?
     cmp #5
@@ -113,10 +113,6 @@ opResolve:
     lda (ptr),y
     bne :found
 
-    ldy #modeBitRel
-    lda (ptr),y
-    bne :found
-
     bra :err
     
 :imp
@@ -135,6 +131,6 @@ opResolve:
 :err
     sec
     rts
-        
+
     .in 'isns-table.asm'
 

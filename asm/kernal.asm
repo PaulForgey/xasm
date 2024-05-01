@@ -43,5 +43,8 @@ IOBASE  =$fff3
 MCIOUT  =$feb1
 MACPTR  =$ff44
 
+VAL1    =$fe09
+MOVMF   =$fe66
+
     .fi ; kernalAsm
 
