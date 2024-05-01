@@ -245,12 +245,15 @@
 11b8:aa           tax
 11b9:a8           tay
 11ba:             
-11ba:14 50        trb zero
-11bc:04 50        tsb zero
-11be:         
-11be:ba           tsx
-11bf:8a           txa
-11c0:9a           txs
-11c1:98           tya
-11c2:cb           wai
-11c3:
+11ba:1c 40 50     trb abs
+11bd:14 50        trb zero
+11bf:         
+11bf:0c 40 50     tsb abs
+11c2:04 50        tsb zero
+11c4:         
+11c4:ba           tsx
+11c5:8a           txa
+11c6:9a           txs
+11c7:98           tya
+11c8:cb           wai
+11c9:

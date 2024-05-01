@@ -245,7 +245,10 @@ abs=$5040
     tax
     tay
     
+    trb abs
     trb zero
+
+    tsb abs
     tsb zero
 
     tsx
