@@ -3,15 +3,16 @@
 ;
 ; initialize hash table
 symInit:
+    lda #<symbols
+    sta symEnd
     lda #>symbols
     sta symEnd+1
-    stz symEnd
-    ldx #0    
+    ldx #0
 
 :fill
     stz hashTable,x
     inx
-    bne :fill    
+    bne :fill
 
     rts
 
@@ -42,7 +43,7 @@ symGet:
 :next
     jsr ptrNext
     beq :notFound
-    
+
     ; compare scope
     lda (ptr),y
     cmp symScope
@@ -51,17 +52,17 @@ symGet:
     lda (ptr),y
     cmp symScope+1
     bne :next
-    
+
     ; found!
     rts
-    
+
 :notFound
     ; push our scoped entry
     ; ptr = symEnd
     ; symEnd += 7
     lda #7
     jsr symPush
-    
+
 
     ; nptr = (string).symbols
     ; (string).symbols = ptr
@@ -76,10 +77,9 @@ symGet:
     sta nptr+1
     lda ptr+1
     sta (string),y
-    
 
     ; (ptr++)=nptr
-    ; next linkage 
+    ; next linkage
     ldy #0
     lda nptr
     sta (ptr),y
@@ -88,7 +88,7 @@ symGet:
     lda nptr+1
     sta (ptr),y
     iny
-    
+
     ; (ptr++)=scope
     lda symScope
     sta (ptr),y
@@ -97,20 +97,20 @@ symGet:
     lda symScope+1
     sta (ptr),y
     iny
-    
+
     ; (ptr++)=0
     ; zero out flags when creating
     lda #0
     sta (ptr),y
     iny
-    
+
     ; (++ptr)=non-zero
     ; default value (forward decl) not presumed to be zero page
     iny
     tya
     sta (ptr),y
-    
-    rts    
+
+    rts
 
 
 ; layout of a string entry:
@@ -148,7 +148,7 @@ strGet:
     ; found/created, result in ptr
 :done
     rts
-    
+
 :notFound
     ; write new entry to head of list
     ; nptr = hashEntry
@@ -156,7 +156,6 @@ strGet:
     sta nptr
     lda hashTable+1,x
     sta nptr+1
-
 
     ; hash = symEnd
     ; ptr = symEnd
@@ -185,7 +184,7 @@ strGet:
     lda nptr+1
     sta (ptr),y
     iny
-    
+
     ; (ptr++) = $0000
     ; (symbol entries pointer)
     lda #0
@@ -193,11 +192,10 @@ strGet:
     iny
     sta (ptr),y
     iny
-    
+
     ; (ptr) = symLength
     lda symLength
     sta (ptr),y
-
 
     ; string = ptr+5
     lda ptr
@@ -207,17 +205,16 @@ strGet:
     lda ptr+1
     adc #0
     sta string+1
-    
-    
+
     ldy #0
 :copy
     cpy symLength
-    beq :done    
+    beq :done
     lda (symLabel),y
     sta (string),y
     iny
     bne :copy
-    
+
 ;
 ; compute hash value for counted string
 strHash:
@@ -232,7 +229,7 @@ strHash:
     iny
     dey
     bne :loop
-    
+
     ; truncate to 7 bit
 :done
     asl

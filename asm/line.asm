@@ -21,34 +21,34 @@ lineAsm:
 :label
     stz ptr         ; assume no label yet
     stz ptr+1
-    
+
     stx labelEnd
     cpx #0          ; no label
     beq :post
-    
+
     bit lineIfs     ; test if we are if'd out
     bmi :post
-    
+
     jsr linePinLabel
-    
+
 :post
     jsr lineNextTokenExit
-        
+
     cmp #'=
     bne :op
 
     bit lineIfs
     bmi :opdone
-    
+
     inx             ; skip '='
     lda ptr
     sta assign      ; assign=ptr
     lda ptr+1
     beq :assignError
     sta assign+1
-    
+
     jsr lineEval    ; eval rhs
-    
+
     ldy #5          ; store evaluated result
     lda arg
     sta (assign),y
@@ -65,7 +65,7 @@ lineAsm:
     beq :dot
 
     bit lineIfs
-    bmi :opdone     ; if'd out    
+    bmi :opdone     ; if'd out
 
     jmp lineIsn
 
@@ -100,12 +100,12 @@ lineAsm:
     beq :stardone
 :stardo
     lda #0
-    jsr lineEmit    ; emit zeros until desired pc     
+    jsr lineEmit    ; emit zeros until desired pc
     bra :starloop
 
 :stardone
 :opdone
-    rts    
+    rts
 
 :dot
     inx             ; skip '.'
@@ -171,6 +171,8 @@ lineAsm:
     beq :DBb
     cpy #'w
     beq :DWb
+    cpy #'f
+    beq :DFb
     bra :dotOpError
 
 :ORb
@@ -190,6 +192,9 @@ lineAsm:
     
 :DWb
     jmp :DW
+
+:DFb
+    jmp :DF
 
 :EL
     bit lineIfd     ; have we chosen our destiny
@@ -212,7 +217,7 @@ lineAsm:
     lda #$80        ; stay false
     tsb lineIfs     ; prior destiny has already been set
     rts
-    
+
 :elseif
     jsr lineEval
     jsr lineTruth
@@ -224,7 +229,7 @@ lineAsm:
     asl
     ror lineIfs
     jmp lineAssertEnd
-    
+
 :FI
     asl lineIfs     ; pop if stack
     asl lineIfd     ; pop destiny stack
@@ -241,7 +246,7 @@ lineAsm:
     jsr lineEval
     lda arg         ; send it
     jsr lineEmit
-    
+
     bra :DB
 
 :DBcomma
@@ -254,7 +259,7 @@ lineAsm:
     beq :stringEOF
     cmp #''
     beq :DBcomma
-    
+
     jsr lineEmit    ; send it
     bra :string
 :stringEOF
@@ -264,25 +269,66 @@ lineAsm:
     jsr lineNextTokenExit
     cmp #',
     beq :DWcomma
-    
+
     jsr lineEval
 
     lda arg         ; send it
     jsr lineEmit
     lda arg+1
     jsr lineEmit
-    
+
     bra :DW
-    
+
 :DWcomma
     inx             ; consume ',' ready for next word
     bra :DW
 
+:DF
+    jsr lineNextTokenExit
+
+    stx emitX
+:DFscan
+    jsr lineEnd
+    beq :DFscanned
+    cmp #',
+    beq :DFscanned
+    inx
+    bne :DFscan
+
+:DFscanned
+    stx scratch
+    txa
+    sec
+    sbc emitX       ; A: length
+    ldx emitX       ; X/Y: string
+    ldy #>lineBuf
+    jsr VAL1
+    ldx #<fpack
+    ldy #>fpack
+    jsr MOVMF       ; pack FACC->constant
+
+    ldx scratch     ; get X back
+    ldy #0
+
+:DFemit
+    lda fpack,y     ; write 5 byte packed output
+    jsr lineEmit
+    iny
+    cpy #5
+    bne :DFemit
+
+:DFnext
+    lda lineBuf,x
+    cmp #',
+    bne :DF
+    inx             ; consume ,
+    bra :DF
+
 :OR
     jsr lineAssertToken
-    
+
     jsr lineEval
-    
+
     lda arg
     sta pc
     lda arg+1
@@ -294,7 +340,7 @@ lineAsm:
     jmp ioPush
 
 :IB
-    jsr lineGetName    
+    jsr lineGetName
     rts             ; XXX write binary file
 
 :IF
@@ -302,7 +348,7 @@ lineAsm:
 
     bit lineIfs
     bmi :falseIf
-    
+
     jsr lineEval
     jsr lineTruth
     lda arg+1
@@ -313,7 +359,7 @@ lineAsm:
     eor #$80
     asl             ; truth->C
     ror lineIfs     ; push if stack
-    jmp lineAssertEnd    
+    jmp lineAssertEnd
 
 :falseIf
     sec
@@ -376,7 +422,7 @@ lineTruth:
     sta arg+1
 :false
     rts
-   
+
 ;
 ; emit byte
 ; pc incremented, (emit) called
@@ -388,7 +434,7 @@ lineEmit:
     jsr :doEmit
     bcs lineEmitError
     rts
-    
+
 :doEmit
     jmp (emit)
 
@@ -401,7 +447,7 @@ lineOpError:
 ; isn (arg) part
 lineIsn:
     jsr isnGet
-    bcs lineOpError     
+    bcs lineOpError
     lda #modeImp
     sta isnMode     ; assume implied
     stz isnBit      ; start not assuming bit instruction
@@ -412,7 +458,7 @@ lineIsn:
     bcc :notbitn
     sta isnBit      ; '0'-'7' if this is a bitn
     inx
-    
+
 :notbitn
     jsr lineNextToken
     beq :gob        ; implied
@@ -425,7 +471,7 @@ lineIsn:
 
     lda #modeAbs    ; abs (so far)
     sta isnMode
-    
+
     lda lineBuf,x
     cmp #',
     bne :gob
@@ -437,7 +483,7 @@ lineIsn:
     beq :absx
     cmp #'y
     beq :absy
-    
+
     lda arg
     sta argZ        ; zp,rel
     jsr lineEval
@@ -501,9 +547,9 @@ lineIsn:
     cmp #')
     bne :modeError
     inx
-    
+
     lda #modeAbsIndX ; (ind,x)
-    sta isnMode        
+    sta isnMode
     bra :go
 
 :indy
@@ -518,12 +564,12 @@ lineIsn:
     cmp #'y
     bne :modeError
     inx
-    
+
     lda #modeZeroIndY
     sta isnMode     ; (ind),y
     ; fall thru
-    
-    ; resolved address mode    
+
+    ; resolved address mode
 :go
     jsr lineAssertEnd
     lda isnBit      ; check for bitn
@@ -541,21 +587,21 @@ lineIsn:
     lda #modeBitZero
     sta isnMode
 
-:notbit    
+:notbit
     lda isnOp
     cmp #$54        ; BRK is special
-    beq :brk        
+    beq :brk
 
     jsr opResolve   ; opcode in a
     bcs :modeErrorb
-    
+
     adc isnBit      ; if bitn, adjust
-    jsr lineEmit    ; opcode    
+    jsr lineEmit    ; opcode
 
     lda isnMode
     cmp #modeRel
     beq :rel
-    cmp #modeBitRel 
+    cmp #modeBitRel
     bne :notrel
 
     lda argZ
@@ -589,7 +635,7 @@ lineIsn:
     cpx arg+1
     bne :relError
 
-:pass0    
+:pass0
     jmp lineEmit    ; send it
 
 :brk
@@ -598,30 +644,28 @@ lineIsn:
     bne :modeErrorb
     lda #0
     jmp lineEmit    ; emit the single $00
-    
+
 :modeErrorb
     jmp :modeError
-        
-:notrel:    
+
+:notrel
     cmp #modeImp
     beq :done
-    
+
     lda arg         ; low byte or zp
     jsr lineEmit
 
-    lda isnMode    
+    lda isnMode
     cmp #5
     bcs :done
-    
+
     lda arg+1       ; high byte
     jmp lineEmit
-
-:done
-    rts
 
 :relError
     lda #errorRel
     sta error
+:done
     rts
 
 ;
@@ -645,7 +689,7 @@ lineGetName:
     ldx scratch
     ldy #>lineBuf
     jmp ioCopySourceName
-    
+
 lineErrorDotArg:
     lda #errorDotArg
     sta error
@@ -658,8 +702,8 @@ lineEnd:
     beq :out        ; eof
     cmp #';
 :out
-    rts 
-    
+    rts
+
 ;
 ; Z=1 if at end (; or eof)
 lineNextToken:
@@ -688,7 +732,7 @@ lineExit:
 :out
     rts
 
-;    
+;
 ; lineEnd with fast exit
 lineEndExit:
     jsr lineEnd
@@ -706,8 +750,8 @@ lineAssertEnd:
     sta error
     bra lineExit
 :out
-    rts 
-   
+    rts
+
 ;
 ; lineNextToken with an error and fast exit if at end
 lineAssertToken:
@@ -729,3 +773,4 @@ lineEval
     bra lineExit
 :out
     rts
+

@@ -77,7 +77,7 @@ ioCopyDestName:
     lda #'w
     sta (ptr),y
     iny
-    
+
     tya
     ldy ptr+1
     rts
@@ -184,7 +184,7 @@ ioOpenDest:
     sta error
 :opened
     rts
-    
+
 ;
 ; push input file a/x/y
 ioPush:
@@ -192,7 +192,7 @@ ioPush:
     stx ptr
     sty ptr+1
     jsr CLRCHN
-    
+
     ldy ioPtr       ; push current state
 
     lda ioLFN       ; push current LFN (zero is done)
@@ -202,11 +202,11 @@ ioPush:
     lda ioDev       ; device
     sta ioStack,y
     dey
-    
+
     lda ioStatus    ; status
     sta ioStack,y
     dey
-    
+
     lda ioName+1    ; filename
     sta ioStack,y
     dey
@@ -217,16 +217,16 @@ ioPush:
     lda ioNameL     ; filename length
     sta ioStack,y
     dey
-    
+
     lda ioLine+1    ; line
     sta ioStack,y
     dey
     lda ioLine
     sta ioStack,y
     dey
-    
+
     sty ioPtr       ; current state all pushed
-    
+
     ; TODO: parse for @device:
 
     lda scratch     ; scratch/ptr -> nameL/name
@@ -236,7 +236,7 @@ ioPush:
     ldy ptr+1
     sty ioName+1
     jsr SETNAM      ; filename
-        
+
     jsr ioAlloc     ; device secondary in Y
     bcs :toomany
     iny
@@ -246,7 +246,7 @@ ioPush:
     tya             ; use LFN=device secondary
     sta ioLFN
     jsr SETLFS
-    
+
     jsr OPEN        ; open the file
     bcs :error
     ldx ioLFN
@@ -255,7 +255,7 @@ ioPush:
     stz ioLine
     stz ioLine+1
     jmp ioReadStatus
-    
+
 :error
     sta ioStatus
     lda #errorIO
@@ -280,7 +280,7 @@ ioPop:
     jsr ioDealloc   ; deallocate device secondary
 
     ldy ioPtr
-    
+
     iny             ; line number
     lda ioStack,y
     sta ioLine
@@ -290,8 +290,8 @@ ioPop:
 
     iny             ; filename length
     lda ioStack,y
-    sta ioNameL    
-    
+    sta ioNameL
+
     iny             ; filename
     lda ioStack,y
     sta ioName
@@ -302,7 +302,7 @@ ioPop:
     iny             ; status
     lda ioStack,y
     sta ioStatus
-    
+
     iny
     lda ioStack,y   ; device
     sta ioDev
@@ -312,11 +312,11 @@ ioPop:
     stx ioLFN
     
     sty ioPtr
-    
+
     beq :zero       ; do not redirect from 0
     jmp CHKIN       ; this also becomes our current input
-:zero    
-    rts 
+:zero
+    rts
 
 ;
 ; allocate device secondary
@@ -367,7 +367,7 @@ ioReadLine:
 :done
     rts             ; end of all files
 
-:next    
+:next
     sed             ; increment bcd line number
     clc
     lda ioLine
@@ -421,7 +421,7 @@ ioEmit:
     jsr ioFlushAlways
 :out
     ldx emitX
-    ldy emitY 
+    ldy emitY
     rts
 
 ;
@@ -430,7 +430,7 @@ ioEmitListing:
     jsr ioHex
     lda #32
     jsr ioEmit
-    bcs :out    
+    bcs :out
     inc ioColumn
     lda ioColumn
     cmp #8
@@ -444,7 +444,7 @@ ioEmitListing:
 
 
 ;
-; flush any unwritten output    
+; flush any unwritten output
 ioFlush:
     lda ioOutPtr
     beq ioSuccess
@@ -564,7 +564,7 @@ ioPadListing:
     bmi :done
     ldy #3
     jsr :spaces
-    bra :loop        
+    bra :loop
 :nextLine
     lda #13         ; cr
     jsr ioEmit
@@ -599,7 +599,7 @@ ioPrintHex:
 :num
     adc #'0
     jmp CHROUT
-          
+
 ;
 ; emit hex byte in A
 ioHex:

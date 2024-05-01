@@ -72,7 +72,7 @@ eEval:
     ldy #$80        ; indicate unary
     sty eOp
     ; fall thru
-    
+
 :op
     inx
 
@@ -98,12 +98,12 @@ eEval:
     lda lineBuf,x
     cmp #'=
     bne :opone 
-    
+
     inx             ; this is >=, <=, or !=
     lda #$40        ; add 64 to indicate = suffix
     ora eOp
     sta eOp
-    
+
 :opone
     jsr ePush
     stz eState
@@ -237,25 +237,25 @@ eExecOne:
 
 :notb
     jmp :not
-    
+
 :lob
     jmp :lo
-    
+
 :hib
     jmp :hi
-    
+
 :eqb
     jmp :eq
-    
+
 :gtb
     jmp :gt
-    
+
 :ltb
     jmp :lt
-    
+
 :geb
     jmp :ge
-    
+
 :leb
     jmp :le
 
@@ -270,7 +270,7 @@ eExecOne:
 :assign
     clc
     rts
-    
+
 ;
 ; arg+=term
 :add
@@ -283,7 +283,7 @@ eExecOne:
     sta arg+1
     clc
     rts
-    
+
 ;
 ; arg=term-arg
 :sub
@@ -296,7 +296,7 @@ eExecOne:
     sta arg+1
     clc
     rts
-    
+
 ;
 ; arg&=term
 :and
@@ -320,7 +320,7 @@ eExecOne:
     sta arg+1
     clc
     rts
-    
+
 ;
 ; arg^=term
 :xor
@@ -351,7 +351,7 @@ eExecOne:
     lda arg+1
     sta arg
     ; fall thru
-    
+
 ;
 ; arg=<arg
 :lo
@@ -380,7 +380,7 @@ eExecOne:
     cmp term
     bcc :true
     bra :false
-    
+
 ;
 ; term<arg?
 :lt
@@ -390,7 +390,7 @@ eExecOne:
     lda term
     cmp arg
     bcc :true
-    bra :false    
+    bra :false
 
 ;
 ; term>=arg?
@@ -402,7 +402,7 @@ eExecOne:
     cmp arg
     bcc :false
     bra :true
-    
+
 ; term<=arg?
 :le
     lda arg+1
@@ -412,7 +412,7 @@ eExecOne:
     cmp term
     bcc :false
     bra :true
-    
+
 ; term!=arg?
 :ne
     lda arg+1
@@ -429,7 +429,7 @@ eExecOne:
     sta arg+1
     clc
     rts
-    
+
 :false
     stz arg
     stz arg+1
@@ -462,10 +462,10 @@ eDec:
     rol scratch+1
     asl scratch
     rol scratch+1
-    
+
     asl arg         ; arg=arg*2
     rol arg+1
-     
+
     lda arg         ; arg=arg+scratch
     clc
     adc scratch
@@ -473,7 +473,7 @@ eDec:
     lda arg+1
     adc scratch+1
     sta arg+1
-    
+
     lda lineBuf,x
     sec
     sbc #'0
@@ -496,7 +496,7 @@ eHex:
     rol arg+1
     asl arg
     rol arg+1
-    
+
     lda lineBuf,x
     sec
     sbc #'9+1
@@ -509,7 +509,7 @@ eHex:
     ora arg
     sta arg
     rts
-    
+
 ;
 ; add binary digit in lineBuf,x to arg
 eBin:
@@ -520,7 +520,7 @@ eBin:
     ora arg
     sta arg
     rts
-    
+
 ;
 ; push arg,op,state
 ePush:
@@ -540,11 +540,11 @@ ePush:
 
     sty ePtr
 
-    stz eOp    
+    stz eOp
     stz arg
     stz arg+1
     rts
-    
+
 ;
 ; pop term,op,state
 ePop:
@@ -572,12 +572,12 @@ eIsDec:
     lda lineBuf,x
     cmp #'9+1
     bcs eIsNot
-    
+
     cmp #'0
     rts
 
 eIsNot:
-    clc    
+    clc
     rts
 
 ;
@@ -625,10 +625,10 @@ eIsBin:
 eIsAlpha:
     lda lineBuf,x
     jsr ePet
-    
+
     cmp #'z+128+1   ; 'Z'
     bcs eIsNot      ; > 'Z'
-    
+
     cmp #'a
     bcc :out        ; < 'a'
 
@@ -663,12 +663,12 @@ eResolveSym:
     sta tScope
     lda symScope+1
     sta tScope+1
-    
+
     ldy labelPtr    ; start of label sequence
     lda lineBuf,y
     cmp #':
     beq :loop
-    
+
     stz symScope    ; global scope
     stz symScope+1
 
@@ -685,11 +685,11 @@ eResolveSym:
     sta symScope
     lda ptr+1
     sta symScope+1
-    
+
 :skip
     cpy labelEnd
     bne :loop
-    
+
 :done
     clc
     ldy #4
@@ -697,8 +697,8 @@ eResolveSym:
     bne :fine
     lda pass
     beq :fine
-    sec             ; set error    
-    
+    sec             ; set error
+
 :fine
     iny             ; symbol value in arg
     lda (ptr),y
@@ -712,8 +712,8 @@ eResolveSym:
     lda tScope+1
     sta symScope+1
 
-    rts 
-    
+    rts
+
 :next
     tya             ; point symLabel at lineBuf+y
     clc
@@ -734,4 +734,4 @@ eResolveSym:
     bne :search
 :out
     rts
-           
+
