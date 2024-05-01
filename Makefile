@@ -3,7 +3,10 @@ ASMS=	$(wildcard asm/*.asm)
 PETS=	$(patsubst asm/%,disk/%,$(ASMS))
 
 .PHONY: all
-all: disk disk/XASM2
+all: disk disk/XASM2 disk/XASM.LST
+
+.PHONY: pets
+pets: disk $(PETS)
 
 .PHONY: dist
 dist: disk/XASM2 disk/XASM.LST
@@ -13,7 +16,7 @@ dist: disk/XASM2 disk/XASM.LST
 disk:
 	mkdir -p disk
 
-disk/XASM2: disk/xasm $(PETS)
+disk/XASM2 disk/XASM.LST: disk/xasm $(PETS)
 	./build.sh
 
 disk/xasm: bin/xasm.prg

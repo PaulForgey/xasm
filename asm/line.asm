@@ -1,5 +1,4 @@
     .in 'zp.asm'
-    .in 'error.asm'
     .in 'mode.asm'
 
 ;
@@ -70,12 +69,12 @@ lineAsm:
     jmp lineIsn
 
 :assignError
-    lda #errorAssign
+    lda #errors:assign
     sta error
     rts
 
 :backwardError
-    lda #errorBackward
+    lda #errors:backward
     sta error
     rts
 
@@ -132,7 +131,7 @@ lineAsm:
     ; fall thru
 
 :dotOpError
-    lda #errorDotOp
+    lda #errors:dotOp
     sta error
     rts
 
@@ -401,12 +400,12 @@ linePinLabel:
     rts
 
 :dupLabel
-    lda #errorDupLabel
+    lda #errors:dupLabel
     sta error
     jmp lineExit
 
 lineEmitError:
-    lda #errorEmit
+    lda #errors:emit
     sta error
     jmp lineExit
 
@@ -439,7 +438,7 @@ lineEmit:
     jmp (emit)
 
 lineOpError:
-    lda #errorOp
+    lda #errors:op
     sta error
     rts
 
@@ -493,7 +492,7 @@ lineIsn:
     jmp :go
 
 :modeError:
-    lda #errorMode
+    lda #errors:mode
     sta error
     rts
 
@@ -663,7 +662,7 @@ lineIsn:
     jmp lineEmit
 
 :relError
-    lda #errorRel
+    lda #errors:rel
     sta error
 :done
     rts
@@ -691,7 +690,7 @@ lineGetName:
     jmp ioCopySourceName
 
 lineErrorDotArg:
-    lda #errorDotArg
+    lda #errors:dotArg
     sta error
     bra lineExit
 
@@ -746,7 +745,7 @@ lineEndExit:
 lineAssertEnd:
     jsr lineNextToken
     beq :out
-    lda #errorParse
+    lda #errors:parse
     sta error
     bra lineExit
 :out
@@ -757,7 +756,7 @@ lineAssertEnd:
 lineAssertToken:
     jsr lineNextToken
     bne :out
-    lda #errorNoArg
+    lda #errors:noArg
     sta error
     bra lineExit
 :out
@@ -768,7 +767,7 @@ lineAssertToken:
 lineEval
     jsr eEval
     bcc :out
-    lda #errorEval
+    lda #errors:eval
     sta error
     bra lineExit
 :out
