@@ -180,7 +180,7 @@ ioOpenDest:
     jsr OPEN
     bcc :opened
     sta ioStatus
-    lda #errorIO
+    lda #errors:io
     sta error
 :opened
     rts
@@ -258,12 +258,12 @@ ioPush:
 
 :error
     sta ioStatus
-    lda #errorIO
+    lda #errors:io
     sta error
     rts
 
 :toomany
-    lda #errorTooMany
+    lda #errors:tooMany
     sta error
     rts
 
@@ -401,7 +401,7 @@ ioReadStatus:
     sta ioStatus
     bit #$bf        ; everything except eof
     beq :done
-    lda #errorIO
+    lda #errors:io
     sta error
 :done
     bit #$ff        ; leave Z=0 if EOF
@@ -483,7 +483,7 @@ ioFlushAlways:
     cmp #0
     beq ioSuccess
     sta ioStatus
-    lda #errorIO
+    lda #errors:io
     sta error
     sec
     rts
@@ -639,30 +639,47 @@ ioPrint:
 ; print errror message
 ioPrintErr:
     lda error
-    asl
     tax
     lda :table,x
     ldy :table+1,x
     tax
     jmp ioPrint
 :table
-    ; keep syncd with error.asm
-    .dw :fine
-    .dw :dupLabel
-    .dw :star
-    .dw :backward
-    .dw :eval
-    .dw :assign
-    .dw :dotOp
-    .dw :op
-    .dw :mode
-    .dw :rel
-    .dw :parse
-    .dw :noArg
-    .dw :emit
-    .dw :dotArg
-    .dw :io
-    .dw :tooMany
+errors:
+:fine	=*-errors
+    .dw :strings:fine
+:dupLabel=*-errors
+    .dw :strings:dupLabel
+:star	=*-errors
+    .dw :strings:star
+:backward=*-errors
+    .dw :strings:backward
+:eval	=*-errors
+    .dw :strings:eval
+:assign	=*-errors
+    .dw :strings:assign
+:dotOp	=*-errors
+    .dw :strings:dotOp
+:op	=*-errors
+    .dw :strings:op
+:mode	=*-errors
+    .dw :strings:mode
+:rel	=*-errors
+    .dw :strings:rel
+:parse	=*-errors
+    .dw :strings:parse
+:noArg	=*-errors
+    .dw :strings:noArg
+:emit	=*-errors
+    .dw :strings:emit
+:dotArg	=*-errors
+    .dw :strings:dotArg
+:io	=*-errors
+    .dw :strings:io
+:tooMany=*-errors
+    .dw :strings:tooMany
+
+errors:strings:
 :fine
     .db 'fine',0
 :dupLabel

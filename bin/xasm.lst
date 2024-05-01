@@ -1307,9 +1307,6 @@
 0eac:             .in 'zp.asm'
 0eac:             .fi ; zpAsm
 0eac:         
-0eac:             .in 'error.asm'
-0eac:             .fi ; errorAsm
-0eac:         
 0eac:             .in 'mode.asm'
 0eac:             .fi ; modeAsm
 0eac:         
@@ -1383,12 +1380,12 @@
 0f08:4c 0d 11     jmp lineIsn
 0f0b:         
 0f0b:         :assignError
-0f0b:a9 05        lda #errorAssign
+0f0b:a9 0a        lda #errors:assign
 0f0d:85 43        sta error
 0f0f:60           rts
 0f10:         
 0f10:         :backwardError
-0f10:a9 03        lda #errorBackward
+0f10:a9 06        lda #errors:backward
 0f12:85 43        sta error
 0f14:60           rts
 0f15:         
@@ -1445,7 +1442,7 @@
 0f5f:             ; fall thru
 0f5f:         
 0f5f:         :dotOpError
-0f5f:a9 06        lda #errorDotOp
+0f5f:a9 0c        lda #errors:dotOp
 0f61:85 43        sta error
 0f63:60           rts
 0f64:         
@@ -1714,12 +1711,12 @@
 10dd:60           rts
 10de:         
 10de:         :dupLabel
-10de:a9 01        lda #errorDupLabel
+10de:a9 02        lda #errors:dupLabel
 10e0:85 43        sta error
 10e2:4c 9a 12     jmp lineExit
 10e5:         
 10e5:         lineEmitError:
-10e5:a9 0c        lda #errorEmit
+10e5:a9 18        lda #errors:emit
 10e7:85 43        sta error
 10e9:4c 9a 12     jmp lineExit
 10ec:         
@@ -1752,14 +1749,14 @@
 1105:6c 41 00     jmp (emit)
 1108:         
 1108:         lineOpError:
-1108:a9 07        lda #errorOp
+1108:a9 0e        lda #errors:op
 110a:85 43        sta error
 110c:60           rts
 110d:         
 110d:         ;
 110d:         ; isn (arg) part
 110d:         lineIsn:
-110d:20 6e 17     jsr isnGet
+110d:20 6d 17     jsr isnGet
 1110:b0 f6        bcs lineOpError
 1112:a9 07        lda #modeImp
 1114:85 28        sta isnMode     ; assume implied
@@ -1806,7 +1803,7 @@
 115a:4c c6 11     jmp :go
 115d:         
 115d:         :modeError:
-115d:a9 08        lda #errorMode
+115d:a9 10        lda #errors:mode
 115f:85 43        sta error
 1161:60           rts
 1162:         
@@ -1905,7 +1902,7 @@
 11e2:c9 54        cmp #$54        ; BRK is special
 11e4:f0 46        beq :brk
 11e6:         
-11e6:20 c3 17     jsr opResolve   ; opcode in a
+11e6:20 c2 17     jsr opResolve   ; opcode in a
 11e9:b0 4c        bcs :modeErrorb
 11eb:         
 11eb:65 45        adc isnBit      ; if bitn, adjust
@@ -1976,7 +1973,7 @@
 124b:4c f9 10     jmp lineEmit
 124e:         
 124e:         :relError
-124e:a9 09        lda #errorRel
+124e:a9 12        lda #errors:rel
 1250:85 43        sta error
 1252:         :done
 1252:60           rts
@@ -2004,7 +2001,7 @@
 126f:4c 6d 13     jmp ioCopySourceName
 1272:         
 1272:         lineErrorDotArg:
-1272:a9 0d        lda #errorDotArg
+1272:a9 1a        lda #errors:dotArg
 1274:85 43        sta error
 1276:80 22        bra lineExit
 1278:         
@@ -2059,7 +2056,7 @@
 12a6:         lineAssertEnd:
 12a6:20 80 12     jsr lineNextToken
 12a9:f0 06        beq :out
-12ab:a9 0a        lda #errorParse
+12ab:a9 14        lda #errors:parse
 12ad:85 43        sta error
 12af:80 e9        bra lineExit
 12b1:         :out
@@ -2070,7 +2067,7 @@
 12b2:         lineAssertToken:
 12b2:20 80 12     jsr lineNextToken
 12b5:d0 06        bne :out
-12b7:a9 0b        lda #errorNoArg
+12b7:a9 16        lda #errors:noArg
 12b9:85 43        sta error
 12bb:80 dd        bra lineExit
 12bd:         :out
@@ -2081,7 +2078,7 @@
 12be:         lineEval
 12be:20 30 0b     jsr eEval
 12c1:90 06        bcc :out
-12c3:a9 04        lda #errorEval
+12c3:a9 08        lda #errors:eval
 12c5:85 43        sta error
 12c7:80 d1        bra lineExit
 12c9:         :out
@@ -2275,7 +2272,7 @@
 13d4:20 c0 ff     jsr OPEN
 13d7:90 06        bcc :opened
 13d9:85 54        sta ioStatus
-13db:a9 0e        lda #errorIO
+13db:a9 1c        lda #errors:io
 13dd:85 43        sta error
 13df:         :opened
 13df:60           rts
@@ -2353,12 +2350,12 @@
 144f:         
 144f:         :error
 144f:85 54        sta ioStatus
-1451:a9 0e        lda #errorIO
+1451:a9 1c        lda #errors:io
 1453:85 43        sta error
 1455:60           rts
 1456:         
 1456:         :toomany
-1456:a9 0f        lda #errorTooMany
+1456:a9 1e        lda #errors:tooMany
 1458:85 43        sta error
 145a:60           rts
 145b:         
@@ -2496,7 +2493,7 @@
 150a:85 54        sta ioStatus
 150c:89 bf        bit #$bf        ; everything except eof
 150e:f0 04        beq :done
-1510:a9 0e        lda #errorIO
+1510:a9 1c        lda #errors:io
 1512:85 43        sta error
 1514:         :done
 1514:89 ff        bit #$ff        ; leave Z=0 if EOF
@@ -2578,7 +2575,7 @@
 1586:c9 00        cmp #0
 1588:f0 08        beq ioSuccess
 158a:85 54        sta ioStatus
-158c:a9 0e        lda #errorIO
+158c:a9 1c        lda #errors:io
 158e:85 43        sta error
 1590:38           sec
 1591:60           rts
@@ -2734,246 +2731,263 @@
 1662:         ; print errror message
 1662:         ioPrintErr:
 1662:a5 43        lda error
-1664:0a           asl
-1665:aa           tax
-1666:bd 70 16     lda :table,x
-1669:bc 71 16     ldy :table+1,x
-166c:aa           tax
-166d:4c 51 16     jmp ioPrint
-1670:         :table
-1670:             ; keep syncd with error.asm
-1670:90 16        .dw :fine
-1672:95 16        .dw :dupLabel
-1674:9f 16        .dw :star
-1676:a9 16        .dw :backward
-1678:b7 16        .dw :eval
-167a:c6 16        .dw :assign
-167c:d4 16        .dw :dotOp
-167e:e6 16        .dw :op
-1680:f1 16        .dw :mode
-1682:02 17        .dw :rel
-1684:16 17        .dw :parse
-1686:23 17        .dw :noArg
-1688:30 17        .dw :emit
-168a:3f 17        .dw :dotArg
-168c:51 17        .dw :io
-168e:5a 17        .dw :tooMany
-1690:         :fine
-1690:46 49 4e 45 00 
+1664:aa           tax
+1665:bd 6f 16     lda :table,x
+1668:bc 70 16     ldy :table+1,x
+166b:aa           tax
+166c:4c 51 16     jmp ioPrint
+166f:         :table
+166f:         errors:
+166f:         :fine	=*-errors
+166f:8f 16        .dw :strings:fine
+1671:         :dupLabel=*-errors
+1671:94 16        .dw :strings:dupLabel
+1673:         :star	=*-errors
+1673:9e 16        .dw :strings:star
+1675:         :backward=*-errors
+1675:a8 16        .dw :strings:backward
+1677:         :eval	=*-errors
+1677:b6 16        .dw :strings:eval
+1679:         :assign	=*-errors
+1679:c5 16        .dw :strings:assign
+167b:         :dotOp	=*-errors
+167b:d3 16        .dw :strings:dotOp
+167d:         :op	=*-errors
+167d:e5 16        .dw :strings:op
+167f:         :mode	=*-errors
+167f:f0 16        .dw :strings:mode
+1681:         :rel	=*-errors
+1681:01 17        .dw :strings:rel
+1683:         :parse	=*-errors
+1683:15 17        .dw :strings:parse
+1685:         :noArg	=*-errors
+1685:22 17        .dw :strings:noArg
+1687:         :emit	=*-errors
+1687:2f 17        .dw :strings:emit
+1689:         :dotArg	=*-errors
+1689:3e 17        .dw :strings:dotArg
+168b:         :io	=*-errors
+168b:50 17        .dw :strings:io
+168d:         :tooMany=*-errors
+168d:59 17        .dw :strings:tooMany
+168f:         
+168f:         errors:strings:
+168f:         :fine
+168f:46 49 4e 45 00 
                  .db 'fine',0
-1695:         :dupLabel
-1695:44 55 50 20 4c 41 42 45 
-169d:4c 00        .db 'dup label',0
-169f:         :star
-169f:53 54 41 52 20 45 58 50 
-16a7:52 00        .db 'star expr',0
-16a9:         :backward
-16a9:50 43 20 4d 4f 56 45 44 
-16b1:20 42 41 43 4b 00 
+1694:         :dupLabel
+1694:44 55 50 20 4c 41 42 45 
+169c:4c 00        .db 'dup label',0
+169e:         :star
+169e:53 54 41 52 20 45 58 50 
+16a6:52 00        .db 'star expr',0
+16a8:         :backward
+16a8:50 43 20 4d 4f 56 45 44 
+16b0:20 42 41 43 4b 00 
                  .db 'pc moved back',0
-16b7:         :eval
-16b7:42 41 44 20 45 58 50 52 
-16bf:45 53 53 49 4f 4e 00 
+16b6:         :eval
+16b6:42 41 44 20 45 58 50 52 
+16be:45 53 53 49 4f 4e 00 
                  .db 'bad expression',0
-16c6:         :assign
-16c6:42 41 44 20 41 53 53 49 
-16ce:47 4d 45 4e 54 00 
+16c5:         :assign
+16c5:42 41 44 20 41 53 53 49 
+16cd:47 4d 45 4e 54 00 
                  .db 'bad assigment',0
-16d4:         :dotOp
-16d4:55 4e 4b 4e 4f 57 4e 20 
-16dc:50 53 45 55 44 4f 20 4f 
-16e4:50 00        .db 'unknown pseudo op',0
-16e6:         :op
-16e6:55 4e 4b 4e 4f 57 4e 20 
-16ee:4f 50 00     .db 'unknown op',0
-16f1:         :mode
-16f1:42 41 44 20 41 44 44 52 
-16f9:45 53 53 20 4d 4f 44 45 
-1701:00           .db 'bad address mode',0
-1702:         :rel
-1702:42 52 41 4e 43 48 20 4f 
-170a:55 54 20 4f 46 20 52 41 
-1712:4e 47 45 00 
+16d3:         :dotOp
+16d3:55 4e 4b 4e 4f 57 4e 20 
+16db:50 53 45 55 44 4f 20 4f 
+16e3:50 00        .db 'unknown pseudo op',0
+16e5:         :op
+16e5:55 4e 4b 4e 4f 57 4e 20 
+16ed:4f 50 00     .db 'unknown op',0
+16f0:         :mode
+16f0:42 41 44 20 41 44 44 52 
+16f8:45 53 53 20 4d 4f 44 45 
+1700:00           .db 'bad address mode',0
+1701:         :rel
+1701:42 52 41 4e 43 48 20 4f 
+1709:55 54 20 4f 46 20 52 41 
+1711:4e 47 45 00 
                  .db 'branch out of range',0
-1716:         :parse
-1716:53 59 4e 54 41 58 20 45 
-171e:52 52 4f 52 00 
+1715:         :parse
+1715:53 59 4e 54 41 58 20 45 
+171d:52 52 4f 52 00 
                  .db 'syntax error',0
-1723:         :noArg
-1723:41 52 47 20 45 58 50 45 
-172b:43 54 45 44 00 
+1722:         :noArg
+1722:41 52 47 20 45 58 50 45 
+172a:43 54 45 44 00 
                  .db 'arg expected',0
-1730:         :emit
-1730:49 4f 20 57 52 49 54 45 
-1738:20 45 52 52 4f 52 00 
+172f:         :emit
+172f:49 4f 20 57 52 49 54 45 
+1737:20 45 52 52 4f 52 00 
                  .db 'io write error',0
-173f:         :dotArg
-173f:42 41 44 20 50 53 45 55 
-1747:44 4f 20 4f 50 20 41 52 
-174f:47 00        .db 'bad pseudo op arg',0
-1751:         :io
-1751:49 4f 20 45 52 52 4f 52 
-1759:00           .db 'io error',0
-175a:         :tooMany
-175a:54 4f 4f 20 4d 41 4e 59 
-1762:20 4f 50 45 4e 20 46 49 
-176a:4c 45 53 00 
+173e:         :dotArg
+173e:42 41 44 20 50 53 45 55 
+1746:44 4f 20 4f 50 20 41 52 
+174e:47 00        .db 'bad pseudo op arg',0
+1750:         :io
+1750:49 4f 20 45 52 52 4f 52 
+1758:00           .db 'io error',0
+1759:         :tooMany
+1759:54 4f 4f 20 4d 41 4e 59 
+1761:20 4f 50 45 4e 20 46 49 
+1769:4c 45 53 00 
                  .db 'too many open files',0
-176e:         
-176e:             .in 'isns.asm'
-176e:             .in 'zp.asm'
-176e:             .fi ; zpAsm
-176e:         
-176e:             .in 'mode.asm'
-176e:             .fi ; modeAsm
-176e:         
-176e:         
-176e:         
-176e:         ;
-176e:         ; return isn token at lineBuf,x
-176e:         ; isnOp: result
-176e:         ; C: not found
-176e:         isnGet:
-176e:             ; A,B,C = a-'A', b-'A', c-'A'
-176e:             ; 
-176e:             ; bit fedcba9876543210
-176e:             ;     0AAAAABBBBBCCCCC
-176e:             ; ex "LDA" is $2c60
-176e:             ;
-176e:bd 00 20     lda lineBuf,x
-1771:38           sec
-1772:e9 41        sbc #'a
+176d:         
+176d:             .in 'isns.asm'
+176d:             .in 'zp.asm'
+176d:             .fi ; zpAsm
+176d:         
+176d:             .in 'mode.asm'
+176d:             .fi ; modeAsm
+176d:         
+176d:         
+176d:         
+176d:         ;
+176d:         ; return isn token at lineBuf,x
+176d:         ; isnOp: result
+176d:         ; C: not found
+176d:         isnGet:
+176d:             ; A,B,C = a-'A', b-'A', c-'A'
+176d:             ; 
+176d:             ; bit fedcba9876543210
+176d:             ;     0AAAAABBBBBCCCCC
+176d:             ; ex "LDA" is $2c60
+176d:             ;
+176d:bd 00 20     lda lineBuf,x
+1770:38           sec
+1771:e9 41        sbc #'a
+1773:0a           asl
 1774:0a           asl
-1775:0a           asl
-1776:85 63        sta isn2
-1778:bd 01 20     lda lineBuf+1,x
-177b:38           sec
-177c:e9 41        sbc #'a
-177e:85 62        sta isn1
+1775:85 63        sta isn2
+1777:bd 01 20     lda lineBuf+1,x
+177a:38           sec
+177b:e9 41        sbc #'a
+177d:85 62        sta isn1
+177f:4a           lsr
 1780:4a           lsr
 1781:4a           lsr
-1782:4a           lsr
-1783:04 63        tsb isn2
-1785:a5 62        lda isn1
+1782:04 63        tsb isn2
+1784:a5 62        lda isn1
+1786:0a           asl
 1787:0a           asl
 1788:0a           asl
 1789:0a           asl
 178a:0a           asl
-178b:0a           asl
-178c:85 62        sta isn1
-178e:bd 02 20     lda lineBuf+2,x
-1791:38           sec
-1792:e9 41        sbc #'a
-1794:04 62        tsb isn1
-1796:         
-1796:             ; incr=1 element (2 bytes per entry)
-1796:a0 02        ldy #2
-1798:84 61        sty incr
-179a:         
-179a:         :loop
-179a:a5 63        lda isn2        ; hi cmp
-179c:d9 69 18     cmp isns+1,y
-179f:d0 07        bne :cmp        ; if =, continue with lo cmp
-17a1:         
-17a1:a5 62        lda isn1        ; lo cmp
-17a3:d9 68 18     cmp isns,y
-17a6:f0 11        beq :found      ; if =, found
-17a8:         
-17a8:         :cmp
-17a8:90 05        bcc :lo         ; needle < haystack location?
-17aa:20 bd 17     jsr :next       ; no: extra advance to do it twice
-17ad:b0 09        bcs :not
-17af:         
-17af:         :lo
-17af:20 bd 17     jsr :next       ; advance
-17b2:b0 04        bcs :not
-17b4:         
-17b4:06 61        asl incr        ; double incr for next advance
-17b6:90 e2        bcc :loop
-17b8:         :not
-17b8:60           rts             ; invariant: C=1
-17b9:         
-17b9:         :found
-17b9:18           clc             ; C=0 to indicate found
-17ba:84 27        sty isnOp
-17bc:60           rts
-17bd:         
-17bd:         :next
-17bd:98           tya             ; y += incr
-17be:18           clc
-17bf:65 61        adc incr        ; C=1 if over
-17c1:a8           tay
-17c2:60           rts
-17c3:         
-17c3:         ;
-17c3:         ; resolve deduced address mode and instruction
-17c3:         opResolve:
-17c3:a6 27        ldx isnOp
-17c5:bd 69 19     lda ops+1,x
-17c8:f0 2e        beq :imp
-17ca:85 31        sta ptr+1
-17cc:bd 68 19     lda ops,x
-17cf:85 30        sta ptr
-17d1:         
-17d1:             ; can we zp this?
-17d1:a5 2c        lda arg+1       ; no, it is a 16 bit arg
-17d3:d0 15        bne :try
-17d5:         
-17d5:a5 28        lda isnMode     ; does this have a potential zp version?
-17d7:c9 05        cmp #5
-17d9:b0 0f        bcs :try        ; no
-17db:         
-17db:69 0a        adc #10         ; try the zp form
-17dd:85 28        sta isnMode
-17df:20 ea 17     jsr :try
-17e2:90 20        bcc :out        ; we win (or it was relative)
-17e4:         
-17e4:a5 28        lda isnMode
-17e6:e9 0a        sbc #10
-17e8:85 28        sta isnMode     ; continue with original absolute
-17ea:         
-17ea:         :try
-17ea:a4 28        ldy isnMode
-17ec:b1 30        lda (ptr),y
-17ee:d0 11        bne :found      ; found it
-17f0:         
-17f0:a0 08        ldy #modeRel
-17f2:b1 30        lda (ptr),y
-17f4:d0 0b        bne :found
-17f6:         
-17f6:80 0d        bra :err
-17f8:             
-17f8:         :imp
-17f8:a4 28        ldy isnMode     ; has to be modeImp
-17fa:c0 07        cpy #modeImp
-17fc:d0 07        bne :err
-17fe:bd 68 19     lda ops,x
-1801:             ; fall thru
-1801:         
-1801:         :found
-1801:84 28        sty isnMode
-1803:18           clc
-1804:         :out
-1804:60           rts
-1805:         
-1805:         :err
-1805:38           sec
-1806:60           rts
-1807:         
-1807:             .in 'isns-table.asm'
-1807:00 00 00 00 00 00 00 00 
-180f:00 00 00 00 00 00 00 00 
-1817:00 00 00 00 00 00 00 00 
-181f:00 00 00 00 00 00 00 00 
-1827:00 00 00 00 00 00 00 00 
-182f:00 00 00 00 00 00 00 00 
-1837:00 00 00 00 00 00 00 00 
-183f:00 00 00 00 00 00 00 00 
-1847:00 00 00 00 00 00 00 00 
-184f:00 00 00 00 00 00 00 00 
-1857:00 00 00 00 00 00 00 00 
-185f:00 00 00 00 00 00 00 00 
-1867:00       *=*%100
+178b:85 62        sta isn1
+178d:bd 02 20     lda lineBuf+2,x
+1790:38           sec
+1791:e9 41        sbc #'a
+1793:04 62        tsb isn1
+1795:         
+1795:             ; incr=1 element (2 bytes per entry)
+1795:a0 02        ldy #2
+1797:84 61        sty incr
+1799:         
+1799:         :loop
+1799:a5 63        lda isn2        ; hi cmp
+179b:d9 69 18     cmp isns+1,y
+179e:d0 07        bne :cmp        ; if =, continue with lo cmp
+17a0:         
+17a0:a5 62        lda isn1        ; lo cmp
+17a2:d9 68 18     cmp isns,y
+17a5:f0 11        beq :found      ; if =, found
+17a7:         
+17a7:         :cmp
+17a7:90 05        bcc :lo         ; needle < haystack location?
+17a9:20 bc 17     jsr :next       ; no: extra advance to do it twice
+17ac:b0 09        bcs :not
+17ae:         
+17ae:         :lo
+17ae:20 bc 17     jsr :next       ; advance
+17b1:b0 04        bcs :not
+17b3:         
+17b3:06 61        asl incr        ; double incr for next advance
+17b5:90 e2        bcc :loop
+17b7:         :not
+17b7:60           rts             ; invariant: C=1
+17b8:         
+17b8:         :found
+17b8:18           clc             ; C=0 to indicate found
+17b9:84 27        sty isnOp
+17bb:60           rts
+17bc:         
+17bc:         :next
+17bc:98           tya             ; y += incr
+17bd:18           clc
+17be:65 61        adc incr        ; C=1 if over
+17c0:a8           tay
+17c1:60           rts
+17c2:         
+17c2:         ;
+17c2:         ; resolve deduced address mode and instruction
+17c2:         opResolve:
+17c2:a6 27        ldx isnOp
+17c4:bd 69 19     lda ops+1,x
+17c7:f0 2e        beq :imp
+17c9:85 31        sta ptr+1
+17cb:bd 68 19     lda ops,x
+17ce:85 30        sta ptr
+17d0:         
+17d0:             ; can we zp this?
+17d0:a5 2c        lda arg+1       ; no, it is a 16 bit arg
+17d2:d0 15        bne :try
+17d4:         
+17d4:a5 28        lda isnMode     ; does this have a potential zp version?
+17d6:c9 05        cmp #5
+17d8:b0 0f        bcs :try        ; no
+17da:         
+17da:69 0a        adc #10         ; try the zp form
+17dc:85 28        sta isnMode
+17de:20 e9 17     jsr :try
+17e1:90 20        bcc :out        ; we win (or it was relative)
+17e3:         
+17e3:a5 28        lda isnMode
+17e5:e9 0a        sbc #10
+17e7:85 28        sta isnMode     ; continue with original absolute
+17e9:         
+17e9:         :try
+17e9:a4 28        ldy isnMode
+17eb:b1 30        lda (ptr),y
+17ed:d0 11        bne :found      ; found it
+17ef:         
+17ef:a0 08        ldy #modeRel
+17f1:b1 30        lda (ptr),y
+17f3:d0 0b        bne :found
+17f5:         
+17f5:80 0d        bra :err
+17f7:             
+17f7:         :imp
+17f7:a4 28        ldy isnMode     ; has to be modeImp
+17f9:c0 07        cpy #modeImp
+17fb:d0 07        bne :err
+17fd:bd 68 19     lda ops,x
+1800:             ; fall thru
+1800:         
+1800:         :found
+1800:84 28        sty isnMode
+1802:18           clc
+1803:         :out
+1803:60           rts
+1804:         
+1804:         :err
+1804:38           sec
+1805:60           rts
+1806:         
+1806:             .in 'isns-table.asm'
+1806:00 00 00 00 00 00 00 00 
+180e:00 00 00 00 00 00 00 00 
+1816:00 00 00 00 00 00 00 00 
+181e:00 00 00 00 00 00 00 00 
+1826:00 00 00 00 00 00 00 00 
+182e:00 00 00 00 00 00 00 00 
+1836:00 00 00 00 00 00 00 00 
+183e:00 00 00 00 00 00 00 00 
+1846:00 00 00 00 00 00 00 00 
+184e:00 00 00 00 00 00 00 00 
+1856:00 00 00 00 00 00 00 00 
+185e:00 00 00 00 00 00 00 00 
+1866:00 00    *=*%100
 1868:         isns:
 1868:00 00        .dw $0000
 186a:51 2e        .dw $2e51 ; 02 lsr
