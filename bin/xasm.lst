@@ -22,8 +22,8 @@
 080e:         
 080e:ba           tsx
 080f:86 5a        stx asmSP
-0811:20 d2 12     jsr ioInit
-0814:20 da 09     jsr symInit
+0811:20 ca 12     jsr ioInit
+0814:20 d2 09     jsr symInit
 0817:64 3a        stz pass
 0819:64 66        stz listOpt
 081b:64 5d        stz outOpt
@@ -34,2937 +34,2934 @@
 0825:80 0a        bra begin
 0827:         
 0827:         usage:
-0827:a2 7b        ldx #<usageStr
+0827:a2 73        ldx #<usageStr
 0829:a0 09        ldy #>usageStr
-082b:20 59 16     jsr ioPrint
-082e:4c 65 09     jmp exit
+082b:20 51 16     jsr ioPrint
+082e:4c 5d 09     jmp exit
 0831:         
 0831:         begin:
 0831:64 00        stz $00             ; select system bank for params
 0833:a9 04        lda #4
 0835:85 01        sta $01             ; select rom bank 4
-0837:20 bb 09     jsr getOpt
+0837:20 b3 09     jsr getOpt
 083a:c9 00        cmp #0
 083c:d0 07        bne :got
-083e:20 1b 09     jsr askArgs         ; get interactively
+083e:20 13 09     jsr askArgs         ; get interactively
 0841:c9 00        cmp #0
 0843:f0 e2        beq usage
 0845:         :got
-0845:20 75 13     jsr ioCopySourceName
+0845:20 6d 13     jsr ioCopySourceName
 0848:85 69        sta inputOpt        ; source filename length
-084a:a5 30        lda ptr
-084c:85 6a        sta inputName
-084e:a5 31        lda ptr+1
-0850:85 6b        sta inputName+1
-0852:         
-0852:20 bb 09     jsr getOpt          ; output
-0855:c9 00        cmp #0
-0857:f0 09        beq :nooutOpt
-0859:20 3f 13     jsr ioCopyDestName
-085c:85 5d        sta outOpt          ; dest filename length
-085e:86 5e        stx outName
-0860:84 5f        sty outName+1
-0862:         :nooutOpt
-0862:         
-0862:20 bb 09     jsr getOpt          ; listing
-0865:c9 00        cmp #0
-0867:f0 0d        beq :nolistOpt
-0869:20 5a 13     jsr ioCopyListName
-086c:85 66        sta listOpt
-086e:a5 30        lda ptr
-0870:85 67        sta listName
-0872:a5 31        lda ptr+1
-0874:85 68        sta listName+1
-0876:         :nolistOpt
-0876:         
-0876:         asmPass:
-0876:64 22        stz symScope
-0878:64 23        stz symScope+1
-087a:         
-087a:a6 6a        ldx inputName
-087c:a4 6b        ldy inputName+1
-087e:a5 69        lda inputOpt
-0880:20 e8 13     jsr ioPush
-0883:         
-0883:64 29        stz pc
-0885:a9 10        lda #$10
-0887:85 2a        sta pc+1            ; default pc=$1000
-0889:         
-0889:a2 a4        ldx #<passStr       ; "pass:n"
-088b:a0 09        ldy #>passStr
-088d:20 59 16     jsr ioPrint
-0890:a5 3a        lda pass            ; pass #
-0892:29 07        and #$07
-0894:1a           inc
-0895:20 29 16     jsr ioPrintHex
-0898:a9 0d        lda #13             ; cr
-089a:20 d2 ff     jsr CHROUT
-089d:         
-089d:         :line
-089d:20 e3 15     jsr ioListing       ; possibly show pc for listing
-08a0:20 d0 14     jsr ioReadLine      ; read next line
-08a3:20 71 09     jsr asmError        ; poll for error
-08a6:a5 51        lda ioLFN           ; check for EOF
-08a8:f0 29        beq :next
-08aa:         
-08aa:20 b4 0e     jsr lineAsm         ; assemble line
-08ad:20 71 09     jsr asmError        ; poll for error
+084a:86 6a        stx inputName
+084c:84 6b        sty inputName+1
+084e:         
+084e:20 b3 09     jsr getOpt          ; output
+0851:c9 00        cmp #0
+0853:f0 09        beq :nooutOpt
+0855:20 37 13     jsr ioCopyDestName
+0858:85 5d        sta outOpt          ; dest filename length
+085a:86 5e        stx outName
+085c:84 5f        sty outName+1
+085e:         :nooutOpt
+085e:         
+085e:20 b3 09     jsr getOpt          ; listing
+0861:c9 00        cmp #0
+0863:f0 09        beq :nolistOpt
+0865:20 52 13     jsr ioCopyListName
+0868:85 66        sta listOpt
+086a:86 67        stx listName
+086c:84 68        sty listName+1
+086e:         :nolistOpt
+086e:         
+086e:         asmPass:
+086e:64 22        stz symScope
+0870:64 23        stz symScope+1
+0872:         
+0872:a6 6a        ldx inputName
+0874:a4 6b        ldy inputName+1
+0876:a5 69        lda inputOpt
+0878:20 e0 13     jsr ioPush
+087b:         
+087b:64 29        stz pc
+087d:a9 10        lda #$10
+087f:85 2a        sta pc+1            ; default pc=$1000
+0881:         
+0881:a2 9c        ldx #<passStr       ; "pass:n"
+0883:a0 09        ldy #>passStr
+0885:20 51 16     jsr ioPrint
+0888:a5 3a        lda pass            ; pass #
+088a:29 07        and #$07
+088c:1a           inc
+088d:20 21 16     jsr ioPrintHex
+0890:a9 0d        lda #13             ; cr
+0892:20 d2 ff     jsr CHROUT
+0895:         
+0895:         :line
+0895:20 db 15     jsr ioListing       ; possibly show pc for listing
+0898:20 c8 14     jsr ioReadLine      ; read next line
+089b:20 69 09     jsr asmError        ; poll for error
+089e:a5 51        lda ioLFN           ; check for EOF
+08a0:f0 29        beq :next
+08a2:         
+08a2:20 ac 0e     jsr lineAsm         ; assemble line
+08a5:20 69 09     jsr asmError        ; poll for error
+08a8:         
+08a8:a5 3a        lda pass
+08aa:10 e9        bpl :line           ; listing output in second pass, if enabled
+08ac:a5 58        lda lineIfs
+08ae:30 e5        bmi :line           ; do not list if'd out 
 08b0:         
-08b0:a5 3a        lda pass
-08b2:10 e9        bpl :line           ; listing output in second pass, if enabled
-08b4:a5 58        lda lineIfs
-08b6:30 e5        bmi :line           ; do not list if'd out 
-08b8:         
-08b8:20 fd 15     jsr ioPadListing
-08bb:         
-08bb:a2 00        ldx #0
-08bd:         :listLine
-08bd:bd 00 20     lda lineBuf,x
-08c0:f0 0a        beq :listed         ; eof
-08c2:c9 0d        cmp #13
-08c4:f0 06        beq :listed         ; cr
-08c6:20 1f 15     jsr ioEmit
-08c9:e8           inx
-08ca:d0 f1        bne :listLine
-08cc:         :listed
-08cc:a9 0d        lda #13
-08ce:20 1f 15     jsr ioEmit
-08d1:80 ca        bra :line
-08d3:         
-08d3:         :next
-08d3:a5 3a        lda pass            ; maybe done if non-z pass
-08d5:d0 1c        bne :listing
-08d7:1a           inc                 ; pass++
-08d8:85 3a        sta pass
-08da:         
-08da:a5 5d        lda outOpt          ; do we have output?
-08dc:f0 15        beq :listing        ; no, skip to listing (if enabled)
-08de:         
-08de:a6 5e        ldx outName         ; set up output filename
-08e0:a4 5f        ldy outName+1
-08e2:20 d0 13     jsr ioOpenDest      ; open
-08e5:20 71 09     jsr asmError        ; poll for error
-08e8:         
-08e8:a9 1f        lda #<ioEmit        ; connect the output hose
-08ea:85 41        sta emit
-08ec:a9 15        lda #>ioEmit
-08ee:85 42        sta emit+1
-08f0:4c 76 08     jmp asmPass         ; go around again
-08f3:         
-08f3:         :listing
-08f3:20 9c 15     jsr ioClose         ; flush and close output or listing
-08f6:20 71 09     jsr asmError
-08f9:         
-08f9:a5 3a        lda pass
-08fb:30 41        bmi asmDone         ; listed, we are done
-08fd:1a           inc
-08fe:09 80        ora #$80
-0900:85 3a        sta pass
+08b0:20 f5 15     jsr ioPadListing
+08b3:         
+08b3:a2 00        ldx #0
+08b5:         :listLine
+08b5:bd 00 20     lda lineBuf,x
+08b8:f0 0a        beq :listed         ; eof
+08ba:c9 0d        cmp #13
+08bc:f0 06        beq :listed         ; cr
+08be:20 17 15     jsr ioEmit
+08c1:e8           inx
+08c2:d0 f1        bne :listLine
+08c4:         :listed
+08c4:a9 0d        lda #13
+08c6:20 17 15     jsr ioEmit
+08c9:80 ca        bra :line
+08cb:         
+08cb:         :next
+08cb:a5 3a        lda pass            ; maybe done if non-z pass
+08cd:d0 1c        bne :listing
+08cf:1a           inc                 ; pass++
+08d0:85 3a        sta pass
+08d2:         
+08d2:a5 5d        lda outOpt          ; do we have output?
+08d4:f0 15        beq :listing        ; no, skip to listing (if enabled)
+08d6:         
+08d6:a6 5e        ldx outName         ; set up output filename
+08d8:a4 5f        ldy outName+1
+08da:20 c8 13     jsr ioOpenDest      ; open
+08dd:20 69 09     jsr asmError        ; poll for error
+08e0:         
+08e0:a9 17        lda #<ioEmit        ; connect the output hose
+08e2:85 41        sta emit
+08e4:a9 15        lda #>ioEmit
+08e6:85 42        sta emit+1
+08e8:4c 6e 08     jmp asmPass         ; go around again
+08eb:         
+08eb:         :listing
+08eb:20 94 15     jsr ioClose         ; flush and close output or listing
+08ee:20 69 09     jsr asmError
+08f1:         
+08f1:a5 3a        lda pass
+08f3:30 41        bmi asmDone         ; listed, we are done
+08f5:1a           inc
+08f6:09 80        ora #$80
+08f8:85 3a        sta pass
+08fa:         
+08fa:a5 66        lda listOpt
+08fc:f0 38        beq asmDone         ; no listing, we are done
+08fe:         
+08fe:a6 67        ldx listName        ; open the listing file  
+0900:a4 68        ldy listName+1
 0902:         
-0902:a5 66        lda listOpt
-0904:f0 38        beq asmDone         ; no listing, we are done
-0906:         
-0906:a6 67        ldx listName        ; open the listing file  
-0908:a4 68        ldy listName+1
-090a:         
-090a:20 d0 13     jsr ioOpenDest      ; open
-090d:20 71 09     jsr asmError        ; poll for error
-0910:         
-0910:a9 36        lda #<ioEmitListing
-0912:85 41        sta emit
-0914:a9 15        lda #>ioEmitListing
-0916:85 42        sta emit+1
-0918:4c 76 08     jmp asmPass
-091b:         
-091b:         askArgs:
-091b:a9 3f        lda #'?
-091d:20 d2 ff     jsr CHROUT
-0920:a2 00        ldx #0
-0922:86 59        stx optPtr
-0924:         :loop
-0924:20 cf ff     jsr CHRIN
-0927:c9 0d        cmp #13
-0929:f0 06        beq :done
-092b:9d 00 bf     sta options,x
-092e:e8           inx
-092f:d0 f3        bne :loop
-0931:         :done
-0931:9e 00 bf     stz options,x
-0934:a9 0d        lda #13             ; cr
-0936:20 d2 ff     jsr CHROUT
-0939:64 59        stz optPtr
-093b:4c bb 09     jmp getOpt
-093e:         
-093e:         asmDone:
-093e:a2 ab        ldx #<symendStr     ; "symend="
-0940:a0 09        ldy #>symendStr
-0942:20 59 16     jsr ioPrint
-0945:a5 3c        lda symEnd+1
-0947:20 29 16     jsr ioPrintHex
-094a:a5 3b        lda symEnd
-094c:20 29 16     jsr ioPrintHex
-094f:a2 b5        ldx #<pcStr         ; "pc="
-0951:a0 09        ldy #>pcStr
-0953:20 59 16     jsr ioPrint
-0956:a5 2a        lda pc+1
-0958:20 29 16     jsr ioPrintHex
-095b:a5 29        lda pc
-095d:20 29 16     jsr ioPrintHex
-0960:a9 0d        lda #13
-0962:20 d2 ff     jsr CHROUT
-0965:         
-0965:         exit:
-0965:a2 00        ldx #0              ; zero out options buf on our way out
-0967:         :fill
-0967:9e 00 bf     stz options,x
-096a:e8           inx
-096b:d0 fa        bne :fill
-096d:a6 5a        ldx asmSP           ; get top level stack pointer
-096f:9a           txs
-0970:60           rts                 ; exit out completely    
-0971:         
-0971:         asmError:
-0971:a5 43        lda error           ; error non-z?
-0973:f0 05        beq :fine
-0975:20 f7 12     jsr ioError         ; print error
-0978:80 eb        bra exit            ; abort
-097a:         :fine
-097a:60           rts
-097b:         
-097b:         usageStr:
-097b:55 53 41 47 45 3a 20 58 
-0983:41 53 4d 20 49 4e 50 55 
-098b:54 2e 41 53 4d 5b 3b 4f 
-0993:55 54 50 55 54 5d 5b 3b 
-099b:4c 49 53 54 49 4e 47 5d 
-09a3:00           .db 'usage: xasm input.asm[;output][;listing]',0
-09a4:         passStr:
-09a4:0d 50 41 53 53 3a 00 
+0902:20 c8 13     jsr ioOpenDest      ; open
+0905:20 69 09     jsr asmError        ; poll for error
+0908:         
+0908:a9 2e        lda #<ioEmitListing
+090a:85 41        sta emit
+090c:a9 15        lda #>ioEmitListing
+090e:85 42        sta emit+1
+0910:4c 6e 08     jmp asmPass
+0913:         
+0913:         askArgs:
+0913:a9 3f        lda #'?
+0915:20 d2 ff     jsr CHROUT
+0918:a2 00        ldx #0
+091a:86 59        stx optPtr
+091c:         :loop
+091c:20 cf ff     jsr CHRIN
+091f:c9 0d        cmp #13
+0921:f0 06        beq :done
+0923:9d 00 bf     sta options,x
+0926:e8           inx
+0927:d0 f3        bne :loop
+0929:         :done
+0929:9e 00 bf     stz options,x
+092c:a9 0d        lda #13             ; cr
+092e:20 d2 ff     jsr CHROUT
+0931:64 59        stz optPtr
+0933:4c b3 09     jmp getOpt
+0936:         
+0936:         asmDone:
+0936:a2 a3        ldx #<symendStr     ; "symend="
+0938:a0 09        ldy #>symendStr
+093a:20 51 16     jsr ioPrint
+093d:a5 3c        lda symEnd+1
+093f:20 21 16     jsr ioPrintHex
+0942:a5 3b        lda symEnd
+0944:20 21 16     jsr ioPrintHex
+0947:a2 ad        ldx #<pcStr         ; "pc="
+0949:a0 09        ldy #>pcStr
+094b:20 51 16     jsr ioPrint
+094e:a5 2a        lda pc+1
+0950:20 21 16     jsr ioPrintHex
+0953:a5 29        lda pc
+0955:20 21 16     jsr ioPrintHex
+0958:a9 0d        lda #13
+095a:20 d2 ff     jsr CHROUT
+095d:         
+095d:         exit:
+095d:a2 00        ldx #0              ; zero out options buf on our way out
+095f:         :fill
+095f:9e 00 bf     stz options,x
+0962:e8           inx
+0963:d0 fa        bne :fill
+0965:a6 5a        ldx asmSP           ; get top level stack pointer
+0967:9a           txs
+0968:60           rts                 ; exit out completely    
+0969:         
+0969:         asmError:
+0969:a5 43        lda error           ; error non-z?
+096b:f0 05        beq :fine
+096d:20 ef 12     jsr ioError         ; print error
+0970:80 eb        bra exit            ; abort
+0972:         :fine
+0972:60           rts
+0973:         
+0973:         usageStr:
+0973:55 53 41 47 45 3a 20 58 
+097b:41 53 4d 20 49 4e 50 55 
+0983:54 2e 41 53 4d 5b 3b 4f 
+098b:55 54 50 55 54 5d 5b 3b 
+0993:4c 49 53 54 49 4e 47 5d 
+099b:00           .db 'usage: xasm input.asm[;output][;listing]',0
+099c:         passStr:
+099c:0d 50 41 53 53 3a 00 
                  .db 13,'pass:',0
-09ab:         symendStr:
-09ab:0d 53 59 4d c5 4e 44 3d 
-09b3:24 00        .db 13,'symEnd=$',0
-09b5:         pcStr:
-09b5:0d 50 43 3d 24 00 
+09a3:         symendStr:
+09a3:0d 53 59 4d c5 4e 44 3d 
+09ab:24 00        .db 13,'symEnd=$',0
+09ad:         pcStr:
+09ad:0d 50 43 3d 24 00 
                  .db 13,'pc=$',0
-09bb:         
-09bb:         ;
-09bb:         ; returns next option in a/x/y
-09bb:         getOpt:
-09bb:a6 59        ldx optPtr
-09bd:86 36        stx scratch
-09bf:a0 00        ldy #0
-09c1:         :loop
-09c1:bd 00 bf     lda options,x
-09c4:f0 0c        beq :got
-09c6:c9 0d        cmp #13         ; cr (shouldn't see this, but be defensive)
-09c8:f0 08        beq :got
-09ca:e8           inx
-09cb:c9 3b        cmp #';
-09cd:f0 03        beq :got
-09cf:c8           iny
-09d0:d0 ef        bne :loop
-09d2:         :got
-09d2:98           tya
-09d3:86 59        stx optPtr
-09d5:a6 36        ldx scratch
-09d7:a0 bf        ldy #>options
-09d9:60           rts
-09da:          
-09da:             .in 'symtab.asm'
-09da:             .in 'zp.asm'
-09da:             .fi ; zpAsm
-09da:         
-09da:         
-09da:         ;
-09da:         ; initialize hash table
-09da:         symInit:
-09da:a9 05        lda #<symbols
-09dc:85 3b        sta symEnd
-09de:a9 22        lda #>symbols
-09e0:85 3c        sta symEnd+1
-09e2:a2 00        ldx #0
-09e4:         
-09e4:         :fill
-09e4:9e 00 21     stz hashTable,x
-09e7:e8           inx
-09e8:d0 fa        bne :fill
-09ea:         
-09ea:60           rts
-09eb:         
-09eb:         ; layout of a symbol entry:
-09eb:         ; 00-01:    next (0 if end)
-09eb:         ; 02-03:    scope (parent entry, or 0)
-09eb:         ; 04:       caller status
-09eb:         ; 05-06:    value
-09eb:         
-09eb:         ;
-09eb:         ; enter or return existing symbol entry
-09eb:         ; result in ptr
-09eb:         symGet:
-09eb:             ; string = strGet
-09eb:             ; nptr = (string).symbols
-09eb:20 4c 0a     jsr strGet
-09ee:a0 02        ldy #2
-09f0:b1 30        lda (ptr),y
-09f2:85 32        sta nptr
-09f4:a5 30        lda ptr
-09f6:85 34        sta string
-09f8:c8           iny
-09f9:b1 30        lda (ptr),y
-09fb:85 33        sta nptr+1
-09fd:a5 31        lda ptr+1
-09ff:85 35        sta string+1
-0a01:         
-0a01:         :next
-0a01:20 f0 0a     jsr ptrNext
-0a04:f0 0e        beq :notFound
-0a06:         
-0a06:             ; compare scope
-0a06:b1 30        lda (ptr),y
-0a08:c5 22        cmp symScope
-0a0a:d0 f5        bne :next
-0a0c:c8           iny
-0a0d:b1 30        lda (ptr),y
-0a0f:c5 23        cmp symScope+1
-0a11:d0 ee        bne :next
-0a13:         
-0a13:             ; found!
-0a13:60           rts
-0a14:         
-0a14:         :notFound
-0a14:             ; push our scoped entry
-0a14:             ; ptr = symEnd
-0a14:             ; symEnd += 7
-0a14:a9 07        lda #7
-0a16:20 dc 0a     jsr symPush
-0a19:         
-0a19:         
-0a19:             ; nptr = (string).symbols
-0a19:             ; (string).symbols = ptr
-0a19:a0 02        ldy #2
-0a1b:b1 34        lda (string),y
-0a1d:85 32        sta nptr
-0a1f:a5 30        lda ptr
-0a21:91 34        sta (string),y
-0a23:c8           iny
+09b3:         
+09b3:         ;
+09b3:         ; returns next option in a/x/y
+09b3:         getOpt:
+09b3:a6 59        ldx optPtr
+09b5:86 36        stx scratch
+09b7:a0 00        ldy #0
+09b9:         :loop
+09b9:bd 00 bf     lda options,x
+09bc:f0 0c        beq :got
+09be:c9 0d        cmp #13         ; cr (shouldn't see this, but be defensive)
+09c0:f0 08        beq :got
+09c2:e8           inx
+09c3:c9 3b        cmp #';
+09c5:f0 03        beq :got
+09c7:c8           iny
+09c8:d0 ef        bne :loop
+09ca:         :got
+09ca:98           tya
+09cb:86 59        stx optPtr
+09cd:a6 36        ldx scratch
+09cf:a0 bf        ldy #>options
+09d1:60           rts
+09d2:          
+09d2:             .in 'symtab.asm'
+09d2:             .in 'zp.asm'
+09d2:             .fi ; zpAsm
+09d2:         
+09d2:         
+09d2:         ;
+09d2:         ; initialize hash table
+09d2:         symInit:
+09d2:a9 05        lda #<symbols
+09d4:85 3b        sta symEnd
+09d6:a9 22        lda #>symbols
+09d8:85 3c        sta symEnd+1
+09da:a2 00        ldx #0
+09dc:         
+09dc:         :fill
+09dc:9e 00 21     stz hashTable,x
+09df:e8           inx
+09e0:d0 fa        bne :fill
+09e2:         
+09e2:60           rts
+09e3:         
+09e3:         ; layout of a symbol entry:
+09e3:         ; 00-01:    next (0 if end)
+09e3:         ; 02-03:    scope (parent entry, or 0)
+09e3:         ; 04:       caller status
+09e3:         ; 05-06:    value
+09e3:         
+09e3:         ;
+09e3:         ; enter or return existing symbol entry
+09e3:         ; result in ptr
+09e3:         symGet:
+09e3:             ; string = strGet
+09e3:             ; nptr = (string).symbols
+09e3:20 44 0a     jsr strGet
+09e6:a0 02        ldy #2
+09e8:b1 30        lda (ptr),y
+09ea:85 32        sta nptr
+09ec:a5 30        lda ptr
+09ee:85 34        sta string
+09f0:c8           iny
+09f1:b1 30        lda (ptr),y
+09f3:85 33        sta nptr+1
+09f5:a5 31        lda ptr+1
+09f7:85 35        sta string+1
+09f9:         
+09f9:         :next
+09f9:20 e8 0a     jsr ptrNext
+09fc:f0 0e        beq :notFound
+09fe:         
+09fe:             ; compare scope
+09fe:b1 30        lda (ptr),y
+0a00:c5 22        cmp symScope
+0a02:d0 f5        bne :next
+0a04:c8           iny
+0a05:b1 30        lda (ptr),y
+0a07:c5 23        cmp symScope+1
+0a09:d0 ee        bne :next
+0a0b:         
+0a0b:             ; found!
+0a0b:60           rts
+0a0c:         
+0a0c:         :notFound
+0a0c:             ; push our scoped entry
+0a0c:             ; ptr = symEnd
+0a0c:             ; symEnd += 7
+0a0c:a9 07        lda #7
+0a0e:20 d4 0a     jsr symPush
+0a11:         
+0a11:         
+0a11:             ; nptr = (string).symbols
+0a11:             ; (string).symbols = ptr
+0a11:a0 02        ldy #2
+0a13:b1 34        lda (string),y
+0a15:85 32        sta nptr
+0a17:a5 30        lda ptr
+0a19:91 34        sta (string),y
+0a1b:c8           iny
+0a1c:         
+0a1c:b1 34        lda (string),y
+0a1e:85 33        sta nptr+1
+0a20:a5 31        lda ptr+1
+0a22:91 34        sta (string),y
 0a24:         
-0a24:b1 34        lda (string),y
-0a26:85 33        sta nptr+1
-0a28:a5 31        lda ptr+1
-0a2a:91 34        sta (string),y
-0a2c:         
-0a2c:             ; (ptr++)=nptr
-0a2c:             ; next linkage
-0a2c:a0 00        ldy #0
-0a2e:a5 32        lda nptr
-0a30:91 30        sta (ptr),y
-0a32:c8           iny
-0a33:         
-0a33:a5 33        lda nptr+1
-0a35:91 30        sta (ptr),y
-0a37:c8           iny
-0a38:         
-0a38:             ; (ptr++)=scope
-0a38:a5 22        lda symScope
-0a3a:91 30        sta (ptr),y
-0a3c:c8           iny
-0a3d:         
-0a3d:a5 23        lda symScope+1
-0a3f:91 30        sta (ptr),y
-0a41:c8           iny
-0a42:         
-0a42:             ; (ptr++)=0
-0a42:             ; zero out flags when creating
-0a42:a9 00        lda #0
-0a44:91 30        sta (ptr),y
-0a46:c8           iny
-0a47:         
-0a47:             ; (++ptr)=non-zero
-0a47:             ; default value (forward decl) not presumed to be zero page
-0a47:c8           iny
-0a48:98           tya
-0a49:91 30        sta (ptr),y
-0a4b:         
-0a4b:60           rts
-0a4c:         
-0a4c:         
-0a4c:         ; layout of a string entry:
-0a4c:         ; 00-01:    next (0 if end)
-0a4c:         ; 02-03:    symbols having this label
-0a4c:         ; 04-??:    counted string
-0a4c:         
-0a4c:         ;
-0a4c:         ; enter or return existing counted string
-0a4c:         ; result in ptr
-0a4c:         strGet:
-0a4c:             ; nptr = hash(symLabel)
-0a4c:20 cb 0a     jsr strHash
-0a4f:bd 00 21     lda hashTable,x
-0a52:85 32        sta nptr
-0a54:bd 01 21     lda hashTable+1,x
-0a57:85 33        sta nptr+1
-0a59:         
-0a59:         :next
-0a59:20 f0 0a     jsr ptrNext
-0a5c:f0 13        beq :notFound
-0a5e:         
-0a5e:             ; compare string
-0a5e:             ; string = ptr+4
-0a5e:a5 30        lda ptr
-0a60:18           clc
-0a61:69 04        adc #4
-0a63:85 34        sta string
-0a65:a5 31        lda ptr+1
-0a67:69 00        adc #0
-0a69:85 35        sta string+1
-0a6b:20 07 0b     jsr strEqual
-0a6e:d0 e9        bne :next
-0a70:         
-0a70:             ; found/created, result in ptr
-0a70:         :done
-0a70:60           rts
-0a71:         
-0a71:         :notFound
-0a71:             ; write new entry to head of list
-0a71:             ; nptr = hashEntry
-0a71:bd 00 21     lda hashTable,x
-0a74:85 32        sta nptr
-0a76:bd 01 21     lda hashTable+1,x
-0a79:85 33        sta nptr+1
-0a7b:         
-0a7b:             ; hash = symEnd
-0a7b:             ; ptr = symEnd
-0a7b:             ; symEnd += 5 + symLength
-0a7b:a9 05        lda #5
-0a7d:20 dc 0a     jsr symPush
-0a80:         
-0a80:a5 30        lda ptr
-0a82:9d 00 21     sta hashTable,x
-0a85:a5 31        lda ptr+1
-0a87:9d 01 21     sta hashTable+1,x
-0a8a:         
-0a8a:a5 24        lda symLength
-0a8c:20 dc 0a     jsr symPush
-0a8f:         
-0a8f:             ; (ptr++) = nptr
-0a8f:bd 00 21     lda hashTable,x
-0a92:85 30        sta ptr
-0a94:bd 01 21     lda hashTable+1,x
-0a97:85 31        sta ptr+1
-0a99:             
-0a99:a0 00        ldy #0
-0a9b:a5 32        lda nptr
-0a9d:91 30        sta (ptr),y
-0a9f:c8           iny
-0aa0:a5 33        lda nptr+1
+0a24:             ; (ptr++)=nptr
+0a24:             ; next linkage
+0a24:a0 00        ldy #0
+0a26:a5 32        lda nptr
+0a28:91 30        sta (ptr),y
+0a2a:c8           iny
+0a2b:         
+0a2b:a5 33        lda nptr+1
+0a2d:91 30        sta (ptr),y
+0a2f:c8           iny
+0a30:         
+0a30:             ; (ptr++)=scope
+0a30:a5 22        lda symScope
+0a32:91 30        sta (ptr),y
+0a34:c8           iny
+0a35:         
+0a35:a5 23        lda symScope+1
+0a37:91 30        sta (ptr),y
+0a39:c8           iny
+0a3a:         
+0a3a:             ; (ptr++)=0
+0a3a:             ; zero out flags when creating
+0a3a:a9 00        lda #0
+0a3c:91 30        sta (ptr),y
+0a3e:c8           iny
+0a3f:         
+0a3f:             ; (++ptr)=non-zero
+0a3f:             ; default value (forward decl) not presumed to be zero page
+0a3f:c8           iny
+0a40:98           tya
+0a41:91 30        sta (ptr),y
+0a43:         
+0a43:60           rts
+0a44:         
+0a44:         
+0a44:         ; layout of a string entry:
+0a44:         ; 00-01:    next (0 if end)
+0a44:         ; 02-03:    symbols having this label
+0a44:         ; 04-??:    counted string
+0a44:         
+0a44:         ;
+0a44:         ; enter or return existing counted string
+0a44:         ; result in ptr
+0a44:         strGet:
+0a44:             ; nptr = hash(symLabel)
+0a44:20 c3 0a     jsr strHash
+0a47:bd 00 21     lda hashTable,x
+0a4a:85 32        sta nptr
+0a4c:bd 01 21     lda hashTable+1,x
+0a4f:85 33        sta nptr+1
+0a51:         
+0a51:         :next
+0a51:20 e8 0a     jsr ptrNext
+0a54:f0 13        beq :notFound
+0a56:         
+0a56:             ; compare string
+0a56:             ; string = ptr+4
+0a56:a5 30        lda ptr
+0a58:18           clc
+0a59:69 04        adc #4
+0a5b:85 34        sta string
+0a5d:a5 31        lda ptr+1
+0a5f:69 00        adc #0
+0a61:85 35        sta string+1
+0a63:20 ff 0a     jsr strEqual
+0a66:d0 e9        bne :next
+0a68:         
+0a68:             ; found/created, result in ptr
+0a68:         :done
+0a68:60           rts
+0a69:         
+0a69:         :notFound
+0a69:             ; write new entry to head of list
+0a69:             ; nptr = hashEntry
+0a69:bd 00 21     lda hashTable,x
+0a6c:85 32        sta nptr
+0a6e:bd 01 21     lda hashTable+1,x
+0a71:85 33        sta nptr+1
+0a73:         
+0a73:             ; hash = symEnd
+0a73:             ; ptr = symEnd
+0a73:             ; symEnd += 5 + symLength
+0a73:a9 05        lda #5
+0a75:20 d4 0a     jsr symPush
+0a78:         
+0a78:a5 30        lda ptr
+0a7a:9d 00 21     sta hashTable,x
+0a7d:a5 31        lda ptr+1
+0a7f:9d 01 21     sta hashTable+1,x
+0a82:         
+0a82:a5 24        lda symLength
+0a84:20 d4 0a     jsr symPush
+0a87:         
+0a87:             ; (ptr++) = nptr
+0a87:bd 00 21     lda hashTable,x
+0a8a:85 30        sta ptr
+0a8c:bd 01 21     lda hashTable+1,x
+0a8f:85 31        sta ptr+1
+0a91:             
+0a91:a0 00        ldy #0
+0a93:a5 32        lda nptr
+0a95:91 30        sta (ptr),y
+0a97:c8           iny
+0a98:a5 33        lda nptr+1
+0a9a:91 30        sta (ptr),y
+0a9c:c8           iny
+0a9d:         
+0a9d:             ; (ptr++) = $0000
+0a9d:             ; (symbol entries pointer)
+0a9d:a9 00        lda #0
+0a9f:91 30        sta (ptr),y
+0aa1:c8           iny
 0aa2:91 30        sta (ptr),y
 0aa4:c8           iny
 0aa5:         
-0aa5:             ; (ptr++) = $0000
-0aa5:             ; (symbol entries pointer)
-0aa5:a9 00        lda #0
+0aa5:             ; (ptr) = symLength
+0aa5:a5 24        lda symLength
 0aa7:91 30        sta (ptr),y
-0aa9:c8           iny
-0aaa:91 30        sta (ptr),y
-0aac:c8           iny
-0aad:         
-0aad:             ; (ptr) = symLength
-0aad:a5 24        lda symLength
-0aaf:91 30        sta (ptr),y
-0ab1:         
-0ab1:             ; string = ptr+5
-0ab1:a5 30        lda ptr
-0ab3:18           clc
-0ab4:69 05        adc #5
-0ab6:85 34        sta string
-0ab8:a5 31        lda ptr+1
-0aba:69 00        adc #0
-0abc:85 35        sta string+1
-0abe:         
-0abe:a0 00        ldy #0
-0ac0:         :copy
-0ac0:c4 24        cpy symLength
-0ac2:f0 ac        beq :done
-0ac4:b1 25        lda (symLabel),y
-0ac6:91 34        sta (string),y
-0ac8:c8           iny
-0ac9:d0 f5        bne :copy
-0acb:         
-0acb:         ;
-0acb:         ; compute hash value for counted string
-0acb:         strHash:
-0acb:a5 24        lda symLength
-0acd:a8           tay
-0ace:18           clc
-0acf:         :loop
-0acf:f0 08        beq :done
-0ad1:88           dey
-0ad2:2a           rol                 ; c << output << c
-0ad3:51 25        eor (symLabel),y    ; output = output xor byte
-0ad5:c8           iny
-0ad6:88           dey
-0ad7:d0 f6        bne :loop
-0ad9:         
-0ad9:             ; truncate to 7 bit
-0ad9:         :done
-0ad9:0a           asl
-0ada:aa           tax                 ; result in index form
-0adb:60           rts
-0adc:         
-0adc:         ;
-0adc:         ; push symEnd by A bytes
-0adc:         ; ptr=symEnd before increment
-0adc:         symPush:
-0adc:85 36        sta scratch
-0ade:a5 3b        lda symEnd
-0ae0:85 30        sta ptr
-0ae2:18           clc
-0ae3:65 36        adc scratch
-0ae5:85 3b        sta symEnd
-0ae7:a5 3c        lda symEnd+1
-0ae9:85 31        sta ptr+1
-0aeb:69 00        adc #0
-0aed:85 3c        sta symEnd+1
-0aef:60           rts
-0af0:         
-0af0:         ;
-0af0:         ; ptr=nptr, nptr=(ptr)
-0af0:         ; Z if nptrH=0
-0af0:         ; Y=2 otherwise
-0af0:         ptrNext:
-0af0:a5 33        lda nptr+1
-0af2:f0 12        beq :out            ; nptrH=0
-0af4:85 31        sta ptr+1
-0af6:a5 32        lda nptr
-0af8:85 30        sta ptr
-0afa:a0 00        ldy #0
-0afc:b1 30        lda (ptr),y
-0afe:85 32        sta nptr
-0b00:c8           iny
-0b01:b1 30        lda (ptr),y         ; Z=0
-0b03:85 33        sta nptr+1
-0b05:c8           iny
-0b06:         :out
-0b06:60           rts
-0b07:         
-0b07:         ;
-0b07:         ; compare counted string at (string) against symLength/symLabel
-0b07:         ; for equality, Z=1 if so
-0b07:         strEqual:
-0b07:a0 00        ldy #0
-0b09:b1 34        lda (string),y
-0b0b:c5 24        cmp symLength
-0b0d:d0 0d        bne :out
-0b0f:         :loop
-0b0f:c4 24        cpy symLength
-0b11:f0 09        beq :out
-0b13:b1 25        lda (symLabel),y
-0b15:c8           iny
-0b16:d1 34        cmp (string),y
-0b18:d0 02        bne :out
-0b1a:f0 f3        beq :loop
-0b1c:         :out
+0aa9:         
+0aa9:             ; string = ptr+5
+0aa9:a5 30        lda ptr
+0aab:18           clc
+0aac:69 05        adc #5
+0aae:85 34        sta string
+0ab0:a5 31        lda ptr+1
+0ab2:69 00        adc #0
+0ab4:85 35        sta string+1
+0ab6:         
+0ab6:a0 00        ldy #0
+0ab8:         :copy
+0ab8:c4 24        cpy symLength
+0aba:f0 ac        beq :done
+0abc:b1 25        lda (symLabel),y
+0abe:91 34        sta (string),y
+0ac0:c8           iny
+0ac1:d0 f5        bne :copy
+0ac3:         
+0ac3:         ;
+0ac3:         ; compute hash value for counted string
+0ac3:         strHash:
+0ac3:a5 24        lda symLength
+0ac5:a8           tay
+0ac6:18           clc
+0ac7:         :loop
+0ac7:f0 08        beq :done
+0ac9:88           dey
+0aca:2a           rol                 ; c << output << c
+0acb:51 25        eor (symLabel),y    ; output = output xor byte
+0acd:c8           iny
+0ace:88           dey
+0acf:d0 f6        bne :loop
+0ad1:         
+0ad1:             ; truncate to 7 bit
+0ad1:         :done
+0ad1:0a           asl
+0ad2:aa           tax                 ; result in index form
+0ad3:60           rts
+0ad4:         
+0ad4:         ;
+0ad4:         ; push symEnd by A bytes
+0ad4:         ; ptr=symEnd before increment
+0ad4:         symPush:
+0ad4:85 36        sta scratch
+0ad6:a5 3b        lda symEnd
+0ad8:85 30        sta ptr
+0ada:18           clc
+0adb:65 36        adc scratch
+0add:85 3b        sta symEnd
+0adf:a5 3c        lda symEnd+1
+0ae1:85 31        sta ptr+1
+0ae3:69 00        adc #0
+0ae5:85 3c        sta symEnd+1
+0ae7:60           rts
+0ae8:         
+0ae8:         ;
+0ae8:         ; ptr=nptr, nptr=(ptr)
+0ae8:         ; Z if nptrH=0
+0ae8:         ; Y=2 otherwise
+0ae8:         ptrNext:
+0ae8:a5 33        lda nptr+1
+0aea:f0 12        beq :out            ; nptrH=0
+0aec:85 31        sta ptr+1
+0aee:a5 32        lda nptr
+0af0:85 30        sta ptr
+0af2:a0 00        ldy #0
+0af4:b1 30        lda (ptr),y
+0af6:85 32        sta nptr
+0af8:c8           iny
+0af9:b1 30        lda (ptr),y         ; Z=0
+0afb:85 33        sta nptr+1
+0afd:c8           iny
+0afe:         :out
+0afe:60           rts
+0aff:         
+0aff:         ;
+0aff:         ; compare counted string at (string) against symLength/symLabel
+0aff:         ; for equality, Z=1 if so
+0aff:         strEqual:
+0aff:a0 00        ldy #0
+0b01:b1 34        lda (string),y
+0b03:c5 24        cmp symLength
+0b05:d0 0d        bne :out
+0b07:         :loop
+0b07:c4 24        cpy symLength
+0b09:f0 09        beq :out
+0b0b:b1 25        lda (symLabel),y
+0b0d:c8           iny
+0b0e:d1 34        cmp (string),y
+0b10:d0 02        bne :out
+0b12:f0 f3        beq :loop
+0b14:         :out
+0b14:60           rts
+0b15:         
+0b15:             .in 'eval.asm'
+0b15:             .in 'zp.asm'
+0b15:             .fi ; zpAsm
+0b15:         
+0b15:         
+0b15:         esInit  = 0
+0b15:         esOp    = 1
+0b15:         
+0b15:         
+0b15:         eDone:
+0b15:             ; err if not in esOp state
+0b15:18           clc
+0b16:a5 39        lda eState
+0b18:f0 01        beq :error
+0b1a:60           rts
+0b1b:         :error
+0b1b:38           sec
 0b1c:60           rts
 0b1d:         
-0b1d:             .in 'eval.asm'
-0b1d:             .in 'zp.asm'
-0b1d:             .fi ; zpAsm
-0b1d:         
-0b1d:         
-0b1d:         esInit  = 0
-0b1d:         esOp    = 1
-0b1d:         
-0b1d:         
-0b1d:         eDone:
-0b1d:             ; err if not in esOp state
-0b1d:18           clc
-0b1e:a5 39        lda eState
-0b20:f0 01        beq :error
-0b22:60           rts
-0b23:         :error
-0b23:38           sec
-0b24:60           rts
-0b25:         
-0b25:         ;
-0b25:         ; normalize petscii in A into lineBuf,x
-0b25:         ePet:
-0b25:85 64        sta linePet
-0b27:29 e0        and #$e0
-0b29:c9 60        cmp #$60        ; %011xxxxx -> %110xxxxx
-0b2b:d0 08        bne :nopet
+0b1d:         ;
+0b1d:         ; normalize petscii in A into lineBuf,x
+0b1d:         ePet:
+0b1d:85 64        sta linePet
+0b1f:29 e0        and #$e0
+0b21:c9 60        cmp #$60        ; %011xxxxx -> %110xxxxx
+0b23:d0 08        bne :nopet
+0b25:a5 64        lda linePet
+0b27:49 a0        eor #$a0
+0b29:9d 00 20     sta lineBuf,x
+0b2c:60           rts
+0b2d:         :nopet
 0b2d:a5 64        lda linePet
-0b2f:49 a0        eor #$a0
-0b31:9d 00 20     sta lineBuf,x
-0b34:60           rts
-0b35:         :nopet
-0b35:a5 64        lda linePet
-0b37:60           rts
-0b38:         
-0b38:         ;
-0b38:         ; evaluate expression at lineBuf,x
-0b38:         eEval:
-0b38:64 39        stz eState
-0b3a:64 38        stz eOp
-0b3c:64 2b        stz arg
-0b3e:64 2c        stz arg+1
-0b40:20 be 0d     jsr ePush
-0b43:         
-0b43:         :loop
-0b43:bd 00 20     lda lineBuf,x
-0b46:f0 d5        beq eDone       ; eof
-0b48:c9 2c        cmp #',
-0b4a:f0 d1        beq eDone
-0b4c:c9 3b        cmp #';
-0b4e:f0 cd        beq eDone
-0b50:c9 29        cmp #')
-0b52:f0 c9        beq eDone
-0b54:         
-0b54:a4 39        ldy eState
-0b56:d0 26        bne :op
-0b58:         
-0b58:         :init
-0b58:20 f2 0d     jsr eIsDec
-0b5b:b0 4f        bcs :dec
-0b5d:20 23 0e     jsr eIsAlpha
-0b60:b0 6b        bcs :tosym
-0b62:c9 3a        cmp #':
-0b64:f0 67        beq :tosym
-0b66:c9 25        cmp #'%
-0b68:f0 58        beq :bin
-0b6a:c9 24        cmp #'$
-0b6c:f0 49        beq :hex
-0b6e:c9 28        cmp #'(
-0b70:f0 65        beq :sub
-0b72:c9 2a        cmp #'*
-0b74:f0 71        beq :pc
-0b76:c9 27        cmp #''
-0b78:f0 78        beq :char
-0b7a:             
-0b7a:a0 80        ldy #$80        ; indicate unary
-0b7c:84 38        sty eOp
-0b7e:             ; fall thru
-0b7e:         
-0b7e:         :op
-0b7e:e8           inx
-0b7f:         
-0b7f:29 7f        and #$7f        ; normalize petscii whitespace (shift+space)
-0b81:c9 21        cmp #33         ; whitespace?
-0b83:90 be        bcc :loop
-0b85:         
-0b85:05 38        ora eOp         ; push unary or binary op
-0b87:85 38        sta eOp
+0b2f:60           rts
+0b30:         
+0b30:         ;
+0b30:         ; evaluate expression at lineBuf,x
+0b30:         eEval:
+0b30:64 39        stz eState
+0b32:64 38        stz eOp
+0b34:64 2b        stz arg
+0b36:64 2c        stz arg+1
+0b38:20 b6 0d     jsr ePush
+0b3b:         
+0b3b:         :loop
+0b3b:bd 00 20     lda lineBuf,x
+0b3e:f0 d5        beq eDone       ; eof
+0b40:c9 2c        cmp #',
+0b42:f0 d1        beq eDone
+0b44:c9 3b        cmp #';
+0b46:f0 cd        beq eDone
+0b48:c9 29        cmp #')
+0b4a:f0 c9        beq eDone
+0b4c:         
+0b4c:a4 39        ldy eState
+0b4e:d0 26        bne :op
+0b50:         
+0b50:         :init
+0b50:20 ea 0d     jsr eIsDec
+0b53:b0 4f        bcs :dec
+0b55:20 1b 0e     jsr eIsAlpha
+0b58:b0 6b        bcs :tosym
+0b5a:c9 3a        cmp #':
+0b5c:f0 67        beq :tosym
+0b5e:c9 25        cmp #'%
+0b60:f0 58        beq :bin
+0b62:c9 24        cmp #'$
+0b64:f0 49        beq :hex
+0b66:c9 28        cmp #'(
+0b68:f0 65        beq :sub
+0b6a:c9 2a        cmp #'*
+0b6c:f0 71        beq :pc
+0b6e:c9 27        cmp #''
+0b70:f0 78        beq :char
+0b72:             
+0b72:a0 80        ldy #$80        ; indicate unary
+0b74:84 38        sty eOp
+0b76:             ; fall thru
+0b76:         
+0b76:         :op
+0b76:e8           inx
+0b77:         
+0b77:29 7f        and #$7f        ; normalize petscii whitespace (shift+space)
+0b79:c9 21        cmp #33         ; whitespace?
+0b7b:90 be        bcc :loop
+0b7d:         
+0b7d:05 38        ora eOp         ; push unary or binary op
+0b7f:85 38        sta eOp
+0b81:         
+0b81:c9 3e        cmp #'>
+0b83:f0 0a        beq :optwo
+0b85:             
+0b85:c9 3c        cmp #'<
+0b87:f0 06        beq :optwo
 0b89:         
-0b89:c9 3e        cmp #'>
-0b8b:f0 0a        beq :optwo
+0b89:c9 21        cmp #'!
+0b8b:f0 02        beq :optwo
 0b8d:             
-0b8d:c9 3c        cmp #'<
-0b8f:f0 06        beq :optwo
-0b91:         
-0b91:c9 21        cmp #'!
-0b93:f0 02        beq :optwo
-0b95:             
-0b95:80 0e        bra :opone
-0b97:         
-0b97:         :optwo
-0b97:bd 00 20     lda lineBuf,x
-0b9a:c9 3d        cmp #'=
-0b9c:d0 07        bne :opone 
-0b9e:         
-0b9e:e8           inx             ; this is >=, <=, or !=
-0b9f:a9 40        lda #$40        ; add 64 to indicate = suffix
-0ba1:05 38        ora eOp
-0ba3:85 38        sta eOp
-0ba5:         
-0ba5:         :opone
-0ba5:20 be 0d     jsr ePush
-0ba8:64 39        stz eState
-0baa:80 97        bra :loop
-0bac:         
-0bac:         :dec
-0bac:20 f2 0d     jsr eIsDec
-0baf:90 55        bcc :term       ; not a decimal digit?
-0bb1:20 5d 0d     jsr eDec
-0bb4:e8           inx
-0bb5:d0 f5        bne :dec
-0bb7:         
-0bb7:         :hex
-0bb7:e8           inx
-0bb8:20 08 0e     jsr eIsHex
-0bbb:90 49        bcc :term       ; not a hex digit?
-0bbd:20 90 0d     jsr eHex
-0bc0:80 f5        bra :hex
-0bc2:             
-0bc2:         :bin
-0bc2:e8           inx
-0bc3:20 19 0e     jsr eIsBin
-0bc6:d0 3e        bne :term       ; not a binary digit?
-0bc8:20 b2 0d     jsr eBin
-0bcb:80 f5        bra :bin
-0bcd:         
-0bcd:         :tosym
-0bcd:86 3f        stx labelPtr    ; note where it starts
-0bcf:             
-0bcf:         :sym
-0bcf:20 3b 0e     jsr eIsSym
-0bd2:d0 29        bne :termsym
-0bd4:e8           inx
-0bd5:80 f8        bra :sym
-0bd7:         
-0bd7:         :sub
-0bd7:e8           inx             ; skip '('
-0bd8:20 38 0b     jsr eEval       ; evaluate subexpression
-0bdb:b0 37        bcs :out
-0bdd:bd 00 20     lda lineBuf,x
-0be0:c9 29        cmp #')
-0be2:d0 22        bne :term
-0be4:e8           inx             ; consume ')'
-0be5:80 1f        bra :term
-0be7:         
-0be7:         :pc
-0be7:e8           inx             ; skip '*'
-0be8:a5 29        lda pc          ; arg=pc
-0bea:85 2b        sta arg
-0bec:a5 2a        lda pc+1
-0bee:85 2c        sta arg+1
-0bf0:80 14        bra :term
-0bf2:         
-0bf2:         :char
-0bf2:e8           inx             ; skip '
-0bf3:bd 00 20     lda lineBuf,x   ; arg=literal character
-0bf6:e8           inx             ; consume
-0bf7:85 2b        sta arg
-0bf9:64 2c        stz arg+1
-0bfb:80 09        bra :term
-0bfd:         
-0bfd:         :termsym
-0bfd:86 40        stx labelEnd
-0bff:20 4b 0e     jsr eResolveSym ; resolve label value into arg
-0c02:b0 10        bcs :out
-0c04:a6 40        ldx labelEnd
-0c06:             ; fall thru
-0c06:         
-0c06:         :term
-0c06:20 15 0c     jsr eExec       ; pop and execute what we have so far
-0c09:b0 09        bcs :out
-0c0b:a9 01        lda #esOp       ; now in op state
-0c0d:85 39        sta eState
-0c0f:64 38        stz eOp         ; clear op, and not unary
-0c11:4c 43 0b     jmp :loop
-0c14:         
-0c14:         :out    
-0c14:60           rts
-0c15:         
-0c15:         ;
-0c15:         ; exec term
-0c15:         eExec:
-0c15:20 1f 0c     jsr eExecOne
-0c18:b0 04        bcs :out
-0c1a:24 38        bit eOp
-0c1c:30 f7        bmi eExec
-0c1e:         :out
-0c1e:60           rts
-0c1f:         
-0c1f:         eExecOne:
-0c1f:20 db 0d     jsr ePop
-0c22:a5 38        lda eOp
-0c24:f0 63        beq :assign
-0c26:c9 2b        cmp #'+
-0c28:f0 61        beq :add
-0c2a:c9 2d        cmp #'-
-0c2c:f0 6c        beq :sub
-0c2e:c9 ad        cmp #$80+'- ; unary -
-0c30:f0 68        beq :sub
-0c32:c9 26        cmp #'&
-0c34:f0 73        beq :and
-0c36:c9 5e        cmp #'^
-0c38:f0 2e        beq :xorb
-0c3a:c9 2e        cmp #'.
-0c3c:f0 79        beq :or
-0c3e:c9 a1        cmp #$80+'! ; unary '!'
-0c40:f0 29        beq :notb
-0c42:c9 bc        cmp #$80+'< ; unary '<'
-0c44:f0 28        beq :lob
-0c46:c9 be        cmp #$80+'> ; unary '>'
-0c48:f0 27        beq :hib
-0c4a:c9 3d        cmp #'=
-0c4c:f0 26        beq :eqb
-0c4e:c9 3e        cmp #'>
-0c50:f0 25        beq :gtb
-0c52:c9 3c        cmp #'<
-0c54:f0 24        beq :ltb
-0c56:c9 7e        cmp #$40+'> ; >=
-0c58:f0 23        beq :geb
-0c5a:c9 7c        cmp #$40+'< ; <=
-0c5c:f0 22        beq :leb
-0c5e:c9 61        cmp #$40+'! ; !=
-0c60:f0 21        beq :neb
-0c62:c9 25        cmp #'%
-0c64:f0 20        beq :alignb
-0c66:38           sec
-0c67:60           rts
-0c68:         
-0c68:         :xorb
-0c68:4c c5 0c     jmp :xor
-0c6b:         
-0c6b:         :notb
-0c6b:4c d3 0c     jmp :not
-0c6e:         
-0c6e:         :lob
-0c6e:4c e5 0c     jmp :lo
-0c71:         
-0c71:         :hib
-0c71:4c e1 0c     jmp :hi
-0c74:         
-0c74:         :eqb
-0c74:4c e9 0c     jmp :eq
-0c77:         
-0c77:         :gtb
-0c77:4c f7 0c     jmp :gt
-0c7a:         
-0c7a:         :ltb
-0c7a:4c 05 0d     jmp :lt
-0c7d:         
-0c7d:         :geb
-0c7d:4c 13 0d     jmp :ge
-0c80:         
-0c80:         :leb
-0c80:4c 21 0d     jmp :le
+0b8d:80 0e        bra :opone
+0b8f:         
+0b8f:         :optwo
+0b8f:bd 00 20     lda lineBuf,x
+0b92:c9 3d        cmp #'=
+0b94:d0 07        bne :opone 
+0b96:         
+0b96:e8           inx             ; this is >=, <=, or !=
+0b97:a9 40        lda #$40        ; add 64 to indicate = suffix
+0b99:05 38        ora eOp
+0b9b:85 38        sta eOp
+0b9d:         
+0b9d:         :opone
+0b9d:20 b6 0d     jsr ePush
+0ba0:64 39        stz eState
+0ba2:80 97        bra :loop
+0ba4:         
+0ba4:         :dec
+0ba4:20 ea 0d     jsr eIsDec
+0ba7:90 55        bcc :term       ; not a decimal digit?
+0ba9:20 55 0d     jsr eDec
+0bac:e8           inx
+0bad:d0 f5        bne :dec
+0baf:         
+0baf:         :hex
+0baf:e8           inx
+0bb0:20 00 0e     jsr eIsHex
+0bb3:90 49        bcc :term       ; not a hex digit?
+0bb5:20 88 0d     jsr eHex
+0bb8:80 f5        bra :hex
+0bba:             
+0bba:         :bin
+0bba:e8           inx
+0bbb:20 11 0e     jsr eIsBin
+0bbe:d0 3e        bne :term       ; not a binary digit?
+0bc0:20 aa 0d     jsr eBin
+0bc3:80 f5        bra :bin
+0bc5:         
+0bc5:         :tosym
+0bc5:86 3f        stx labelPtr    ; note where it starts
+0bc7:             
+0bc7:         :sym
+0bc7:20 33 0e     jsr eIsSym
+0bca:d0 29        bne :termsym
+0bcc:e8           inx
+0bcd:80 f8        bra :sym
+0bcf:         
+0bcf:         :sub
+0bcf:e8           inx             ; skip '('
+0bd0:20 30 0b     jsr eEval       ; evaluate subexpression
+0bd3:b0 37        bcs :out
+0bd5:bd 00 20     lda lineBuf,x
+0bd8:c9 29        cmp #')
+0bda:d0 22        bne :term
+0bdc:e8           inx             ; consume ')'
+0bdd:80 1f        bra :term
+0bdf:         
+0bdf:         :pc
+0bdf:e8           inx             ; skip '*'
+0be0:a5 29        lda pc          ; arg=pc
+0be2:85 2b        sta arg
+0be4:a5 2a        lda pc+1
+0be6:85 2c        sta arg+1
+0be8:80 14        bra :term
+0bea:         
+0bea:         :char
+0bea:e8           inx             ; skip '
+0beb:bd 00 20     lda lineBuf,x   ; arg=literal character
+0bee:e8           inx             ; consume
+0bef:85 2b        sta arg
+0bf1:64 2c        stz arg+1
+0bf3:80 09        bra :term
+0bf5:         
+0bf5:         :termsym
+0bf5:86 40        stx labelEnd
+0bf7:20 43 0e     jsr eResolveSym ; resolve label value into arg
+0bfa:b0 10        bcs :out
+0bfc:a6 40        ldx labelEnd
+0bfe:             ; fall thru
+0bfe:         
+0bfe:         :term
+0bfe:20 0d 0c     jsr eExec       ; pop and execute what we have so far
+0c01:b0 09        bcs :out
+0c03:a9 01        lda #esOp       ; now in op state
+0c05:85 39        sta eState
+0c07:64 38        stz eOp         ; clear op, and not unary
+0c09:4c 3b 0b     jmp :loop
+0c0c:         
+0c0c:         :out    
+0c0c:60           rts
+0c0d:         
+0c0d:         ;
+0c0d:         ; exec term
+0c0d:         eExec:
+0c0d:20 17 0c     jsr eExecOne
+0c10:b0 04        bcs :out
+0c12:24 38        bit eOp
+0c14:30 f7        bmi eExec
+0c16:         :out
+0c16:60           rts
+0c17:         
+0c17:         eExecOne:
+0c17:20 d3 0d     jsr ePop
+0c1a:a5 38        lda eOp
+0c1c:f0 63        beq :assign
+0c1e:c9 2b        cmp #'+
+0c20:f0 61        beq :add
+0c22:c9 2d        cmp #'-
+0c24:f0 6c        beq :sub
+0c26:c9 ad        cmp #$80+'- ; unary -
+0c28:f0 68        beq :sub
+0c2a:c9 26        cmp #'&
+0c2c:f0 73        beq :and
+0c2e:c9 5e        cmp #'^
+0c30:f0 2e        beq :xorb
+0c32:c9 2e        cmp #'.
+0c34:f0 79        beq :or
+0c36:c9 a1        cmp #$80+'! ; unary '!'
+0c38:f0 29        beq :notb
+0c3a:c9 bc        cmp #$80+'< ; unary '<'
+0c3c:f0 28        beq :lob
+0c3e:c9 be        cmp #$80+'> ; unary '>'
+0c40:f0 27        beq :hib
+0c42:c9 3d        cmp #'=
+0c44:f0 26        beq :eqb
+0c46:c9 3e        cmp #'>
+0c48:f0 25        beq :gtb
+0c4a:c9 3c        cmp #'<
+0c4c:f0 24        beq :ltb
+0c4e:c9 7e        cmp #$40+'> ; >=
+0c50:f0 23        beq :geb
+0c52:c9 7c        cmp #$40+'< ; <=
+0c54:f0 22        beq :leb
+0c56:c9 61        cmp #$40+'! ; !=
+0c58:f0 21        beq :neb
+0c5a:c9 25        cmp #'%
+0c5c:f0 20        beq :alignb
+0c5e:38           sec
+0c5f:60           rts
+0c60:         
+0c60:         :xorb
+0c60:4c bd 0c     jmp :xor
+0c63:         
+0c63:         :notb
+0c63:4c cb 0c     jmp :not
+0c66:         
+0c66:         :lob
+0c66:4c dd 0c     jmp :lo
+0c69:         
+0c69:         :hib
+0c69:4c d9 0c     jmp :hi
+0c6c:         
+0c6c:         :eqb
+0c6c:4c e1 0c     jmp :eq
+0c6f:         
+0c6f:         :gtb
+0c6f:4c ef 0c     jmp :gt
+0c72:         
+0c72:         :ltb
+0c72:4c fd 0c     jmp :lt
+0c75:         
+0c75:         :geb
+0c75:4c 0b 0d     jmp :ge
+0c78:         
+0c78:         :leb
+0c78:4c 19 0d     jmp :le
+0c7b:         
+0c7b:         :neb
+0c7b:4c 27 0d     jmp :ne
+0c7e:         
+0c7e:         :alignb
+0c7e:4c 43 0d     jmp :align
+0c81:         
+0c81:         ;
+0c81:         ; arg=arg
+0c81:         :assign
+0c81:18           clc
+0c82:60           rts
 0c83:         
-0c83:         :neb
-0c83:4c 2f 0d     jmp :ne
-0c86:         
-0c86:         :alignb
-0c86:4c 4b 0d     jmp :align
-0c89:         
-0c89:         ;
-0c89:         ; arg=arg
-0c89:         :assign
-0c89:18           clc
-0c8a:60           rts
-0c8b:         
-0c8b:         ;
-0c8b:         ; arg+=term
-0c8b:         :add
-0c8b:a5 2b        lda arg
-0c8d:18           clc
-0c8e:65 2d        adc term
-0c90:85 2b        sta arg
-0c92:a5 2c        lda arg+1
-0c94:65 2e        adc term+1
-0c96:85 2c        sta arg+1
-0c98:18           clc
-0c99:60           rts
-0c9a:         
-0c9a:         ;
-0c9a:         ; arg=term-arg
-0c9a:         :sub
-0c9a:a5 2d        lda term
-0c9c:38           sec
-0c9d:e5 2b        sbc arg
-0c9f:85 2b        sta arg
-0ca1:a5 2e        lda term+1
-0ca3:e5 2c        sbc arg+1
-0ca5:85 2c        sta arg+1
-0ca7:18           clc
-0ca8:60           rts
-0ca9:         
-0ca9:         ;
-0ca9:         ; arg&=term
-0ca9:         :and
-0ca9:a5 2b        lda arg
-0cab:25 2d        and term
-0cad:85 2b        sta arg
-0caf:a5 2c        lda arg+1
-0cb1:25 2e        and term+1
-0cb3:85 2c        sta arg+1
-0cb5:18           clc
-0cb6:60           rts
-0cb7:         
-0cb7:         ;
-0cb7:         ; arg.=term
-0cb7:         :or
-0cb7:a5 2b        lda arg
-0cb9:05 2d        ora term
-0cbb:85 2b        sta arg
-0cbd:a5 2c        lda arg+1
-0cbf:05 2e        ora term+1
-0cc1:85 2c        sta arg+1
-0cc3:18           clc
-0cc4:60           rts
-0cc5:         
-0cc5:         ;
-0cc5:         ; arg^=term
-0cc5:         :xor
-0cc5:a5 2b        lda arg
-0cc7:45 2d        eor term
-0cc9:85 2b        sta arg
-0ccb:a5 2c        lda arg+1
-0ccd:45 2e        eor term+1
-0ccf:85 2c        sta arg+1
-0cd1:18           clc
-0cd2:60           rts
-0cd3:         
-0cd3:         ;
-0cd3:         ; arg=!arg
-0cd3:         :not
-0cd3:a5 2b        lda arg
-0cd5:49 ff        eor #$ff
-0cd7:85 2b        sta arg
+0c83:         ;
+0c83:         ; arg+=term
+0c83:         :add
+0c83:a5 2b        lda arg
+0c85:18           clc
+0c86:65 2d        adc term
+0c88:85 2b        sta arg
+0c8a:a5 2c        lda arg+1
+0c8c:65 2e        adc term+1
+0c8e:85 2c        sta arg+1
+0c90:18           clc
+0c91:60           rts
+0c92:         
+0c92:         ;
+0c92:         ; arg=term-arg
+0c92:         :sub
+0c92:a5 2d        lda term
+0c94:38           sec
+0c95:e5 2b        sbc arg
+0c97:85 2b        sta arg
+0c99:a5 2e        lda term+1
+0c9b:e5 2c        sbc arg+1
+0c9d:85 2c        sta arg+1
+0c9f:18           clc
+0ca0:60           rts
+0ca1:         
+0ca1:         ;
+0ca1:         ; arg&=term
+0ca1:         :and
+0ca1:a5 2b        lda arg
+0ca3:25 2d        and term
+0ca5:85 2b        sta arg
+0ca7:a5 2c        lda arg+1
+0ca9:25 2e        and term+1
+0cab:85 2c        sta arg+1
+0cad:18           clc
+0cae:60           rts
+0caf:         
+0caf:         ;
+0caf:         ; arg.=term
+0caf:         :or
+0caf:a5 2b        lda arg
+0cb1:05 2d        ora term
+0cb3:85 2b        sta arg
+0cb5:a5 2c        lda arg+1
+0cb7:05 2e        ora term+1
+0cb9:85 2c        sta arg+1
+0cbb:18           clc
+0cbc:60           rts
+0cbd:         
+0cbd:         ;
+0cbd:         ; arg^=term
+0cbd:         :xor
+0cbd:a5 2b        lda arg
+0cbf:45 2d        eor term
+0cc1:85 2b        sta arg
+0cc3:a5 2c        lda arg+1
+0cc5:45 2e        eor term+1
+0cc7:85 2c        sta arg+1
+0cc9:18           clc
+0cca:60           rts
+0ccb:         
+0ccb:         ;
+0ccb:         ; arg=!arg
+0ccb:         :not
+0ccb:a5 2b        lda arg
+0ccd:49 ff        eor #$ff
+0ccf:85 2b        sta arg
+0cd1:a5 2c        lda arg+1
+0cd3:49 ff        eor #$ff
+0cd5:85 2c        sta arg+1
+0cd7:18           clc
+0cd8:60           rts
+0cd9:         
+0cd9:         ;
+0cd9:         ; arg=>arg
+0cd9:         :hi
 0cd9:a5 2c        lda arg+1
-0cdb:49 ff        eor #$ff
-0cdd:85 2c        sta arg+1
+0cdb:85 2b        sta arg
+0cdd:             ; fall thru
+0cdd:         
+0cdd:         ;
+0cdd:         ; arg=<arg
+0cdd:         :lo
+0cdd:64 2c        stz arg+1
 0cdf:18           clc
 0ce0:60           rts
 0ce1:         
 0ce1:         ;
-0ce1:         ; arg=>arg
-0ce1:         :hi
-0ce1:a5 2c        lda arg+1
-0ce3:85 2b        sta arg
-0ce5:             ; fall thru
-0ce5:         
-0ce5:         ;
-0ce5:         ; arg=<arg
-0ce5:         :lo
-0ce5:64 2c        stz arg+1
-0ce7:18           clc
-0ce8:60           rts
-0ce9:         
-0ce9:         ;
-0ce9:         ; arg=term?
-0ce9:         :eq
-0ce9:a5 2b        lda arg
-0ceb:c5 2d        cmp term
-0ced:d0 56        bne :false
+0ce1:         ; arg=term?
+0ce1:         :eq
+0ce1:a5 2b        lda arg
+0ce3:c5 2d        cmp term
+0ce5:d0 56        bne :false
+0ce7:a5 2c        lda arg+1
+0ce9:c5 2e        cmp term+1
+0ceb:d0 50        bne :false
+0ced:80 46        bra :true
+0cef:         
+0cef:         ;
+0cef:         ; term>arg?
+0cef:         :gt
 0cef:a5 2c        lda arg+1
 0cf1:c5 2e        cmp term+1
-0cf3:d0 50        bne :false
-0cf5:80 46        bra :true
-0cf7:         
-0cf7:         ;
-0cf7:         ; term>arg?
-0cf7:         :gt
-0cf7:a5 2c        lda arg+1
-0cf9:c5 2e        cmp term+1
-0cfb:90 40        bcc :true
-0cfd:a5 2b        lda arg
-0cff:c5 2d        cmp term
-0d01:90 3a        bcc :true
-0d03:80 40        bra :false
-0d05:         
-0d05:         ;
-0d05:         ; term<arg?
-0d05:         :lt
-0d05:a5 2e        lda term+1
-0d07:c5 2c        cmp arg+1
-0d09:90 32        bcc :true
-0d0b:a5 2d        lda term
-0d0d:c5 2b        cmp arg
-0d0f:90 2c        bcc :true
-0d11:80 32        bra :false
-0d13:         
-0d13:         ;
-0d13:         ; term>=arg?
-0d13:         :ge
-0d13:a5 2e        lda term+1
-0d15:c5 2c        cmp arg+1
-0d17:90 2c        bcc :false
-0d19:a5 2d        lda term
-0d1b:c5 2b        cmp arg
-0d1d:90 26        bcc :false
-0d1f:80 1c        bra :true
-0d21:         
-0d21:         ; term<=arg?
-0d21:         :le
-0d21:a5 2c        lda arg+1
-0d23:c5 2e        cmp term+1
-0d25:90 1e        bcc :false
-0d27:a5 2b        lda arg
-0d29:c5 2d        cmp term
-0d2b:90 18        bcc :false
-0d2d:80 0e        bra :true
-0d2f:         
-0d2f:         ; term!=arg?
-0d2f:         :ne
-0d2f:a5 2c        lda arg+1
-0d31:c5 2e        cmp term+1
-0d33:d0 08        bne :true
-0d35:a5 2b        lda arg
-0d37:c5 2d        cmp term
-0d39:d0 02        bne :true
-0d3b:80 08        bra :false
+0cf3:90 40        bcc :true
+0cf5:a5 2b        lda arg
+0cf7:c5 2d        cmp term
+0cf9:90 3a        bcc :true
+0cfb:80 40        bra :false
+0cfd:         
+0cfd:         ;
+0cfd:         ; term<arg?
+0cfd:         :lt
+0cfd:a5 2e        lda term+1
+0cff:c5 2c        cmp arg+1
+0d01:90 32        bcc :true
+0d03:a5 2d        lda term
+0d05:c5 2b        cmp arg
+0d07:90 2c        bcc :true
+0d09:80 32        bra :false
+0d0b:         
+0d0b:         ;
+0d0b:         ; term>=arg?
+0d0b:         :ge
+0d0b:a5 2e        lda term+1
+0d0d:c5 2c        cmp arg+1
+0d0f:90 2c        bcc :false
+0d11:a5 2d        lda term
+0d13:c5 2b        cmp arg
+0d15:90 26        bcc :false
+0d17:80 1c        bra :true
+0d19:         
+0d19:         ; term<=arg?
+0d19:         :le
+0d19:a5 2c        lda arg+1
+0d1b:c5 2e        cmp term+1
+0d1d:90 1e        bcc :false
+0d1f:a5 2b        lda arg
+0d21:c5 2d        cmp term
+0d23:90 18        bcc :false
+0d25:80 0e        bra :true
+0d27:         
+0d27:         ; term!=arg?
+0d27:         :ne
+0d27:a5 2c        lda arg+1
+0d29:c5 2e        cmp term+1
+0d2b:d0 08        bne :true
+0d2d:a5 2b        lda arg
+0d2f:c5 2d        cmp term
+0d31:d0 02        bne :true
+0d33:80 08        bra :false
+0d35:         
+0d35:         :true
+0d35:a9 ff        lda #$ff
+0d37:85 2b        sta arg
+0d39:85 2c        sta arg+1
+0d3b:18           clc
+0d3c:60           rts
 0d3d:         
-0d3d:         :true
-0d3d:a9 ff        lda #$ff
-0d3f:85 2b        sta arg
-0d41:85 2c        sta arg+1
-0d43:18           clc
-0d44:60           rts
-0d45:         
-0d45:         :false
-0d45:64 2b        stz arg
-0d47:64 2c        stz arg+1
-0d49:18           clc
-0d4a:60           rts
-0d4b:         
-0d4b:         ; arg=term%arg
-0d4b:         :align              ; limited to $100 max
-0d4b:c6 2b        dec arg
-0d4d:a5 2b        lda arg
-0d4f:25 2d        and term
-0d51:45 2b        eor arg
-0d53:1a           inc
-0d54:25 2b        and arg
-0d56:85 2b        sta arg
-0d58:64 2c        stz arg+1
-0d5a:4c 8b 0c     jmp :add
-0d5d:         
-0d5d:         ;
-0d5d:         ; add decimal digit in lineBuf,x to arg
-0d5d:         eDec:
-0d5d:a5 2b        lda arg         ; scratch=arg*8
-0d5f:0a           asl
-0d60:85 36        sta scratch
-0d62:a5 2c        lda arg+1
-0d64:2a           rol
-0d65:85 37        sta scratch+1
+0d3d:         :false
+0d3d:64 2b        stz arg
+0d3f:64 2c        stz arg+1
+0d41:18           clc
+0d42:60           rts
+0d43:         
+0d43:         ; arg=term%arg
+0d43:         :align              ; limited to $100 max
+0d43:c6 2b        dec arg
+0d45:a5 2b        lda arg
+0d47:25 2d        and term
+0d49:45 2b        eor arg
+0d4b:1a           inc
+0d4c:25 2b        and arg
+0d4e:85 2b        sta arg
+0d50:64 2c        stz arg+1
+0d52:4c 83 0c     jmp :add
+0d55:         
+0d55:         ;
+0d55:         ; add decimal digit in lineBuf,x to arg
+0d55:         eDec:
+0d55:a5 2b        lda arg         ; scratch=arg*8
+0d57:0a           asl
+0d58:85 36        sta scratch
+0d5a:a5 2c        lda arg+1
+0d5c:2a           rol
+0d5d:85 37        sta scratch+1
+0d5f:         
+0d5f:06 36        asl scratch
+0d61:26 37        rol scratch+1
+0d63:06 36        asl scratch
+0d65:26 37        rol scratch+1
 0d67:         
-0d67:06 36        asl scratch
-0d69:26 37        rol scratch+1
-0d6b:06 36        asl scratch
-0d6d:26 37        rol scratch+1
-0d6f:         
-0d6f:06 2b        asl arg         ; arg=arg*2
-0d71:26 2c        rol arg+1
-0d73:         
-0d73:a5 2b        lda arg         ; arg=arg+scratch
-0d75:18           clc
-0d76:65 36        adc scratch
-0d78:85 2b        sta arg
-0d7a:a5 2c        lda arg+1
-0d7c:65 37        adc scratch+1
-0d7e:85 2c        sta arg+1
-0d80:         
-0d80:bd 00 20     lda lineBuf,x
-0d83:38           sec
-0d84:e9 30        sbc #'0
-0d86:18           clc
-0d87:65 2b        adc arg
-0d89:85 2b        sta arg
-0d8b:90 02        bcc :out
-0d8d:e6 2c        inc arg+1
-0d8f:         :out
-0d8f:60           rts
-0d90:         
-0d90:         ;
-0d90:         ; add hex digit in lineBuf,x to arg
-0d90:         eHex:
+0d67:06 2b        asl arg         ; arg=arg*2
+0d69:26 2c        rol arg+1
+0d6b:         
+0d6b:a5 2b        lda arg         ; arg=arg+scratch
+0d6d:18           clc
+0d6e:65 36        adc scratch
+0d70:85 2b        sta arg
+0d72:a5 2c        lda arg+1
+0d74:65 37        adc scratch+1
+0d76:85 2c        sta arg+1
+0d78:         
+0d78:bd 00 20     lda lineBuf,x
+0d7b:38           sec
+0d7c:e9 30        sbc #'0
+0d7e:18           clc
+0d7f:65 2b        adc arg
+0d81:85 2b        sta arg
+0d83:90 02        bcc :out
+0d85:e6 2c        inc arg+1
+0d87:         :out
+0d87:60           rts
+0d88:         
+0d88:         ;
+0d88:         ; add hex digit in lineBuf,x to arg
+0d88:         eHex:
+0d88:06 2b        asl arg
+0d8a:26 2c        rol arg+1
+0d8c:06 2b        asl arg
+0d8e:26 2c        rol arg+1
 0d90:06 2b        asl arg
 0d92:26 2c        rol arg+1
 0d94:06 2b        asl arg
 0d96:26 2c        rol arg+1
-0d98:06 2b        asl arg
-0d9a:26 2c        rol arg+1
-0d9c:06 2b        asl arg
-0d9e:26 2c        rol arg+1
-0da0:         
-0da0:bd 00 20     lda lineBuf,x
-0da3:38           sec
-0da4:e9 3a        sbc #'9+1
-0da6:90 03        bcc :digit
-0da8:e9 07        sbc #7
-0daa:18           clc
-0dab:         :digit
-0dab:69 0a        adc #10
-0dad:         
-0dad:05 2b        ora arg
-0daf:85 2b        sta arg
-0db1:60           rts
-0db2:         
-0db2:         ;
-0db2:         ; add binary digit in lineBuf,x to arg
-0db2:         eBin:
-0db2:06 2b        asl arg
-0db4:26 2c        rol arg+1
-0db6:38           sec
-0db7:e9 30        sbc #'0
-0db9:05 2b        ora arg
-0dbb:85 2b        sta arg
-0dbd:60           rts
+0d98:         
+0d98:bd 00 20     lda lineBuf,x
+0d9b:38           sec
+0d9c:e9 3a        sbc #'9+1
+0d9e:90 03        bcc :digit
+0da0:e9 07        sbc #7
+0da2:18           clc
+0da3:         :digit
+0da3:69 0a        adc #10
+0da5:         
+0da5:05 2b        ora arg
+0da7:85 2b        sta arg
+0da9:60           rts
+0daa:         
+0daa:         ;
+0daa:         ; add binary digit in lineBuf,x to arg
+0daa:         eBin:
+0daa:06 2b        asl arg
+0dac:26 2c        rol arg+1
+0dae:38           sec
+0daf:e9 30        sbc #'0
+0db1:05 2b        ora arg
+0db3:85 2b        sta arg
+0db5:60           rts
+0db6:         
+0db6:         ;
+0db6:         ; push arg,op,state
+0db6:         ePush:
+0db6:a4 2f        ldy ePtr
+0db8:         
+0db8:a5 38        lda eOp
+0dba:99 00 1f     sta eStack,y
+0dbd:88           dey
 0dbe:         
-0dbe:         ;
-0dbe:         ; push arg,op,state
-0dbe:         ePush:
-0dbe:a4 2f        ldy ePtr
-0dc0:         
-0dc0:a5 38        lda eOp
-0dc2:99 00 1f     sta eStack,y
-0dc5:88           dey
-0dc6:         
-0dc6:a5 2c        lda arg+1
-0dc8:99 00 1f     sta eStack,y
-0dcb:88           dey
+0dbe:a5 2c        lda arg+1
+0dc0:99 00 1f     sta eStack,y
+0dc3:88           dey
+0dc4:         
+0dc4:a5 2b        lda arg
+0dc6:99 00 1f     sta eStack,y
+0dc9:88           dey
+0dca:         
+0dca:84 2f        sty ePtr
 0dcc:         
-0dcc:a5 2b        lda arg
-0dce:99 00 1f     sta eStack,y
-0dd1:88           dey
-0dd2:         
-0dd2:84 2f        sty ePtr
-0dd4:         
-0dd4:64 38        stz eOp
-0dd6:64 2b        stz arg
-0dd8:64 2c        stz arg+1
-0dda:60           rts
+0dcc:64 38        stz eOp
+0dce:64 2b        stz arg
+0dd0:64 2c        stz arg+1
+0dd2:60           rts
+0dd3:         
+0dd3:         ;
+0dd3:         ; pop term,op,state
+0dd3:         ePop:
+0dd3:a4 2f        ldy ePtr
+0dd5:         
+0dd5:c8           iny
+0dd6:b9 00 1f     lda eStack,y
+0dd9:85 2d        sta term
 0ddb:         
-0ddb:         ;
-0ddb:         ; pop term,op,state
-0ddb:         ePop:
-0ddb:a4 2f        ldy ePtr
-0ddd:         
-0ddd:c8           iny
-0dde:b9 00 1f     lda eStack,y
-0de1:85 2d        sta term
-0de3:         
-0de3:c8           iny
-0de4:b9 00 1f     lda eStack,y
-0de7:85 2e        sta term+1
-0de9:         
-0de9:c8           iny
-0dea:b9 00 1f     lda eStack,y
-0ded:85 38        sta eOp
-0def:         
-0def:84 2f        sty ePtr
-0df1:60           rts
-0df2:         
-0df2:         ;
-0df2:         ; test if lineBuf,x is decimal digit
-0df2:         ; C=1 if so
-0df2:         eIsDec:
-0df2:bd 00 20     lda lineBuf,x
-0df5:c9 3a        cmp #'9+1
-0df7:b0 03        bcs eIsNot
-0df9:         
-0df9:c9 30        cmp #'0
-0dfb:60           rts
-0dfc:         
-0dfc:         eIsNot:
-0dfc:18           clc
-0dfd:60           rts
-0dfe:         
-0dfe:         ;
-0dfe:         ; test if lineBuf,x is octal digit
-0dfe:         ; C=1 if so, also returns char in A
-0dfe:         eIsOct:
-0dfe:bd 00 20     lda lineBuf,x
-0e01:c9 38        cmp #'7+1
-0e03:b0 f7        bcs eIsNot
-0e05:         
-0e05:c9 30        cmp #'0
-0e07:60           rts
-0e08:         
-0e08:         ;
-0e08:         ; test if lineBuf,x is hex digit
-0e08:         ; C=1 if so
-0e08:         ; side effect: uppercase normalized
-0e08:         eIsHex:
-0e08:20 f2 0d     jsr eIsDec
-0e0b:b0 0b        bcs :out
-0e0d:20 25 0b     jsr ePet
-0e10:29 7f        and #$7f
-0e12:         
-0e12:c9 47        cmp #'f+1
-0e14:b0 e6        bcs eIsNot
-0e16:         
-0e16:c9 41        cmp #'a
-0e18:         :out
-0e18:60           rts
-0e19:         
-0e19:         ;
-0e19:         ; test if lineBuf,x is binary digit
-0e19:         ; Z=1 if so
-0e19:         eIsBin:
-0e19:bd 00 20     lda lineBuf,x
-0e1c:c9 31        cmp #'1
-0e1e:f0 02        beq :out
-0e20:c9 30        cmp #'0
-0e22:         :out
-0e22:60           rts
-0e23:         
-0e23:         ;
-0e23:         ; test if lineBuf,X is alpha
-0e23:         ; C=1 if so
-0e23:         eIsAlpha:
-0e23:bd 00 20     lda lineBuf,x
-0e26:20 25 0b     jsr ePet
+0ddb:c8           iny
+0ddc:b9 00 1f     lda eStack,y
+0ddf:85 2e        sta term+1
+0de1:         
+0de1:c8           iny
+0de2:b9 00 1f     lda eStack,y
+0de5:85 38        sta eOp
+0de7:         
+0de7:84 2f        sty ePtr
+0de9:60           rts
+0dea:         
+0dea:         ;
+0dea:         ; test if lineBuf,x is decimal digit
+0dea:         ; C=1 if so
+0dea:         eIsDec:
+0dea:bd 00 20     lda lineBuf,x
+0ded:c9 3a        cmp #'9+1
+0def:b0 03        bcs eIsNot
+0df1:         
+0df1:c9 30        cmp #'0
+0df3:60           rts
+0df4:         
+0df4:         eIsNot:
+0df4:18           clc
+0df5:60           rts
+0df6:         
+0df6:         ;
+0df6:         ; test if lineBuf,x is octal digit
+0df6:         ; C=1 if so, also returns char in A
+0df6:         eIsOct:
+0df6:bd 00 20     lda lineBuf,x
+0df9:c9 38        cmp #'7+1
+0dfb:b0 f7        bcs eIsNot
+0dfd:         
+0dfd:c9 30        cmp #'0
+0dff:60           rts
+0e00:         
+0e00:         ;
+0e00:         ; test if lineBuf,x is hex digit
+0e00:         ; C=1 if so
+0e00:         ; side effect: uppercase normalized
+0e00:         eIsHex:
+0e00:20 ea 0d     jsr eIsDec
+0e03:b0 0b        bcs :out
+0e05:20 1d 0b     jsr ePet
+0e08:29 7f        and #$7f
+0e0a:         
+0e0a:c9 47        cmp #'f+1
+0e0c:b0 e6        bcs eIsNot
+0e0e:         
+0e0e:c9 41        cmp #'a
+0e10:         :out
+0e10:60           rts
+0e11:         
+0e11:         ;
+0e11:         ; test if lineBuf,x is binary digit
+0e11:         ; Z=1 if so
+0e11:         eIsBin:
+0e11:bd 00 20     lda lineBuf,x
+0e14:c9 31        cmp #'1
+0e16:f0 02        beq :out
+0e18:c9 30        cmp #'0
+0e1a:         :out
+0e1a:60           rts
+0e1b:         
+0e1b:         ;
+0e1b:         ; test if lineBuf,X is alpha
+0e1b:         ; C=1 if so
+0e1b:         eIsAlpha:
+0e1b:bd 00 20     lda lineBuf,x
+0e1e:20 1d 0b     jsr ePet
+0e21:         
+0e21:c9 db        cmp #'z+128+1   ; 'Z'
+0e23:b0 cf        bcs eIsNot      ; > 'Z'
+0e25:         
+0e25:c9 41        cmp #'a
+0e27:90 09        bcc :out        ; < 'a'
 0e29:         
-0e29:c9 db        cmp #'z+128+1   ; 'Z'
-0e2b:b0 cf        bcs eIsNot      ; > 'Z'
+0e29:c9 c1        cmp #'a+128     ; 'A'
+0e2b:b0 05        bcs :out        ; >= 'A' and <= 'Z'
 0e2d:         
-0e2d:c9 41        cmp #'a
-0e2f:90 09        bcc :out        ; < 'a'
+0e2d:c9 5b        cmp #'z+1
+0e2f:b0 c3        bcs eIsNot      ; > 'z'
 0e31:         
-0e31:c9 c1        cmp #'a+128     ; 'A'
-0e33:b0 05        bcs :out        ; >= 'A' and <= 'Z'
-0e35:         
-0e35:c9 5b        cmp #'z+1
-0e37:b0 c3        bcs eIsNot      ; > 'z'
-0e39:         
-0e39:38           sec
-0e3a:         :out
-0e3a:60           rts
-0e3b:         
-0e3b:         ;
-0e3b:         ; test if lineBuf,x is a valid symbol character
-0e3b:         ; Z=1 if so
-0e3b:         eIsSym:
-0e3b:20 23 0e     jsr eIsAlpha
-0e3e:b0 08        bcs :yes
-0e40:20 f2 0d     jsr eIsDec
-0e43:b0 03        bcs :yes
-0e45:c9 3a        cmp #':
-0e47:60           rts
-0e48:         :yes
-0e48:89 00        bit #0          ; set zero
-0e4a:60           rts
+0e31:38           sec
+0e32:         :out
+0e32:60           rts
+0e33:         
+0e33:         ;
+0e33:         ; test if lineBuf,x is a valid symbol character
+0e33:         ; Z=1 if so
+0e33:         eIsSym:
+0e33:20 1b 0e     jsr eIsAlpha
+0e36:b0 08        bcs :yes
+0e38:20 ea 0d     jsr eIsDec
+0e3b:b0 03        bcs :yes
+0e3d:c9 3a        cmp #':
+0e3f:60           rts
+0e40:         :yes
+0e40:89 00        bit #0          ; set zero
+0e42:60           rts
+0e43:         
+0e43:         ;
+0e43:         ; resolve label from lineBuf into arg
+0e43:         eResolveSym:
+0e43:a5 22        lda symScope    ; note our current scope
+0e45:85 3d        sta tScope
+0e47:a5 23        lda symScope+1
+0e49:85 3e        sta tScope+1
 0e4b:         
-0e4b:         ;
-0e4b:         ; resolve label from lineBuf into arg
-0e4b:         eResolveSym:
-0e4b:a5 22        lda symScope    ; note our current scope
-0e4d:85 3d        sta tScope
-0e4f:a5 23        lda symScope+1
-0e51:85 3e        sta tScope+1
-0e53:         
-0e53:a4 3f        ldy labelPtr    ; start of label sequence
-0e55:b9 00 20     lda lineBuf,y
-0e58:c9 3a        cmp #':
-0e5a:f0 04        beq :loop
-0e5c:         
-0e5c:64 22        stz symScope    ; global scope
-0e5e:64 23        stz symScope+1
-0e60:         
-0e60:         :loop
-0e60:20 97 0e     jsr :next
-0e63:a5 24        lda symLength
-0e65:f0 0d        beq :skip       ; empty label in sequence means do not adjust scope
-0e67:         
-0e67:5a           phy
-0e68:20 eb 09     jsr symGet
-0e6b:7a           ply
+0e4b:a4 3f        ldy labelPtr    ; start of label sequence
+0e4d:b9 00 20     lda lineBuf,y
+0e50:c9 3a        cmp #':
+0e52:f0 04        beq :loop
+0e54:         
+0e54:64 22        stz symScope    ; global scope
+0e56:64 23        stz symScope+1
+0e58:         
+0e58:         :loop
+0e58:20 8f 0e     jsr :next
+0e5b:a5 24        lda symLength
+0e5d:f0 0d        beq :skip       ; empty label in sequence means do not adjust scope
+0e5f:         
+0e5f:5a           phy
+0e60:20 e3 09     jsr symGet
+0e63:7a           ply
+0e64:         
+0e64:a5 30        lda ptr
+0e66:85 22        sta symScope
+0e68:a5 31        lda ptr+1
+0e6a:85 23        sta symScope+1
 0e6c:         
-0e6c:a5 30        lda ptr
-0e6e:85 22        sta symScope
-0e70:a5 31        lda ptr+1
-0e72:85 23        sta symScope+1
-0e74:         
-0e74:         :skip
-0e74:c4 40        cpy labelEnd
-0e76:d0 e8        bne :loop
-0e78:         
-0e78:         :done
-0e78:18           clc
-0e79:a0 04        ldy #4
-0e7b:b1 30        lda (ptr),y     ; no forward reference in pass >0
-0e7d:d0 05        bne :fine
-0e7f:a5 3a        lda pass
-0e81:f0 01        beq :fine
-0e83:38           sec             ; set error
-0e84:         
-0e84:         :fine
-0e84:c8           iny             ; symbol value in arg
-0e85:b1 30        lda (ptr),y
-0e87:85 2b        sta arg
-0e89:c8           iny
-0e8a:b1 30        lda (ptr),y
-0e8c:85 2c        sta arg+1
+0e6c:         :skip
+0e6c:c4 40        cpy labelEnd
+0e6e:d0 e8        bne :loop
+0e70:         
+0e70:         :done
+0e70:18           clc
+0e71:a0 04        ldy #4
+0e73:b1 30        lda (ptr),y     ; no forward reference in pass >0
+0e75:d0 05        bne :fine
+0e77:a5 3a        lda pass
+0e79:f0 01        beq :fine
+0e7b:38           sec             ; set error
+0e7c:         
+0e7c:         :fine
+0e7c:c8           iny             ; symbol value in arg
+0e7d:b1 30        lda (ptr),y
+0e7f:85 2b        sta arg
+0e81:c8           iny
+0e82:b1 30        lda (ptr),y
+0e84:85 2c        sta arg+1
+0e86:         
+0e86:a5 3d        lda tScope      ; put scope back
+0e88:85 22        sta symScope
+0e8a:a5 3e        lda tScope+1
+0e8c:85 23        sta symScope+1
 0e8e:         
-0e8e:a5 3d        lda tScope      ; put scope back
-0e90:85 22        sta symScope
-0e92:a5 3e        lda tScope+1
-0e94:85 23        sta symScope+1
-0e96:         
-0e96:60           rts
-0e97:         
-0e97:         :next
-0e97:98           tya             ; point symLabel at lineBuf+y
-0e98:18           clc
-0e99:69 00        adc #<lineBuf
-0e9b:85 25        sta symLabel
-0e9d:a9 00        lda #0
-0e9f:69 20        adc #>lineBuf
-0ea1:85 26        sta symLabel+1
-0ea3:64 24        stz symLength   ; reset length=0
-0ea5:         
-0ea5:         :search
-0ea5:b9 00 20     lda lineBuf,y
-0ea8:c8           iny
-0ea9:c9 3a        cmp #':
-0eab:f0 06        beq :out        ; colon terminate at scope seperator
-0ead:e6 24        inc symLength
-0eaf:c4 40        cpy labelEnd
-0eb1:d0 f2        bne :search
-0eb3:         :out
-0eb3:60           rts
-0eb4:         
-0eb4:             .in 'line.asm'
-0eb4:             .in 'zp.asm'
-0eb4:             .fi ; zpAsm
-0eb4:         
-0eb4:             .in 'error.asm'
-0eb4:             .fi ; errorAsm
-0eb4:         
-0eb4:             .in 'mode.asm'
-0eb4:             .fi ; modeAsm
-0eb4:         
-0eb4:         
-0eb4:         
-0eb4:         ;
-0eb4:         ; assembles lineBuf
-0eb4:         lineAsm:
-0eb4:ba           tsx
-0eb5:86 44        stx lineSP
-0eb7:64 2b        stz arg
-0eb9:64 2c        stz arg+1
-0ebb:a2 00        ldx #0
-0ebd:         
-0ebd:         :start
-0ebd:bd 00 20     lda lineBuf,x
-0ec0:20 25 0b     jsr ePet
-0ec3:20 3b 0e     jsr eIsSym
-0ec6:d0 03        bne :label
-0ec8:e8           inx
-0ec9:d0 f2        bne :start
-0ecb:         :label
-0ecb:64 30        stz ptr         ; assume no label yet
-0ecd:64 31        stz ptr+1
-0ecf:         
-0ecf:86 40        stx labelEnd
-0ed1:e0 00        cpx #0          ; no label
-0ed3:f0 07        beq :post
-0ed5:         
-0ed5:24 58        bit lineIfs     ; test if we are if'd out
-0ed7:30 03        bmi :post
-0ed9:         
-0ed9:20 b3 10     jsr linePinLabel
-0edc:         
-0edc:         :post
-0edc:20 9d 12     jsr lineNextTokenExit
+0e8e:60           rts
+0e8f:         
+0e8f:         :next
+0e8f:98           tya             ; point symLabel at lineBuf+y
+0e90:18           clc
+0e91:69 00        adc #<lineBuf
+0e93:85 25        sta symLabel
+0e95:a9 00        lda #0
+0e97:69 20        adc #>lineBuf
+0e99:85 26        sta symLabel+1
+0e9b:64 24        stz symLength   ; reset length=0
+0e9d:         
+0e9d:         :search
+0e9d:b9 00 20     lda lineBuf,y
+0ea0:c8           iny
+0ea1:c9 3a        cmp #':
+0ea3:f0 06        beq :out        ; colon terminate at scope seperator
+0ea5:e6 24        inc symLength
+0ea7:c4 40        cpy labelEnd
+0ea9:d0 f2        bne :search
+0eab:         :out
+0eab:60           rts
+0eac:         
+0eac:             .in 'line.asm'
+0eac:             .in 'zp.asm'
+0eac:             .fi ; zpAsm
+0eac:         
+0eac:             .in 'error.asm'
+0eac:             .fi ; errorAsm
+0eac:         
+0eac:             .in 'mode.asm'
+0eac:             .fi ; modeAsm
+0eac:         
+0eac:         
+0eac:         
+0eac:         ;
+0eac:         ; assembles lineBuf
+0eac:         lineAsm:
+0eac:ba           tsx
+0ead:86 44        stx lineSP
+0eaf:64 2b        stz arg
+0eb1:64 2c        stz arg+1
+0eb3:a2 00        ldx #0
+0eb5:         
+0eb5:         :start
+0eb5:bd 00 20     lda lineBuf,x
+0eb8:20 1d 0b     jsr ePet
+0ebb:20 33 0e     jsr eIsSym
+0ebe:d0 03        bne :label
+0ec0:e8           inx
+0ec1:d0 f2        bne :start
+0ec3:         :label
+0ec3:64 30        stz ptr         ; assume no label yet
+0ec5:64 31        stz ptr+1
+0ec7:         
+0ec7:86 40        stx labelEnd
+0ec9:e0 00        cpx #0          ; no label
+0ecb:f0 07        beq :post
+0ecd:         
+0ecd:24 58        bit lineIfs     ; test if we are if'd out
+0ecf:30 03        bmi :post
+0ed1:         
+0ed1:20 ab 10     jsr linePinLabel
+0ed4:         
+0ed4:         :post
+0ed4:20 95 12     jsr lineNextTokenExit
+0ed7:         
+0ed7:c9 3d        cmp #'=
+0ed9:d0 1e        bne :op
+0edb:         
+0edb:24 58        bit lineIfs
+0edd:30 5d        bmi :opdone
 0edf:         
-0edf:c9 3d        cmp #'=
-0ee1:d0 1e        bne :op
-0ee3:         
-0ee3:24 58        bit lineIfs
-0ee5:30 5d        bmi :opdone
-0ee7:         
-0ee7:e8           inx             ; skip '='
-0ee8:a5 30        lda ptr
-0eea:85 5b        sta assign      ; assign=ptr
-0eec:a5 31        lda ptr+1
-0eee:f0 23        beq :assignError
-0ef0:85 5c        sta assign+1
-0ef2:         
-0ef2:20 c6 12     jsr lineEval    ; eval rhs
-0ef5:         
-0ef5:a0 05        ldy #5          ; store evaluated result
-0ef7:a5 2b        lda arg
-0ef9:91 5b        sta (assign),y
-0efb:c8           iny
-0efc:a5 2c        lda arg+1
-0efe:91 5b        sta (assign),y
-0f00:60           rts
-0f01:         
-0f01:         :op
-0f01:bd 00 20     lda lineBuf,x
-0f04:c9 2a        cmp #'*
-0f06:f0 15        beq :star
-0f08:c9 2e        cmp #'.
-0f0a:f0 39        beq :dot
-0f0c:         
-0f0c:24 58        bit lineIfs
-0f0e:30 34        bmi :opdone     ; if'd out
+0edf:e8           inx             ; skip '='
+0ee0:a5 30        lda ptr
+0ee2:85 5b        sta assign      ; assign=ptr
+0ee4:a5 31        lda ptr+1
+0ee6:f0 23        beq :assignError
+0ee8:85 5c        sta assign+1
+0eea:         
+0eea:20 be 12     jsr lineEval    ; eval rhs
+0eed:         
+0eed:a0 05        ldy #5          ; store evaluated result
+0eef:a5 2b        lda arg
+0ef1:91 5b        sta (assign),y
+0ef3:c8           iny
+0ef4:a5 2c        lda arg+1
+0ef6:91 5b        sta (assign),y
+0ef8:60           rts
+0ef9:         
+0ef9:         :op
+0ef9:bd 00 20     lda lineBuf,x
+0efc:c9 2a        cmp #'*
+0efe:f0 15        beq :star
+0f00:c9 2e        cmp #'.
+0f02:f0 39        beq :dot
+0f04:         
+0f04:24 58        bit lineIfs
+0f06:30 34        bmi :opdone     ; if'd out
+0f08:         
+0f08:4c 0d 11     jmp lineIsn
+0f0b:         
+0f0b:         :assignError
+0f0b:a9 05        lda #errorAssign
+0f0d:85 43        sta error
+0f0f:60           rts
 0f10:         
-0f10:4c 15 11     jmp lineIsn
-0f13:         
-0f13:         :assignError
-0f13:a9 05        lda #errorAssign
-0f15:85 43        sta error
-0f17:60           rts
-0f18:         
-0f18:         :backwardError
-0f18:a9 03        lda #errorBackward
-0f1a:85 43        sta error
-0f1c:60           rts
-0f1d:         
-0f1d:         :star
-0f1d:e8           inx             ; skip '*'
-0f1e:20 9d 12     jsr lineNextTokenExit
-0f21:c9 3d        cmp #'=
-0f23:d0 1f        bne :opdone
-0f25:e8           inx             ; consume '='
-0f26:e6 3a        inc pass        ; cannot be forward reference
-0f28:20 c6 12     jsr lineEval
-0f2b:c6 3a        dec pass
-0f2d:         
-0f2d:         :starloop
-0f2d:a5 2c        lda arg+1
-0f2f:c5 2a        cmp pc+1
-0f31:90 e5        bcc :backwardError
-0f33:d0 08        bne :stardo
-0f35:a5 2b        lda arg
-0f37:c5 29        cmp pc
-0f39:90 dd        bcc :backwardError
-0f3b:f0 07        beq :stardone
-0f3d:         :stardo
-0f3d:a9 00        lda #0
-0f3f:20 01 11     jsr lineEmit    ; emit zeros until desired pc
-0f42:80 e9        bra :starloop
-0f44:         
-0f44:         :stardone
-0f44:         :opdone
-0f44:60           rts
-0f45:         
-0f45:         :dot
-0f45:e8           inx             ; skip '.'
-0f46:bd 01 20     lda lineBuf+1,x
-0f49:a8           tay             ; second char in Y
-0f4a:bd 00 20     lda lineBuf,x   ; first char in A
-0f4d:e8           inx
-0f4e:e8           inx             ; skip the two (if not present, we will err anyway)
-0f4f:         
-0f4f:c9 45        cmp #'e
-0f51:f0 19        beq :E
-0f53:c9 46        cmp #'f
-0f55:f0 1f        beq :F
-0f57:c9 49        cmp #'i
-0f59:f0 27        beq :I
-0f5b:         
-0f5b:24 58        bit lineIfs
-0f5d:30 e5        bmi :opdone     ; if'd out
+0f10:         :backwardError
+0f10:a9 03        lda #errorBackward
+0f12:85 43        sta error
+0f14:60           rts
+0f15:         
+0f15:         :star
+0f15:e8           inx             ; skip '*'
+0f16:20 95 12     jsr lineNextTokenExit
+0f19:c9 3d        cmp #'=
+0f1b:d0 1f        bne :opdone
+0f1d:e8           inx             ; consume '='
+0f1e:e6 3a        inc pass        ; cannot be forward reference
+0f20:20 be 12     jsr lineEval
+0f23:c6 3a        dec pass
+0f25:         
+0f25:         :starloop
+0f25:a5 2c        lda arg+1
+0f27:c5 2a        cmp pc+1
+0f29:90 e5        bcc :backwardError
+0f2b:d0 08        bne :stardo
+0f2d:a5 2b        lda arg
+0f2f:c5 29        cmp pc
+0f31:90 dd        bcc :backwardError
+0f33:f0 07        beq :stardone
+0f35:         :stardo
+0f35:a9 00        lda #0
+0f37:20 f9 10     jsr lineEmit    ; emit zeros until desired pc
+0f3a:80 e9        bra :starloop
+0f3c:         
+0f3c:         :stardone
+0f3c:         :opdone
+0f3c:60           rts
+0f3d:         
+0f3d:         :dot
+0f3d:e8           inx             ; skip '.'
+0f3e:bd 01 20     lda lineBuf+1,x
+0f41:a8           tay             ; second char in Y
+0f42:bd 00 20     lda lineBuf,x   ; first char in A
+0f45:e8           inx
+0f46:e8           inx             ; skip the two (if not present, we will err anyway)
+0f47:         
+0f47:c9 45        cmp #'e
+0f49:f0 19        beq :E
+0f4b:c9 46        cmp #'f
+0f4d:f0 1f        beq :F
+0f4f:c9 49        cmp #'i
+0f51:f0 27        beq :I
+0f53:         
+0f53:24 58        bit lineIfs
+0f55:30 e5        bmi :opdone     ; if'd out
+0f57:         
+0f57:c9 4f        cmp #'o
+0f59:f0 19        beq :O
+0f5b:c9 44        cmp #'d
+0f5d:f0 2d        beq :D
+0f5f:             ; fall thru
 0f5f:         
-0f5f:c9 4f        cmp #'o
-0f61:f0 19        beq :O
-0f63:c9 44        cmp #'d
-0f65:f0 2d        beq :D
-0f67:             ; fall thru
-0f67:         
-0f67:         :dotOpError
-0f67:a9 06        lda #errorDotOp
-0f69:85 43        sta error
-0f6b:60           rts
-0f6c:         
-0f6c:         :E
-0f6c:c0 49        cpy #'i
-0f6e:f0 5b        beq :EI
-0f70:c0 4c        cpy #'l
-0f72:f0 43        beq :EL
-0f74:80 f1        bra :dotOpError
-0f76:         
-0f76:         :F
-0f76:c0 49        cpy #'i
-0f78:f0 73        beq :FI
-0f7a:80 eb        bra :dotOpError
-0f7c:         
-0f7c:         :O
-0f7c:c0 52        cpy #'r
-0f7e:f0 22        beq :ORb
-0f80:80 e5        bra :dotOpError
-0f82:         
-0f82:         :I
-0f82:c0 46        cpy #'f
-0f84:f0 1f        beq :IFb
-0f86:             
-0f86:24 58        bit lineIfs
-0f88:30 ba        bmi :opdone     ; if'd out
-0f8a:             
-0f8a:c0 4e        cpy #'n
-0f8c:f0 1a        beq :INb
-0f8e:c0 42        cpy #'b
-0f90:f0 19        beq :IBb
-0f92:80 d3        bra :dotOpError
-0f94:           
-0f94:         :D
-0f94:c0 42        cpy #'b
-0f96:f0 16        beq :DBb
-0f98:c0 57        cpy #'w
-0f9a:f0 15        beq :DWb
-0f9c:c0 46        cpy #'f
-0f9e:f0 14        beq :DFb
-0fa0:80 c5        bra :dotOpError
-0fa2:         
-0fa2:         :ORb
-0fa2:4c 75 10     jmp :OR
-0fa5:         
-0fa5:         :IFb
-0fa5:4c 8e 10     jmp :IF
-0fa8:         
-0fa8:         :INb
-0fa8:4c 84 10     jmp :IN
-0fab:             
-0fab:         :IBb
-0fab:4c 8a 10     jmp :IB
-0fae:             
-0fae:         :DBb
-0fae:4c f4 0f     jmp :DB
-0fb1:             
-0fb1:         :DWb
-0fb1:4c 1e 10     jmp :DW
-0fb4:         
-0fb4:         :DFb
-0fb4:4c 37 10     jmp :DF
-0fb7:         
-0fb7:         :EL
-0fb7:24 60        bit lineIfd     ; have we chosen our destiny
-0fb9:10 07        bpl :else
-0fbb:a9 80        lda #$80        ; prior destiny has already been set
-0fbd:04 58        tsb lineIfs
-0fbf:4c ae 12     jmp lineAssertEnd
-0fc2:         
-0fc2:         :else
-0fc2:a5 58        lda lineIfs     ; flip top if bit
-0fc4:49 80        eor #$80
-0fc6:85 58        sta lineIfs
-0fc8:4c ae 12     jmp lineAssertEnd
-0fcb:         
-0fcb:         :EI
-0fcb:20 ba 12     jsr lineAssertToken
-0fce:         
-0fce:24 60        bit lineIfd     ; have we chosen our destiny
-0fd0:10 05        bpl :elseif
-0fd2:a9 80        lda #$80        ; stay false
-0fd4:04 58        tsb lineIfs     ; prior destiny has already been set
-0fd6:60           rts
-0fd7:         
-0fd7:         :elseif
-0fd7:20 c6 12     jsr lineEval
-0fda:20 f4 10     jsr lineTruth
-0fdd:06 58        asl lineIfs
-0fdf:a5 2c        lda arg+1       ; top of ifs stack becomes condition
-0fe1:29 80        and #$80
-0fe3:04 60        tsb lineIfd     ; destiny set
-0fe5:49 80        eor #$80
-0fe7:0a           asl
-0fe8:66 58        ror lineIfs
-0fea:4c ae 12     jmp lineAssertEnd
-0fed:         
-0fed:         :FI
-0fed:06 58        asl lineIfs     ; pop if stack
-0fef:06 60        asl lineIfd     ; pop destiny stack
-0ff1:4c ae 12     jmp lineAssertEnd
-0ff4:         
-0ff4:         :DB
-0ff4:64 2b        stz arg
-0ff6:20 9d 12     jsr lineNextTokenExit
-0ff9:c9 27        cmp #''
-0ffb:f0 11        beq :string
-0ffd:c9 2c        cmp #',
-0fff:f0 0a        beq :DBcomma
+0f5f:         :dotOpError
+0f5f:a9 06        lda #errorDotOp
+0f61:85 43        sta error
+0f63:60           rts
+0f64:         
+0f64:         :E
+0f64:c0 49        cpy #'i
+0f66:f0 5b        beq :EI
+0f68:c0 4c        cpy #'l
+0f6a:f0 43        beq :EL
+0f6c:80 f1        bra :dotOpError
+0f6e:         
+0f6e:         :F
+0f6e:c0 49        cpy #'i
+0f70:f0 73        beq :FI
+0f72:80 eb        bra :dotOpError
+0f74:         
+0f74:         :O
+0f74:c0 52        cpy #'r
+0f76:f0 22        beq :ORb
+0f78:80 e5        bra :dotOpError
+0f7a:         
+0f7a:         :I
+0f7a:c0 46        cpy #'f
+0f7c:f0 1f        beq :IFb
+0f7e:             
+0f7e:24 58        bit lineIfs
+0f80:30 ba        bmi :opdone     ; if'd out
+0f82:             
+0f82:c0 4e        cpy #'n
+0f84:f0 1a        beq :INb
+0f86:c0 42        cpy #'b
+0f88:f0 19        beq :IBb
+0f8a:80 d3        bra :dotOpError
+0f8c:           
+0f8c:         :D
+0f8c:c0 42        cpy #'b
+0f8e:f0 16        beq :DBb
+0f90:c0 57        cpy #'w
+0f92:f0 15        beq :DWb
+0f94:c0 46        cpy #'f
+0f96:f0 14        beq :DFb
+0f98:80 c5        bra :dotOpError
+0f9a:         
+0f9a:         :ORb
+0f9a:4c 6d 10     jmp :OR
+0f9d:         
+0f9d:         :IFb
+0f9d:4c 86 10     jmp :IF
+0fa0:         
+0fa0:         :INb
+0fa0:4c 7c 10     jmp :IN
+0fa3:             
+0fa3:         :IBb
+0fa3:4c 82 10     jmp :IB
+0fa6:             
+0fa6:         :DBb
+0fa6:4c ec 0f     jmp :DB
+0fa9:             
+0fa9:         :DWb
+0fa9:4c 16 10     jmp :DW
+0fac:         
+0fac:         :DFb
+0fac:4c 2f 10     jmp :DF
+0faf:         
+0faf:         :EL
+0faf:24 60        bit lineIfd     ; have we chosen our destiny
+0fb1:10 07        bpl :else
+0fb3:a9 80        lda #$80        ; prior destiny has already been set
+0fb5:04 58        tsb lineIfs
+0fb7:4c a6 12     jmp lineAssertEnd
+0fba:         
+0fba:         :else
+0fba:a5 58        lda lineIfs     ; flip top if bit
+0fbc:49 80        eor #$80
+0fbe:85 58        sta lineIfs
+0fc0:4c a6 12     jmp lineAssertEnd
+0fc3:         
+0fc3:         :EI
+0fc3:20 b2 12     jsr lineAssertToken
+0fc6:         
+0fc6:24 60        bit lineIfd     ; have we chosen our destiny
+0fc8:10 05        bpl :elseif
+0fca:a9 80        lda #$80        ; stay false
+0fcc:04 58        tsb lineIfs     ; prior destiny has already been set
+0fce:60           rts
+0fcf:         
+0fcf:         :elseif
+0fcf:20 be 12     jsr lineEval
+0fd2:20 ec 10     jsr lineTruth
+0fd5:06 58        asl lineIfs
+0fd7:a5 2c        lda arg+1       ; top of ifs stack becomes condition
+0fd9:29 80        and #$80
+0fdb:04 60        tsb lineIfd     ; destiny set
+0fdd:49 80        eor #$80
+0fdf:0a           asl
+0fe0:66 58        ror lineIfs
+0fe2:4c a6 12     jmp lineAssertEnd
+0fe5:         
+0fe5:         :FI
+0fe5:06 58        asl lineIfs     ; pop if stack
+0fe7:06 60        asl lineIfd     ; pop destiny stack
+0fe9:4c a6 12     jmp lineAssertEnd
+0fec:         
+0fec:         :DB
+0fec:64 2b        stz arg
+0fee:20 95 12     jsr lineNextTokenExit
+0ff1:c9 27        cmp #''
+0ff3:f0 11        beq :string
+0ff5:c9 2c        cmp #',
+0ff7:f0 0a        beq :DBcomma
+0ff9:         
+0ff9:20 be 12     jsr lineEval
+0ffc:a5 2b        lda arg         ; send it
+0ffe:20 f9 10     jsr lineEmit
 1001:         
-1001:20 c6 12     jsr lineEval
-1004:a5 2b        lda arg         ; send it
-1006:20 01 11     jsr lineEmit
-1009:         
-1009:80 e9        bra :DB
-100b:         
-100b:         :DBcomma
-100b:e8           inx             ; consume ',' ready for next
-100c:80 e6        bra :DB
-100e:         
-100e:         :string
-100e:e8           inx
-100f:bd 00 20     lda lineBuf,x
-1012:f0 09        beq :stringEOF
-1014:c9 27        cmp #''
-1016:f0 f3        beq :DBcomma
-1018:         
-1018:20 01 11     jsr lineEmit    ; send it
-101b:80 f1        bra :string
-101d:         :stringEOF
-101d:60           rts
-101e:         
-101e:         :DW
-101e:20 9d 12     jsr lineNextTokenExit
-1021:c9 2c        cmp #',
-1023:f0 0f        beq :DWcomma
-1025:         
-1025:20 c6 12     jsr lineEval
-1028:         
-1028:a5 2b        lda arg         ; send it
-102a:20 01 11     jsr lineEmit
-102d:a5 2c        lda arg+1
-102f:20 01 11     jsr lineEmit
+1001:80 e9        bra :DB
+1003:         
+1003:         :DBcomma
+1003:e8           inx             ; consume ',' ready for next
+1004:80 e6        bra :DB
+1006:         
+1006:         :string
+1006:e8           inx
+1007:bd 00 20     lda lineBuf,x
+100a:f0 09        beq :stringEOF
+100c:c9 27        cmp #''
+100e:f0 f3        beq :DBcomma
+1010:         
+1010:20 f9 10     jsr lineEmit    ; send it
+1013:80 f1        bra :string
+1015:         :stringEOF
+1015:60           rts
+1016:         
+1016:         :DW
+1016:20 95 12     jsr lineNextTokenExit
+1019:c9 2c        cmp #',
+101b:f0 0f        beq :DWcomma
+101d:         
+101d:20 be 12     jsr lineEval
+1020:         
+1020:a5 2b        lda arg         ; send it
+1022:20 f9 10     jsr lineEmit
+1025:a5 2c        lda arg+1
+1027:20 f9 10     jsr lineEmit
+102a:         
+102a:80 ea        bra :DW
+102c:         
+102c:         :DWcomma
+102c:e8           inx             ; consume ',' ready for next word
+102d:80 e7        bra :DW
+102f:         
+102f:         :DF
+102f:20 95 12     jsr lineNextTokenExit
 1032:         
-1032:80 ea        bra :DW
-1034:         
-1034:         :DWcomma
-1034:e8           inx             ; consume ',' ready for next word
-1035:80 e7        bra :DW
-1037:         
-1037:         :DF
-1037:20 9d 12     jsr lineNextTokenExit
-103a:         
-103a:86 6d        stx emitX
-103c:         :DFscan
-103c:20 80 12     jsr lineEnd
-103f:f0 07        beq :DFscanned
-1041:c9 2c        cmp #',
-1043:f0 03        beq :DFscanned
-1045:e8           inx
-1046:d0 f4        bne :DFscan
-1048:         
-1048:         :DFscanned
-1048:86 36        stx scratch
-104a:8a           txa
-104b:38           sec
-104c:e5 6d        sbc emitX       ; A: length
-104e:a6 6d        ldx emitX       ; X/Y: string
-1050:a0 20        ldy #>lineBuf
-1052:20 09 fe     jsr VAL1
-1055:a2 00        ldx #<fpack
-1057:a0 22        ldy #>fpack
-1059:20 66 fe     jsr MOVMF       ; pack FACC->constant
-105c:         
-105c:a6 36        ldx scratch     ; get X back
-105e:a0 00        ldy #0
-1060:         
-1060:         :DFemit
-1060:b9 00 22     lda fpack,y     ; write 5 byte packed output
-1063:20 01 11     jsr lineEmit
-1066:c8           iny
-1067:c0 05        cpy #5
-1069:d0 f5        bne :DFemit
-106b:         
-106b:         :DFnext
-106b:bd 00 20     lda lineBuf,x
-106e:c9 2c        cmp #',
-1070:d0 c5        bne :DF
-1072:e8           inx             ; consume ,
-1073:80 c2        bra :DF
-1075:         
-1075:         :OR
-1075:20 ba 12     jsr lineAssertToken
-1078:         
-1078:20 c6 12     jsr lineEval
-107b:         
-107b:a5 2b        lda arg
-107d:85 29        sta pc
-107f:a5 2c        lda arg+1
-1081:85 2a        sta pc+1
-1083:60           rts
-1084:         
-1084:         :IN
-1084:20 5b 12     jsr lineGetName
-1087:4c e8 13     jmp ioPush
-108a:         
-108a:         :IB
-108a:20 5b 12     jsr lineGetName
-108d:60           rts             ; XXX write binary file
-108e:         
-108e:         :IF
-108e:20 ba 12     jsr lineAssertToken
-1091:         
-1091:24 58        bit lineIfs
-1093:30 17        bmi :falseIf
-1095:         
-1095:20 c6 12     jsr lineEval
-1098:20 f4 10     jsr lineTruth
-109b:a5 2c        lda arg+1
-109d:29 80        and #$80
-109f:0a           asl
-10a0:66 60        ror lineIfd     ; desinty set
-10a2:a5 2c        lda arg+1
-10a4:49 80        eor #$80
-10a6:0a           asl             ; truth->C
-10a7:66 58        ror lineIfs     ; push if stack
-10a9:4c ae 12     jmp lineAssertEnd
-10ac:         
-10ac:         :falseIf
-10ac:38           sec
-10ad:66 58        ror lineIfs     ; stay in false state
-10af:38           sec
-10b0:66 60        ror lineIfd     ; and this is our destiny at this level
-10b2:60           rts
-10b3:         
-10b3:         ;
-10b3:         ; resolve label field into ptr, adjusting symScope if necessary
-10b3:         linePinLabel:
-10b3:64 3f        stz labelPtr
-10b5:20 4b 0e     jsr eResolveSym
-10b8:ad 00 20     lda lineBuf
-10bb:c9 3a        cmp #58         ; ':'
-10bd:f0 08        beq :local
-10bf:a5 30        lda ptr
-10c1:85 22        sta symScope    ; this becomes our new scope
-10c3:a5 31        lda ptr+1
-10c5:85 23        sta symScope+1
-10c7:         :local
-10c7:a5 3a        lda pass
-10c9:d0 18        bne :out        ; if pass >0, just return it
-10cb:24 58        bit lineIfs
-10cd:30 14        bmi :out        ; if'd out, just return it
-10cf:a0 04        ldy #4
-10d1:b1 30        lda (ptr),y
-10d3:d0 11        bne :dupLabel
-10d5:a9 01        lda #1
-10d7:91 30        sta (ptr),y
-10d9:c8           iny
-10da:a5 29        lda pc
-10dc:91 30        sta (ptr),y     ; initially store pc
-10de:c8           iny
-10df:a5 2a        lda pc+1
-10e1:91 30        sta (ptr),y     ; may be set later with =expr
-10e3:         :out
-10e3:a6 40        ldx labelEnd    ; restore x
-10e5:60           rts
-10e6:         
-10e6:         :dupLabel
-10e6:a9 01        lda #errorDupLabel
-10e8:85 43        sta error
-10ea:4c a2 12     jmp lineExit
-10ed:         
-10ed:         lineEmitError:
-10ed:a9 0c        lda #errorEmit
-10ef:85 43        sta error
-10f1:4c a2 12     jmp lineExit
-10f4:         
-10f4:         ;
-10f4:         ; normalize non-0 to $8xxx for if checking
-10f4:         lineTruth:
-10f4:a9 ff        lda #$ff
-10f6:24 2b        bit arg
-10f8:d0 04        bne :true
-10fa:24 2c        bit arg+1
-10fc:f0 02        beq :false
-10fe:         :true
-10fe:85 2c        sta arg+1
-1100:         :false
-1100:60           rts
-1101:         
-1101:         ;
-1101:         ; emit byte
-1101:         ; pc incremented, (emit) called
-1101:         lineEmit:
-1101:e6 29        inc pc          ; pc++
-1103:d0 02        bne :lo
-1105:e6 2a        inc pc+1
-1107:         :lo
-1107:20 0d 11     jsr :doEmit
-110a:b0 e1        bcs lineEmitError
+1032:86 6d        stx emitX
+1034:         :DFscan
+1034:20 78 12     jsr lineEnd
+1037:f0 07        beq :DFscanned
+1039:c9 2c        cmp #',
+103b:f0 03        beq :DFscanned
+103d:e8           inx
+103e:d0 f4        bne :DFscan
+1040:         
+1040:         :DFscanned
+1040:86 36        stx scratch
+1042:8a           txa
+1043:38           sec
+1044:e5 6d        sbc emitX       ; A: length
+1046:a6 6d        ldx emitX       ; X/Y: string
+1048:a0 20        ldy #>lineBuf
+104a:20 09 fe     jsr VAL1
+104d:a2 00        ldx #<fpack
+104f:a0 22        ldy #>fpack
+1051:20 66 fe     jsr MOVMF       ; pack FACC->constant
+1054:         
+1054:a6 36        ldx scratch     ; get X back
+1056:a0 00        ldy #0
+1058:         
+1058:         :DFemit
+1058:b9 00 22     lda fpack,y     ; write 5 byte packed output
+105b:20 f9 10     jsr lineEmit
+105e:c8           iny
+105f:c0 05        cpy #5
+1061:d0 f5        bne :DFemit
+1063:         
+1063:         :DFnext
+1063:bd 00 20     lda lineBuf,x
+1066:c9 2c        cmp #',
+1068:d0 c5        bne :DF
+106a:e8           inx             ; consume ,
+106b:80 c2        bra :DF
+106d:         
+106d:         :OR
+106d:20 b2 12     jsr lineAssertToken
+1070:         
+1070:20 be 12     jsr lineEval
+1073:         
+1073:a5 2b        lda arg
+1075:85 29        sta pc
+1077:a5 2c        lda arg+1
+1079:85 2a        sta pc+1
+107b:60           rts
+107c:         
+107c:         :IN
+107c:20 53 12     jsr lineGetName
+107f:4c e0 13     jmp ioPush
+1082:         
+1082:         :IB
+1082:20 53 12     jsr lineGetName
+1085:60           rts             ; XXX write binary file
+1086:         
+1086:         :IF
+1086:20 b2 12     jsr lineAssertToken
+1089:         
+1089:24 58        bit lineIfs
+108b:30 17        bmi :falseIf
+108d:         
+108d:20 be 12     jsr lineEval
+1090:20 ec 10     jsr lineTruth
+1093:a5 2c        lda arg+1
+1095:29 80        and #$80
+1097:0a           asl
+1098:66 60        ror lineIfd     ; desinty set
+109a:a5 2c        lda arg+1
+109c:49 80        eor #$80
+109e:0a           asl             ; truth->C
+109f:66 58        ror lineIfs     ; push if stack
+10a1:4c a6 12     jmp lineAssertEnd
+10a4:         
+10a4:         :falseIf
+10a4:38           sec
+10a5:66 58        ror lineIfs     ; stay in false state
+10a7:38           sec
+10a8:66 60        ror lineIfd     ; and this is our destiny at this level
+10aa:60           rts
+10ab:         
+10ab:         ;
+10ab:         ; resolve label field into ptr, adjusting symScope if necessary
+10ab:         linePinLabel:
+10ab:64 3f        stz labelPtr
+10ad:20 43 0e     jsr eResolveSym
+10b0:ad 00 20     lda lineBuf
+10b3:c9 3a        cmp #58         ; ':'
+10b5:f0 08        beq :local
+10b7:a5 30        lda ptr
+10b9:85 22        sta symScope    ; this becomes our new scope
+10bb:a5 31        lda ptr+1
+10bd:85 23        sta symScope+1
+10bf:         :local
+10bf:a5 3a        lda pass
+10c1:d0 18        bne :out        ; if pass >0, just return it
+10c3:24 58        bit lineIfs
+10c5:30 14        bmi :out        ; if'd out, just return it
+10c7:a0 04        ldy #4
+10c9:b1 30        lda (ptr),y
+10cb:d0 11        bne :dupLabel
+10cd:a9 01        lda #1
+10cf:91 30        sta (ptr),y
+10d1:c8           iny
+10d2:a5 29        lda pc
+10d4:91 30        sta (ptr),y     ; initially store pc
+10d6:c8           iny
+10d7:a5 2a        lda pc+1
+10d9:91 30        sta (ptr),y     ; may be set later with =expr
+10db:         :out
+10db:a6 40        ldx labelEnd    ; restore x
+10dd:60           rts
+10de:         
+10de:         :dupLabel
+10de:a9 01        lda #errorDupLabel
+10e0:85 43        sta error
+10e2:4c 9a 12     jmp lineExit
+10e5:         
+10e5:         lineEmitError:
+10e5:a9 0c        lda #errorEmit
+10e7:85 43        sta error
+10e9:4c 9a 12     jmp lineExit
+10ec:         
+10ec:         ;
+10ec:         ; normalize non-0 to $8xxx for if checking
+10ec:         lineTruth:
+10ec:a9 ff        lda #$ff
+10ee:24 2b        bit arg
+10f0:d0 04        bne :true
+10f2:24 2c        bit arg+1
+10f4:f0 02        beq :false
+10f6:         :true
+10f6:85 2c        sta arg+1
+10f8:         :false
+10f8:60           rts
+10f9:         
+10f9:         ;
+10f9:         ; emit byte
+10f9:         ; pc incremented, (emit) called
+10f9:         lineEmit:
+10f9:e6 29        inc pc          ; pc++
+10fb:d0 02        bne :lo
+10fd:e6 2a        inc pc+1
+10ff:         :lo
+10ff:20 05 11     jsr :doEmit
+1102:b0 e1        bcs lineEmitError
+1104:60           rts
+1105:         
+1105:         :doEmit
+1105:6c 41 00     jmp (emit)
+1108:         
+1108:         lineOpError:
+1108:a9 07        lda #errorOp
+110a:85 43        sta error
 110c:60           rts
 110d:         
-110d:         :doEmit
-110d:6c 41 00     jmp (emit)
-1110:         
-1110:         lineOpError:
-1110:a9 07        lda #errorOp
-1112:85 43        sta error
-1114:60           rts
-1115:         
-1115:         ;
-1115:         ; isn (arg) part
-1115:         lineIsn:
-1115:20 76 17     jsr isnGet
-1118:b0 f6        bcs lineOpError
-111a:a9 07        lda #modeImp
-111c:85 28        sta isnMode     ; assume implied
-111e:64 45        stz isnBit      ; start not assuming bit instruction
-1120:e8           inx             ; skip isn
-1121:e8           inx
+110d:         ;
+110d:         ; isn (arg) part
+110d:         lineIsn:
+110d:20 6e 17     jsr isnGet
+1110:b0 f6        bcs lineOpError
+1112:a9 07        lda #modeImp
+1114:85 28        sta isnMode     ; assume implied
+1116:64 45        stz isnBit      ; start not assuming bit instruction
+1118:e8           inx             ; skip isn
+1119:e8           inx
+111a:e8           inx
+111b:20 f6 0d     jsr eIsOct      ; test for bit number
+111e:90 03        bcc :notbitn
+1120:85 45        sta isnBit      ; '0'-'7' if this is a bitn
 1122:e8           inx
-1123:20 fe 0d     jsr eIsOct      ; test for bit number
-1126:90 03        bcc :notbitn
-1128:85 45        sta isnBit      ; '0'-'7' if this is a bitn
-112a:e8           inx
-112b:         
-112b:         :notbitn
-112b:20 88 12     jsr lineNextToken
-112e:f0 46        beq :gob        ; implied
-1130:c9 23        cmp #'#
-1132:f0 45        beq :imm
-1134:c9 28        cmp #'(
-1136:f0 4b        beq :ind
-1138:         
-1138:20 c6 12     jsr lineEval
-113b:         
-113b:a9 00        lda #modeAbs    ; abs (so far)
-113d:85 28        sta isnMode
-113f:         
+1123:         
+1123:         :notbitn
+1123:20 80 12     jsr lineNextToken
+1126:f0 46        beq :gob        ; implied
+1128:c9 23        cmp #'#
+112a:f0 45        beq :imm
+112c:c9 28        cmp #'(
+112e:f0 4b        beq :ind
+1130:         
+1130:20 be 12     jsr lineEval
+1133:         
+1133:a9 00        lda #modeAbs    ; abs (so far)
+1135:85 28        sta isnMode
+1137:         
+1137:bd 00 20     lda lineBuf,x
+113a:c9 2c        cmp #',
+113c:d0 30        bne :gob
+113e:e8           inx             ; consume ,
 113f:bd 00 20     lda lineBuf,x
-1142:c9 2c        cmp #',
-1144:d0 30        bne :gob
-1146:e8           inx             ; consume ,
-1147:bd 00 20     lda lineBuf,x
-114a:20 25 0b     jsr ePet
-114d:29 7f        and #$7f        ; normalize case
-114f:c9 58        cmp #'x
-1151:f0 17        beq :absx
-1153:c9 59        cmp #'y
-1155:f0 1a        beq :absy
-1157:         
-1157:a5 2b        lda arg
-1159:85 6f        sta argZ        ; zp,rel
-115b:20 c6 12     jsr lineEval
-115e:         
-115e:a9 09        lda #modeBitRel
-1160:85 28        sta isnMode
-1162:4c ce 11     jmp :go
-1165:         
-1165:         :modeError:
-1165:a9 08        lda #errorMode
-1167:85 43        sta error
-1169:60           rts
-116a:         
-116a:         :absx
-116a:e8           inx             ; consume 'x'
-116b:a9 02        lda #modeAbsX   ; abs,x
-116d:85 28        sta isnMode
-116f:80 05        bra :gob
+1142:20 1d 0b     jsr ePet
+1145:29 7f        and #$7f        ; normalize case
+1147:c9 58        cmp #'x
+1149:f0 17        beq :absx
+114b:c9 59        cmp #'y
+114d:f0 1a        beq :absy
+114f:         
+114f:a5 2b        lda arg
+1151:85 6f        sta argZ        ; zp,rel
+1153:20 be 12     jsr lineEval
+1156:         
+1156:a9 09        lda #modeBitRel
+1158:85 28        sta isnMode
+115a:4c c6 11     jmp :go
+115d:         
+115d:         :modeError:
+115d:a9 08        lda #errorMode
+115f:85 43        sta error
+1161:60           rts
+1162:         
+1162:         :absx
+1162:e8           inx             ; consume 'x'
+1163:a9 02        lda #modeAbsX   ; abs,x
+1165:85 28        sta isnMode
+1167:80 05        bra :gob
+1169:         
+1169:         :absy
+1169:e8           inx             ; consume 'y'
+116a:a9 03        lda #modeAbsY   ; abs,y
+116c:85 28        sta isnMode
+116e:             ; fall thru
+116e:         
+116e:         :gob
+116e:4c c6 11     jmp :go
 1171:         
-1171:         :absy
-1171:e8           inx             ; consume 'y'
-1172:a9 03        lda #modeAbsY   ; abs,y
-1174:85 28        sta isnMode
-1176:             ; fall thru
-1176:         
-1176:         :gob
-1176:4c ce 11     jmp :go
-1179:         
-1179:         :imm
-1179:e8           inx             ; skip #
-117a:20 c6 12     jsr lineEval
-117d:         
-117d:a9 06        lda #modeImm    ; imm
-117f:85 28        sta isnMode
-1181:80 4b        bra :go
-1183:         
-1183:         :ind
-1183:e8           inx             ; skip (
-1184:20 c6 12     jsr lineEval
-1187:             
-1187:a9 04        lda #modeAbsInd ; indirect
-1189:85 28        sta isnMode
-118b:             
-118b:bd 00 20     lda lineBuf,x
-118e:c9 2c        cmp #',
-1190:f0 06        beq :indx
-1192:c9 29        cmp #')
-1194:f0 1e        beq :indy
-1196:             
-1196:80 cd        bra :modeError
-1198:             
-1198:         :indx
-1198:e8           inx             ; skip ,
-1199:bd 00 20     lda lineBuf,x
-119c:20 25 0b     jsr ePet
-119f:29 7f        and #$7f
-11a1:c9 58        cmp #'x
-11a3:d0 c0        bne :modeError
+1171:         :imm
+1171:e8           inx             ; skip #
+1172:20 be 12     jsr lineEval
+1175:         
+1175:a9 06        lda #modeImm    ; imm
+1177:85 28        sta isnMode
+1179:80 4b        bra :go
+117b:         
+117b:         :ind
+117b:e8           inx             ; skip (
+117c:20 be 12     jsr lineEval
+117f:             
+117f:a9 04        lda #modeAbsInd ; indirect
+1181:85 28        sta isnMode
+1183:             
+1183:bd 00 20     lda lineBuf,x
+1186:c9 2c        cmp #',
+1188:f0 06        beq :indx
+118a:c9 29        cmp #')
+118c:f0 1e        beq :indy
+118e:             
+118e:80 cd        bra :modeError
+1190:             
+1190:         :indx
+1190:e8           inx             ; skip ,
+1191:bd 00 20     lda lineBuf,x
+1194:20 1d 0b     jsr ePet
+1197:29 7f        and #$7f
+1199:c9 58        cmp #'x
+119b:d0 c0        bne :modeError
+119d:e8           inx
+119e:bd 00 20     lda lineBuf,x
+11a1:c9 29        cmp #')
+11a3:d0 b8        bne :modeError
 11a5:e8           inx
-11a6:bd 00 20     lda lineBuf,x
-11a9:c9 29        cmp #')
-11ab:d0 b8        bne :modeError
-11ad:e8           inx
-11ae:         
-11ae:a9 01        lda #modeAbsIndX ; (ind,x)
-11b0:85 28        sta isnMode
-11b2:80 1a        bra :go
-11b4:         
-11b4:         :indy
-11b4:e8           inx             ; skip )
+11a6:         
+11a6:a9 01        lda #modeAbsIndX ; (ind,x)
+11a8:85 28        sta isnMode
+11aa:80 1a        bra :go
+11ac:         
+11ac:         :indy
+11ac:e8           inx             ; skip )
+11ad:bd 00 20     lda lineBuf,x
+11b0:c9 2c        cmp #',
+11b2:d0 12        bne :go         ; presume (ind)
+11b4:e8           inx
 11b5:bd 00 20     lda lineBuf,x
-11b8:c9 2c        cmp #',
-11ba:d0 12        bne :go         ; presume (ind)
-11bc:e8           inx
-11bd:bd 00 20     lda lineBuf,x
-11c0:20 25 0b     jsr ePet
-11c3:29 7f        and #$7f
-11c5:c9 59        cmp #'y
-11c7:d0 9c        bne :modeError
-11c9:e8           inx
-11ca:         
-11ca:a9 0f        lda #modeZeroIndY
-11cc:85 28        sta isnMode     ; (ind),y
-11ce:             ; fall thru
-11ce:         
-11ce:             ; resolved address mode
-11ce:         :go
-11ce:20 ae 12     jsr lineAssertEnd
-11d1:a5 45        lda isnBit      ; check for bitn
-11d3:f0 13        beq :notbit
-11d5:38           sec
-11d6:e9 30        sbc #'0
-11d8:0a           asl
-11d9:0a           asl
-11da:0a           asl
-11db:0a           asl
-11dc:85 45        sta isnBit
-11de:a5 28        lda isnMode
-11e0:c9 00        cmp #modeAbs
-11e2:d0 04        bne :notbit
-11e4:a9 05        lda #modeBitZero
-11e6:85 28        sta isnMode
-11e8:         
-11e8:         :notbit
-11e8:a5 27        lda isnOp
-11ea:c9 54        cmp #$54        ; BRK is special
-11ec:f0 46        beq :brk
-11ee:         
-11ee:20 cb 17     jsr opResolve   ; opcode in a
-11f1:b0 4c        bcs :modeErrorb
-11f3:         
-11f3:65 45        adc isnBit      ; if bitn, adjust
-11f5:20 01 11     jsr lineEmit    ; opcode
-11f8:         
-11f8:a5 28        lda isnMode
-11fa:c9 08        cmp #modeRel
-11fc:f0 09        beq :rel
-11fe:c9 09        cmp #modeBitRel
-1200:d0 40        bne :notrel
-1202:         
-1202:a5 6f        lda argZ
-1204:20 01 11     jsr lineEmit    ; zp arg of bitRel
-1207:         
-1207:         :rel
-1207:a5 3a        lda pass
-1209:f0 26        beq :pass0      ; no check in first pass    
-120b:         
-120b:a5 29        lda pc          ; relative
-120d:18           clc
-120e:69 01        adc #1          ; scratch=pc+1
-1210:85 36        sta scratch
-1212:a5 2a        lda pc+1
-1214:69 00        adc #0
-1216:85 37        sta scratch+1
-1218:         
-1218:a5 2b        lda arg         ; arg-=scratch
-121a:38           sec
-121b:e5 36        sbc scratch
-121d:85 2b        sta arg
-121f:a5 2c        lda arg+1
-1221:e5 37        sbc scratch+1
-1223:85 2c        sta arg+1
-1225:         
-1225:a2 ff        ldx #$ff
-1227:a5 2b        lda arg         ; test for valid range
-1229:30 02        bmi :checkBack
-122b:a2 00        ldx #$00
-122d:         :checkBack
-122d:e4 2c        cpx arg+1
-122f:d0 25        bne :relError
-1231:         
-1231:         :pass0
-1231:4c 01 11     jmp lineEmit    ; send it
-1234:         
-1234:         :brk
-1234:a5 28        lda isnMode
-1236:c9 07        cmp #modeImp
-1238:d0 05        bne :modeErrorb
-123a:a9 00        lda #0
-123c:4c 01 11     jmp lineEmit    ; emit the single $00
-123f:         
-123f:         :modeErrorb
-123f:4c 65 11     jmp :modeError
-1242:         
-1242:         :notrel
-1242:c9 07        cmp #modeImp
-1244:f0 14        beq :done
-1246:         
-1246:a5 2b        lda arg         ; low byte or zp
-1248:20 01 11     jsr lineEmit
-124b:         
-124b:a5 28        lda isnMode
-124d:c9 05        cmp #5
-124f:b0 09        bcs :done
-1251:         
-1251:a5 2c        lda arg+1       ; high byte
-1253:4c 01 11     jmp lineEmit
-1256:         
-1256:         :relError
-1256:a9 09        lda #errorRel
-1258:85 43        sta error
-125a:         :done
-125a:60           rts
-125b:         
-125b:         ;
-125b:         ; expect 'quoted string' and return in a/x/y
-125b:         lineGetName:
-125b:20 ba 12     jsr lineAssertToken
-125e:e8           inx
-125f:c9 27        cmp #''
-1261:d0 17        bne lineErrorDotArg
-1263:86 36        stx scratch
-1265:a0 00        ldy #0
-1267:         :count
-1267:20 a6 12     jsr lineEndExit
-126a:c9 27        cmp #''
-126c:f0 04        beq :got
-126e:c8           iny
-126f:e8           inx
-1270:d0 f5        bne :count
-1272:         :got
-1272:98           tya             ; length -> A
-1273:a6 36        ldx scratch
-1275:a0 20        ldy #>lineBuf
-1277:4c 75 13     jmp ioCopySourceName
-127a:         
-127a:         lineErrorDotArg:
-127a:a9 0d        lda #errorDotArg
-127c:85 43        sta error
-127e:80 22        bra lineExit
+11b8:20 1d 0b     jsr ePet
+11bb:29 7f        and #$7f
+11bd:c9 59        cmp #'y
+11bf:d0 9c        bne :modeError
+11c1:e8           inx
+11c2:         
+11c2:a9 0f        lda #modeZeroIndY
+11c4:85 28        sta isnMode     ; (ind),y
+11c6:             ; fall thru
+11c6:         
+11c6:             ; resolved address mode
+11c6:         :go
+11c6:20 a6 12     jsr lineAssertEnd
+11c9:a5 45        lda isnBit      ; check for bitn
+11cb:f0 13        beq :notbit
+11cd:38           sec
+11ce:e9 30        sbc #'0
+11d0:0a           asl
+11d1:0a           asl
+11d2:0a           asl
+11d3:0a           asl
+11d4:85 45        sta isnBit
+11d6:a5 28        lda isnMode
+11d8:c9 00        cmp #modeAbs
+11da:d0 04        bne :notbit
+11dc:a9 05        lda #modeBitZero
+11de:85 28        sta isnMode
+11e0:         
+11e0:         :notbit
+11e0:a5 27        lda isnOp
+11e2:c9 54        cmp #$54        ; BRK is special
+11e4:f0 46        beq :brk
+11e6:         
+11e6:20 c3 17     jsr opResolve   ; opcode in a
+11e9:b0 4c        bcs :modeErrorb
+11eb:         
+11eb:65 45        adc isnBit      ; if bitn, adjust
+11ed:20 f9 10     jsr lineEmit    ; opcode
+11f0:         
+11f0:a5 28        lda isnMode
+11f2:c9 08        cmp #modeRel
+11f4:f0 09        beq :rel
+11f6:c9 09        cmp #modeBitRel
+11f8:d0 40        bne :notrel
+11fa:         
+11fa:a5 6f        lda argZ
+11fc:20 f9 10     jsr lineEmit    ; zp arg of bitRel
+11ff:         
+11ff:         :rel
+11ff:a5 3a        lda pass
+1201:f0 26        beq :pass0      ; no check in first pass    
+1203:         
+1203:a5 29        lda pc          ; relative
+1205:18           clc
+1206:69 01        adc #1          ; scratch=pc+1
+1208:85 36        sta scratch
+120a:a5 2a        lda pc+1
+120c:69 00        adc #0
+120e:85 37        sta scratch+1
+1210:         
+1210:a5 2b        lda arg         ; arg-=scratch
+1212:38           sec
+1213:e5 36        sbc scratch
+1215:85 2b        sta arg
+1217:a5 2c        lda arg+1
+1219:e5 37        sbc scratch+1
+121b:85 2c        sta arg+1
+121d:         
+121d:a2 ff        ldx #$ff
+121f:a5 2b        lda arg         ; test for valid range
+1221:30 02        bmi :checkBack
+1223:a2 00        ldx #$00
+1225:         :checkBack
+1225:e4 2c        cpx arg+1
+1227:d0 25        bne :relError
+1229:         
+1229:         :pass0
+1229:4c f9 10     jmp lineEmit    ; send it
+122c:         
+122c:         :brk
+122c:a5 28        lda isnMode
+122e:c9 07        cmp #modeImp
+1230:d0 05        bne :modeErrorb
+1232:a9 00        lda #0
+1234:4c f9 10     jmp lineEmit    ; emit the single $00
+1237:         
+1237:         :modeErrorb
+1237:4c 5d 11     jmp :modeError
+123a:         
+123a:         :notrel
+123a:c9 07        cmp #modeImp
+123c:f0 14        beq :done
+123e:         
+123e:a5 2b        lda arg         ; low byte or zp
+1240:20 f9 10     jsr lineEmit
+1243:         
+1243:a5 28        lda isnMode
+1245:c9 05        cmp #5
+1247:b0 09        bcs :done
+1249:         
+1249:a5 2c        lda arg+1       ; high byte
+124b:4c f9 10     jmp lineEmit
+124e:         
+124e:         :relError
+124e:a9 09        lda #errorRel
+1250:85 43        sta error
+1252:         :done
+1252:60           rts
+1253:         
+1253:         ;
+1253:         ; expect 'quoted string' and return in a/x/y
+1253:         lineGetName:
+1253:20 b2 12     jsr lineAssertToken
+1256:e8           inx
+1257:c9 27        cmp #''
+1259:d0 17        bne lineErrorDotArg
+125b:86 36        stx scratch
+125d:a0 00        ldy #0
+125f:         :count
+125f:20 9e 12     jsr lineEndExit
+1262:c9 27        cmp #''
+1264:f0 04        beq :got
+1266:c8           iny
+1267:e8           inx
+1268:d0 f5        bne :count
+126a:         :got
+126a:98           tya             ; length -> A
+126b:a6 36        ldx scratch
+126d:a0 20        ldy #>lineBuf
+126f:4c 6d 13     jmp ioCopySourceName
+1272:         
+1272:         lineErrorDotArg:
+1272:a9 0d        lda #errorDotArg
+1274:85 43        sta error
+1276:80 22        bra lineExit
+1278:         
+1278:         ;
+1278:         ; Z=1 if at end
+1278:         lineEnd:
+1278:bd 00 20     lda lineBuf,x
+127b:f0 02        beq :out        ; eof
+127d:c9 3b        cmp #';
+127f:         :out
+127f:60           rts
 1280:         
 1280:         ;
-1280:         ; Z=1 if at end
-1280:         lineEnd:
-1280:bd 00 20     lda lineBuf,x
-1283:f0 02        beq :out        ; eof
-1285:c9 3b        cmp #';
-1287:         :out
-1287:60           rts
-1288:         
-1288:         ;
-1288:         ; Z=1 if at end (; or eof)
-1288:         lineNextToken:
-1288:20 80 12     jsr lineEnd
-128b:f0 0c        beq :out
-128d:c9 21        cmp #33
-128f:90 09        bcc :white
-1291:c9 a0        cmp #160
-1293:f0 05        beq :white
-1295:c9 e0        cmp #224
-1297:f0 01        beq :white
-1299:         :out
-1299:60           rts
-129a:         :white
-129a:e8           inx
-129b:80 eb        bra lineNextToken
-129d:         
-129d:         ;
-129d:         ; lineNextToken with a fast exit at end
-129d:         lineNextTokenExit:
-129d:20 88 12     jsr lineNextToken
-12a0:d0 03        bne lineExit:out
-12a2:         lineExit:
-12a2:a6 44        ldx lineSP      ; rewind stack for fast exit
-12a4:9a           txs
+1280:         ; Z=1 if at end (; or eof)
+1280:         lineNextToken:
+1280:20 78 12     jsr lineEnd
+1283:f0 0c        beq :out
+1285:c9 21        cmp #33
+1287:90 09        bcc :white
+1289:c9 a0        cmp #160
+128b:f0 05        beq :white
+128d:c9 e0        cmp #224
+128f:f0 01        beq :white
+1291:         :out
+1291:60           rts
+1292:         :white
+1292:e8           inx
+1293:80 eb        bra lineNextToken
+1295:         
+1295:         ;
+1295:         ; lineNextToken with a fast exit at end
+1295:         lineNextTokenExit:
+1295:20 80 12     jsr lineNextToken
+1298:d0 03        bne lineExit:out
+129a:         lineExit:
+129a:a6 44        ldx lineSP      ; rewind stack for fast exit
+129c:9a           txs
+129d:         :out
+129d:60           rts
+129e:         
+129e:         ;
+129e:         ; lineEnd with fast exit
+129e:         lineEndExit:
+129e:20 78 12     jsr lineEnd
+12a1:d0 02        bne :out
+12a3:80 f5        bra lineExit
 12a5:         :out
 12a5:60           rts
 12a6:         
 12a6:         ;
-12a6:         ; lineEnd with fast exit
-12a6:         lineEndExit:
-12a6:20 80 12     jsr lineEnd
-12a9:d0 02        bne :out
-12ab:80 f5        bra lineExit
-12ad:         :out
-12ad:60           rts
-12ae:         
-12ae:         ;
-12ae:         ; lineNextToken with an error and fast exit if not at end
-12ae:         lineAssertEnd:
-12ae:20 88 12     jsr lineNextToken
-12b1:f0 06        beq :out
-12b3:a9 0a        lda #errorParse
-12b5:85 43        sta error
-12b7:80 e9        bra lineExit
-12b9:         :out
-12b9:60           rts
-12ba:         
-12ba:         ;
-12ba:         ; lineNextToken with an error and fast exit if at end
-12ba:         lineAssertToken:
-12ba:20 88 12     jsr lineNextToken
-12bd:d0 06        bne :out
-12bf:a9 0b        lda #errorNoArg
-12c1:85 43        sta error
-12c3:80 dd        bra lineExit
-12c5:         :out
-12c5:60           rts
-12c6:         
-12c6:         ;
-12c6:         ; call eEval and fast exit on error
-12c6:         lineEval
-12c6:20 38 0b     jsr eEval
-12c9:90 06        bcc :out
-12cb:a9 04        lda #errorEval
-12cd:85 43        sta error
-12cf:80 d1        bra lineExit
-12d1:         :out
-12d1:60           rts
-12d2:         
-12d2:             .in 'io.asm'
-12d2:             .in 'zp.asm'
-12d2:             .fi ; zpAsm
-12d2:         
-12d2:             .in 'kernal.asm'
-12d2:             .fi ; kernalAsm
-12d2:         
-12d2:         
-12d2:         ;
-12d2:         ; initialize
-12d2:         ioInit:
-12d2:20 e7 ff     jsr CLALL
-12d5:64 51        stz ioLFN
-12d7:64 50        stz ioNameL
-12d9:64 54        stz ioStatus
-12db:64 43        stz error
-12dd:64 52        stz ioLine
-12df:64 53        stz ioLine+1
-12e1:64 55        stz ioOutPtr
-12e3:64 57        stz ioFDS
-12e5:a9 ff        lda #$ff
-12e7:85 46        sta ioPtr
-12e9:a9 08        lda #8          ; default to device 8
-12eb:85 47        sta ioDev
-12ed:a9 f5        lda #<:null
-12ef:85 41        sta emit
-12f1:a9 12        lda #>:null
-12f3:85 42        sta emit+1
-12f5:         :null
-12f5:18           clc
-12f6:60           rts
-12f7:         
-12f7:         ;
-12f7:         ; close all files and display error
-12f7:         ioError:
-12f7:20 a4 15     jsr ioCloseAll
-12fa:a9 0d        lda #13         ; cr
-12fc:20 d2 ff     jsr CHROUT
-12ff:a0 00        ldy #0
-1301:         :print
-1301:c4 50        cpy ioNameL
-1303:f0 08        beq :printed
-1305:b1 48        lda (ioName),y  ; print "filename:"
+12a6:         ; lineNextToken with an error and fast exit if not at end
+12a6:         lineAssertEnd:
+12a6:20 80 12     jsr lineNextToken
+12a9:f0 06        beq :out
+12ab:a9 0a        lda #errorParse
+12ad:85 43        sta error
+12af:80 e9        bra lineExit
+12b1:         :out
+12b1:60           rts
+12b2:         
+12b2:         ;
+12b2:         ; lineNextToken with an error and fast exit if at end
+12b2:         lineAssertToken:
+12b2:20 80 12     jsr lineNextToken
+12b5:d0 06        bne :out
+12b7:a9 0b        lda #errorNoArg
+12b9:85 43        sta error
+12bb:80 dd        bra lineExit
+12bd:         :out
+12bd:60           rts
+12be:         
+12be:         ;
+12be:         ; call eEval and fast exit on error
+12be:         lineEval
+12be:20 30 0b     jsr eEval
+12c1:90 06        bcc :out
+12c3:a9 04        lda #errorEval
+12c5:85 43        sta error
+12c7:80 d1        bra lineExit
+12c9:         :out
+12c9:60           rts
+12ca:         
+12ca:             .in 'io.asm'
+12ca:             .in 'zp.asm'
+12ca:             .fi ; zpAsm
+12ca:         
+12ca:             .in 'kernal.asm'
+12ca:             .fi ; kernalAsm
+12ca:         
+12ca:         
+12ca:         ;
+12ca:         ; initialize
+12ca:         ioInit:
+12ca:20 e7 ff     jsr CLALL
+12cd:64 51        stz ioLFN
+12cf:64 50        stz ioNameL
+12d1:64 54        stz ioStatus
+12d3:64 43        stz error
+12d5:64 52        stz ioLine
+12d7:64 53        stz ioLine+1
+12d9:64 55        stz ioOutPtr
+12db:64 57        stz ioFDS
+12dd:a9 ff        lda #$ff
+12df:85 46        sta ioPtr
+12e1:a9 08        lda #8          ; default to device 8
+12e3:85 47        sta ioDev
+12e5:a9 ed        lda #<:null
+12e7:85 41        sta emit
+12e9:a9 12        lda #>:null
+12eb:85 42        sta emit+1
+12ed:         :null
+12ed:18           clc
+12ee:60           rts
+12ef:         
+12ef:         ;
+12ef:         ; close all files and display error
+12ef:         ioError:
+12ef:20 9c 15     jsr ioCloseAll
+12f2:a9 0d        lda #13         ; cr
+12f4:20 d2 ff     jsr CHROUT
+12f7:a0 00        ldy #0
+12f9:         :print
+12f9:c4 50        cpy ioNameL
+12fb:f0 08        beq :printed
+12fd:b1 48        lda (ioName),y  ; print "filename:"
+12ff:20 d2 ff     jsr CHROUT
+1302:c8           iny
+1303:d0 f4        bne :print
+1305:         :printed
+1305:a9 3a        lda #':
 1307:20 d2 ff     jsr CHROUT
-130a:c8           iny
-130b:d0 f4        bne :print
-130d:         :printed
-130d:a9 3a        lda #':
-130f:20 d2 ff     jsr CHROUT
-1312:a5 53        lda ioLine+1
-1314:20 29 16     jsr ioPrintHex
-1317:a5 52        lda ioLine
-1319:20 29 16     jsr ioPrintHex
-131c:a9 20        lda #32
-131e:20 d2 ff     jsr CHROUT
-1321:20 6a 16     jsr ioPrintErr
-1324:a2 35        ldx #<:status
-1326:a0 13        ldy #>:status
-1328:20 59 16     jsr ioPrint
-132b:a5 54        lda ioStatus
-132d:20 29 16     jsr ioPrintHex
-1330:a9 0a        lda #10         ; cr
-1332:4c d2 ff     jmp CHROUT
-1335:         
-1335:         :status
-1335:2c 53 54 41 54 55 53 3d 
-133d:24 00        .db ',status=$',0
-133f:         
-133f:         ;
-133f:         ; make a copy of a/x/y with ,p,w appended
-133f:         ; result in a/x/y
-133f:         ioCopyDestName:
-133f:20 93 13     jsr ioCopyName
-1342:a9 2c        lda #',
-1344:91 30        sta (ptr),y
-1346:c8           iny
-1347:a9 50        lda #'p
-1349:91 30        sta (ptr),y
-134b:c8           iny
-134c:a9 2c        lda #',
-134e:91 30        sta (ptr),y
-1350:c8           iny
-1351:a9 57        lda #'w
-1353:91 30        sta (ptr),y
-1355:c8           iny
-1356:         
-1356:98           tya
-1357:a4 31        ldy ptr+1
-1359:60           rts
-135a:         
-135a:         ;
-135a:         ; make a copy of a/x/y with ,s,w appended
-135a:         ioCopyListName:
-135a:20 93 13     jsr ioCopyName
-135d:a9 2c        lda #',
-135f:91 30        sta (ptr),y
-1361:c8           iny
-1362:a9 53        lda #'s
-1364:91 30        sta (ptr),y
-1366:c8           iny
-1367:a9 2c        lda #',
-1369:91 30        sta (ptr),y
-136b:c8           iny
-136c:a9 57        lda #'w
-136e:91 30        sta (ptr),y
-1370:c8           iny
-1371:         
-1371:98           tya
-1372:a4 31        ldy ptr+1
-1374:60           rts
-1375:         
-1375:         ;
-1375:         ; make a copy of a/x/y with ,s,r appended
-1375:         ; result in a/(ptr)
-1375:         ioCopySourceName:
-1375:20 b0 13     jsr ioStringOut
-1378:20 93 13     jsr ioCopyName
-137b:a9 2c        lda #',
-137d:91 30        sta (ptr),y
-137f:c8           iny
-1380:a9 53        lda #'s
-1382:91 30        sta (ptr),y
-1384:c8           iny
-1385:a9 2c        lda #',
-1387:91 30        sta (ptr),y
-1389:c8           iny
-138a:a9 52        lda #'r
-138c:91 30        sta (ptr),y
-138e:c8           iny
-138f:         
-138f:98           tya
-1390:a4 31        ldy ptr+1
-1392:60           rts    
-1393:         
-1393:         ioCopyName:
-1393:86 34        stx string
-1395:84 35        sty string+1
-1397:a8           tay
-1398:18           clc
-1399:69 04        adc #4
-139b:20 dc 0a     jsr symPush
-139e:84 36        sty scratch
-13a0:a0 00        ldy #0
-13a2:         :loop
-13a2:c4 36        cpy scratch
-13a4:f0 07        beq :done
-13a6:b1 34        lda (string),y
-13a8:91 30        sta (ptr),y
-13aa:c8           iny
-13ab:d0 f5        bne :loop
-13ad:         :done
-13ad:a6 30        ldx ptr
-13af:60           rts
-13b0:         
-13b0:         ;
-13b0:         ; print string a/x/y with CR
-13b0:         ; all preserved
-13b0:         ioStringOut:
-13b0:85 36        sta scratch
-13b2:86 34        stx string
-13b4:84 35        sty string+1
-13b6:a0 00        ldy #0
-13b8:         :loop
-13b8:c4 36        cpy scratch
-13ba:f0 08        beq :done
-13bc:b1 34        lda (string),y
+130a:a5 53        lda ioLine+1
+130c:20 21 16     jsr ioPrintHex
+130f:a5 52        lda ioLine
+1311:20 21 16     jsr ioPrintHex
+1314:a9 20        lda #32
+1316:20 d2 ff     jsr CHROUT
+1319:20 62 16     jsr ioPrintErr
+131c:a2 2d        ldx #<:status
+131e:a0 13        ldy #>:status
+1320:20 51 16     jsr ioPrint
+1323:a5 54        lda ioStatus
+1325:20 21 16     jsr ioPrintHex
+1328:a9 0a        lda #10         ; cr
+132a:4c d2 ff     jmp CHROUT
+132d:         
+132d:         :status
+132d:2c 53 54 41 54 55 53 3d 
+1335:24 00        .db ',status=$',0
+1337:         
+1337:         ;
+1337:         ; make a copy of a/x/y with ,p,w appended
+1337:         ; result in a/x/y
+1337:         ioCopyDestName:
+1337:20 8b 13     jsr ioCopyName
+133a:a9 2c        lda #',
+133c:91 30        sta (ptr),y
+133e:c8           iny
+133f:a9 50        lda #'p
+1341:91 30        sta (ptr),y
+1343:c8           iny
+1344:a9 2c        lda #',
+1346:91 30        sta (ptr),y
+1348:c8           iny
+1349:a9 57        lda #'w
+134b:91 30        sta (ptr),y
+134d:c8           iny
+134e:         
+134e:98           tya
+134f:a4 31        ldy ptr+1
+1351:60           rts
+1352:         
+1352:         ;
+1352:         ; make a copy of a/x/y with ,s,w appended
+1352:         ioCopyListName:
+1352:20 8b 13     jsr ioCopyName
+1355:a9 2c        lda #',
+1357:91 30        sta (ptr),y
+1359:c8           iny
+135a:a9 53        lda #'s
+135c:91 30        sta (ptr),y
+135e:c8           iny
+135f:a9 2c        lda #',
+1361:91 30        sta (ptr),y
+1363:c8           iny
+1364:a9 57        lda #'w
+1366:91 30        sta (ptr),y
+1368:c8           iny
+1369:         
+1369:98           tya
+136a:a4 31        ldy ptr+1
+136c:60           rts
+136d:         
+136d:         ;
+136d:         ; make a copy of a/x/y with ,s,r appended
+136d:         ; result in a/(ptr)
+136d:         ioCopySourceName:
+136d:20 a8 13     jsr ioStringOut
+1370:20 8b 13     jsr ioCopyName
+1373:a9 2c        lda #',
+1375:91 30        sta (ptr),y
+1377:c8           iny
+1378:a9 53        lda #'s
+137a:91 30        sta (ptr),y
+137c:c8           iny
+137d:a9 2c        lda #',
+137f:91 30        sta (ptr),y
+1381:c8           iny
+1382:a9 52        lda #'r
+1384:91 30        sta (ptr),y
+1386:c8           iny
+1387:         
+1387:98           tya
+1388:a4 31        ldy ptr+1
+138a:60           rts    
+138b:         
+138b:         ioCopyName:
+138b:86 34        stx string
+138d:84 35        sty string+1
+138f:a8           tay
+1390:18           clc
+1391:69 04        adc #4
+1393:20 d4 0a     jsr symPush
+1396:84 36        sty scratch
+1398:a0 00        ldy #0
+139a:         :loop
+139a:c4 36        cpy scratch
+139c:f0 07        beq :done
+139e:b1 34        lda (string),y
+13a0:91 30        sta (ptr),y
+13a2:c8           iny
+13a3:d0 f5        bne :loop
+13a5:         :done
+13a5:a6 30        ldx ptr
+13a7:60           rts
+13a8:         
+13a8:         ;
+13a8:         ; print string a/x/y with CR
+13a8:         ; all preserved
+13a8:         ioStringOut:
+13a8:85 36        sta scratch
+13aa:86 34        stx string
+13ac:84 35        sty string+1
+13ae:a0 00        ldy #0
+13b0:         :loop
+13b0:c4 36        cpy scratch
+13b2:f0 08        beq :done
+13b4:b1 34        lda (string),y
+13b6:20 d2 ff     jsr CHROUT
+13b9:c8           iny
+13ba:d0 f4        bne :loop
+13bc:         :done
+13bc:a9 0d        lda #13
 13be:20 d2 ff     jsr CHROUT
-13c1:c8           iny
-13c2:d0 f4        bne :loop
-13c4:         :done
-13c4:a9 0d        lda #13
-13c6:20 d2 ff     jsr CHROUT
-13c9:a5 36        lda scratch
-13cb:a6 34        ldx string
-13cd:a4 35        ldy string+1
-13cf:60           rts
-13d0:         
-13d0:         ;
-13d0:         ; open output file named in a/x/y with LFN 2
-13d0:         ioOpenDest:
-13d0:20 bd ff     jsr SETNAM
-13d3:a9 02        lda #2
-13d5:a6 47        ldx ioDev
-13d7:a0 02        ldy #2
-13d9:20 ba ff     jsr SETLFS
-13dc:20 c0 ff     jsr OPEN
-13df:90 06        bcc :opened
-13e1:85 54        sta ioStatus
-13e3:a9 0e        lda #errorIO
-13e5:85 43        sta error
-13e7:         :opened
-13e7:60           rts
-13e8:         
-13e8:         ;
-13e8:         ; push input file a/x/y
-13e8:         ioPush:
-13e8:85 36        sta scratch
-13ea:86 30        stx ptr
-13ec:84 31        sty ptr+1
-13ee:20 cc ff     jsr CLRCHN
+13c1:a5 36        lda scratch
+13c3:a6 34        ldx string
+13c5:a4 35        ldy string+1
+13c7:60           rts
+13c8:         
+13c8:         ;
+13c8:         ; open output file named in a/x/y with LFN 2
+13c8:         ioOpenDest:
+13c8:20 bd ff     jsr SETNAM
+13cb:a9 02        lda #2
+13cd:a6 47        ldx ioDev
+13cf:a0 02        ldy #2
+13d1:20 ba ff     jsr SETLFS
+13d4:20 c0 ff     jsr OPEN
+13d7:90 06        bcc :opened
+13d9:85 54        sta ioStatus
+13db:a9 0e        lda #errorIO
+13dd:85 43        sta error
+13df:         :opened
+13df:60           rts
+13e0:         
+13e0:         ;
+13e0:         ; push input file a/x/y
+13e0:         ioPush:
+13e0:85 36        sta scratch
+13e2:86 30        stx ptr
+13e4:84 31        sty ptr+1
+13e6:20 cc ff     jsr CLRCHN
+13e9:         
+13e9:a4 46        ldy ioPtr       ; push current state
+13eb:         
+13eb:a5 51        lda ioLFN       ; push current LFN (zero is done)
+13ed:99 00 1e     sta ioStack,y
+13f0:88           dey
 13f1:         
-13f1:a4 46        ldy ioPtr       ; push current state
-13f3:         
-13f3:a5 51        lda ioLFN       ; push current LFN (zero is done)
-13f5:99 00 1e     sta ioStack,y
-13f8:88           dey
-13f9:         
-13f9:a5 47        lda ioDev       ; device
-13fb:99 00 1e     sta ioStack,y
-13fe:88           dey
-13ff:         
-13ff:a5 54        lda ioStatus    ; status
-1401:99 00 1e     sta ioStack,y
-1404:88           dey
-1405:         
-1405:a5 49        lda ioName+1    ; filename
-1407:99 00 1e     sta ioStack,y
-140a:88           dey
-140b:a5 48        lda ioName
-140d:99 00 1e     sta ioStack,y
-1410:88           dey
-1411:         
-1411:a5 50        lda ioNameL     ; filename length
-1413:99 00 1e     sta ioStack,y
-1416:88           dey
-1417:         
-1417:a5 53        lda ioLine+1    ; line
-1419:99 00 1e     sta ioStack,y
-141c:88           dey
-141d:a5 52        lda ioLine
-141f:99 00 1e     sta ioStack,y
-1422:88           dey
-1423:         
-1423:84 46        sty ioPtr       ; current state all pushed
-1425:         
-1425:             ; TODO: parse for @device:
-1425:         
-1425:a5 36        lda scratch     ; scratch/ptr -> nameL/name
-1427:85 50        sta ioNameL
-1429:a6 30        ldx ptr
-142b:86 48        stx ioName
-142d:a4 31        ldy ptr+1
-142f:84 49        sty ioName+1
-1431:20 bd ff     jsr SETNAM      ; filename
-1434:         
-1434:20 ad 14     jsr ioAlloc     ; device secondary in Y
-1437:b0 25        bcs :toomany
-1439:c8           iny
-143a:c8           iny
-143b:c8           iny             ; ..and add 3 to it (we use 2 for the output)
-143c:a6 47        ldx ioDev
-143e:98           tya             ; use LFN=device secondary
-143f:85 51        sta ioLFN
-1441:20 ba ff     jsr SETLFS
-1444:         
-1444:20 c0 ff     jsr OPEN        ; open the file
-1447:b0 0e        bcs :error
-1449:a6 51        ldx ioLFN
-144b:20 c6 ff     jsr CHKIN
-144e:b0 07        bcs :error      ; now current file for reading
-1450:64 52        stz ioLine
-1452:64 53        stz ioLine+1
-1454:4c 0f 15     jmp ioReadStatus
-1457:         
-1457:         :error
-1457:85 54        sta ioStatus
-1459:a9 0e        lda #errorIO
-145b:85 43        sta error
-145d:60           rts
-145e:         
-145e:         :toomany
-145e:a9 0f        lda #errorTooMany
-1460:85 43        sta error
-1462:60           rts
-1463:         
-1463:         ;
-1463:         ; pop current file state
-1463:         ioPop:
-1463:20 cc ff     jsr CLRCHN      ; disconnect existing
-1466:a5 51        lda ioLFN
-1468:20 c3 ff     jsr CLOSE       ; close current logical file
-146b:a4 51        ldy ioLFN
-146d:88           dey
-146e:88           dey
-146f:88           dey
-1470:20 bf 14     jsr ioDealloc   ; deallocate device secondary
-1473:         
-1473:a4 46        ldy ioPtr
-1475:         
-1475:c8           iny             ; line number
-1476:b9 00 1e     lda ioStack,y
-1479:85 52        sta ioLine
-147b:c8           iny
-147c:b9 00 1e     lda ioStack,y
-147f:85 53        sta ioLine+1
-1481:         
-1481:c8           iny             ; filename length
-1482:b9 00 1e     lda ioStack,y
-1485:85 50        sta ioNameL
-1487:         
-1487:c8           iny             ; filename
-1488:b9 00 1e     lda ioStack,y
-148b:85 48        sta ioName
-148d:c8           iny
-148e:b9 00 1e     lda ioStack,y
-1491:85 49        sta ioName+1
-1493:         
-1493:c8           iny             ; status
-1494:b9 00 1e     lda ioStack,y
-1497:85 54        sta ioStatus
-1499:         
-1499:c8           iny
-149a:b9 00 1e     lda ioStack,y   ; device
-149d:85 47        sta ioDev
+13f1:a5 47        lda ioDev       ; device
+13f3:99 00 1e     sta ioStack,y
+13f6:88           dey
+13f7:         
+13f7:a5 54        lda ioStatus    ; status
+13f9:99 00 1e     sta ioStack,y
+13fc:88           dey
+13fd:         
+13fd:a5 49        lda ioName+1    ; filename
+13ff:99 00 1e     sta ioStack,y
+1402:88           dey
+1403:a5 48        lda ioName
+1405:99 00 1e     sta ioStack,y
+1408:88           dey
+1409:         
+1409:a5 50        lda ioNameL     ; filename length
+140b:99 00 1e     sta ioStack,y
+140e:88           dey
+140f:         
+140f:a5 53        lda ioLine+1    ; line
+1411:99 00 1e     sta ioStack,y
+1414:88           dey
+1415:a5 52        lda ioLine
+1417:99 00 1e     sta ioStack,y
+141a:88           dey
+141b:         
+141b:84 46        sty ioPtr       ; current state all pushed
+141d:         
+141d:             ; TODO: parse for @device:
+141d:         
+141d:a5 36        lda scratch     ; scratch/ptr -> nameL/name
+141f:85 50        sta ioNameL
+1421:a6 30        ldx ptr
+1423:86 48        stx ioName
+1425:a4 31        ldy ptr+1
+1427:84 49        sty ioName+1
+1429:20 bd ff     jsr SETNAM      ; filename
+142c:         
+142c:20 a5 14     jsr ioAlloc     ; device secondary in Y
+142f:b0 25        bcs :toomany
+1431:c8           iny
+1432:c8           iny
+1433:c8           iny             ; ..and add 3 to it (we use 2 for the output)
+1434:a6 47        ldx ioDev
+1436:98           tya             ; use LFN=device secondary
+1437:85 51        sta ioLFN
+1439:20 ba ff     jsr SETLFS
+143c:         
+143c:20 c0 ff     jsr OPEN        ; open the file
+143f:b0 0e        bcs :error
+1441:a6 51        ldx ioLFN
+1443:20 c6 ff     jsr CHKIN
+1446:b0 07        bcs :error      ; now current file for reading
+1448:64 52        stz ioLine
+144a:64 53        stz ioLine+1
+144c:4c 07 15     jmp ioReadStatus
+144f:         
+144f:         :error
+144f:85 54        sta ioStatus
+1451:a9 0e        lda #errorIO
+1453:85 43        sta error
+1455:60           rts
+1456:         
+1456:         :toomany
+1456:a9 0f        lda #errorTooMany
+1458:85 43        sta error
+145a:60           rts
+145b:         
+145b:         ;
+145b:         ; pop current file state
+145b:         ioPop:
+145b:20 cc ff     jsr CLRCHN      ; disconnect existing
+145e:a5 51        lda ioLFN
+1460:20 c3 ff     jsr CLOSE       ; close current logical file
+1463:a4 51        ldy ioLFN
+1465:88           dey
+1466:88           dey
+1467:88           dey
+1468:20 b7 14     jsr ioDealloc   ; deallocate device secondary
+146b:         
+146b:a4 46        ldy ioPtr
+146d:         
+146d:c8           iny             ; line number
+146e:b9 00 1e     lda ioStack,y
+1471:85 52        sta ioLine
+1473:c8           iny
+1474:b9 00 1e     lda ioStack,y
+1477:85 53        sta ioLine+1
+1479:         
+1479:c8           iny             ; filename length
+147a:b9 00 1e     lda ioStack,y
+147d:85 50        sta ioNameL
+147f:         
+147f:c8           iny             ; filename
+1480:b9 00 1e     lda ioStack,y
+1483:85 48        sta ioName
+1485:c8           iny
+1486:b9 00 1e     lda ioStack,y
+1489:85 49        sta ioName+1
+148b:         
+148b:c8           iny             ; status
+148c:b9 00 1e     lda ioStack,y
+148f:85 54        sta ioStatus
+1491:         
+1491:c8           iny
+1492:b9 00 1e     lda ioStack,y   ; device
+1495:85 47        sta ioDev
+1497:         
+1497:c8           iny             ; LFN
+1498:be 00 1e     ldx ioStack,y
+149b:86 51        stx ioLFN
+149d:             
+149d:84 46        sty ioPtr
 149f:         
-149f:c8           iny             ; LFN
-14a0:be 00 1e     ldx ioStack,y
-14a3:86 51        stx ioLFN
-14a5:             
-14a5:84 46        sty ioPtr
-14a7:         
-14a7:f0 03        beq :zero       ; do not redirect from 0
-14a9:4c c6 ff     jmp CHKIN       ; this also becomes our current input
-14ac:         :zero
-14ac:60           rts
-14ad:         
-14ad:         ;
-14ad:         ; allocate device secondary
-14ad:         ; result in Y
-14ad:         ioAlloc:
-14ad:a9 01        lda #$01
-14af:a0 00        ldy #0
-14b1:18           clc
-14b2:         :scan
-14b2:24 57        bit ioFDS
-14b4:f0 04        beq :done
-14b6:c8           iny
-14b7:0a           asl
-14b8:90 f8        bcc :scan
-14ba:         :done
-14ba:05 57        ora ioFDS
-14bc:85 57        sta ioFDS
-14be:60           rts
-14bf:         
-14bf:         ;
-14bf:         ; deallocate device secondary in Y
-14bf:         ioDealloc:
-14bf:a9 01        lda #$01
-14c1:         :shift
-14c1:c0 00        cpy #0
-14c3:f0 04        beq :done
-14c5:0a           asl
-14c6:88           dey
-14c7:d0 f8        bne :shift
-14c9:         :done
-14c9:49 ff        eor #$ff        ; clear the bit
-14cb:25 57        and ioFDS
-14cd:85 57        sta ioFDS
-14cf:60           rts
-14d0:         
-14d0:         ;
-14d0:         ; read a line of input from current file
-14d0:         ; if ioLFN is 0 on return, at end of all files and nothing read
-14d0:         ioReadLine:
-14d0:a5 54        lda ioStatus    ; check last eof
-14d2:f0 0a        beq :next       ; no eof, continue
-14d4:         
-14d4:20 63 14     jsr ioPop
-14d7:a5 51        lda ioLFN
-14d9:f0 02        beq :done
-14db:80 f3        bra ioReadLine
-14dd:         
-14dd:         :done
-14dd:60           rts             ; end of all files
-14de:         
-14de:         :next
-14de:f8           sed             ; increment bcd line number
-14df:18           clc
-14e0:a5 52        lda ioLine
-14e2:69 01        adc #$01
-14e4:85 52        sta ioLine
-14e6:a5 53        lda ioLine+1
-14e8:69 00        adc #0
-14ea:85 53        sta ioLine+1
-14ec:d8           cld
-14ed:         
-14ed:a0 00        ldy #0
-14ef:20 cf ff     jsr CHRIN       ; read first, check error
-14f2:8d 00 20     sta lineBuf
-14f5:20 0f 15     jsr ioReadStatus
-14f8:d0 10        bne :eol
-14fa:ad 00 20     lda lineBuf
-14fd:         :loop               ; this means if line does not end in CR, we can fail
-14fd:c9 0d        cmp #13         ; cr
-14ff:f0 09        beq :eol
-1501:20 cf ff     jsr CHRIN
-1504:c8           iny
-1505:99 00 20     sta lineBuf,y        
-1508:d0 f3        bne :loop
-150a:         
-150a:         :eol
-150a:a9 00        lda #0
-150c:99 00 20     sta lineBuf,y
-150f:         
-150f:         ioReadStatus:
-150f:20 b7 ff     jsr READST
-1512:85 54        sta ioStatus
-1514:89 bf        bit #$bf        ; everything except eof
-1516:f0 04        beq :done
-1518:a9 0e        lda #errorIO
-151a:85 43        sta error
-151c:         :done
-151c:89 ff        bit #$ff        ; leave Z=0 if EOF
-151e:60           rts
-151f:         
-151f:         ;
-151f:         ; emit binary output
-151f:         ioEmit:
-151f:86 6d        stx emitX
-1521:84 6e        sty emitY
-1523:a4 55        ldy ioOutPtr
-1525:99 00 1d     sta ioBuf,y
-1528:c8           iny
-1529:84 55        sty ioOutPtr
-152b:18           clc             ; no error
-152c:d0 03        bne :out
-152e:20 57 15     jsr ioFlushAlways
-1531:         :out
-1531:a6 6d        ldx emitX
-1533:a4 6e        ldy emitY
-1535:60           rts
-1536:         
-1536:         ;
-1536:         ; emit listing output
-1536:         ioEmitListing:
-1536:20 41 16     jsr ioHex
-1539:a9 20        lda #32
-153b:20 1f 15     jsr ioEmit
-153e:b0 12        bcs :out
-1540:e6 56        inc ioColumn
-1542:a5 56        lda ioColumn
-1544:c9 08        cmp #8
-1546:90 0a        bcc :out
-1548:a9 0d        lda #13
-154a:20 1f 15     jsr ioEmit
-154d:b0 03        bcs :out
-154f:20 e3 15     jsr ioListing
-1552:         :out
-1552:60           rts
-1553:         
-1553:         
-1553:         ;
-1553:         ; flush any unwritten output
-1553:         ioFlush:
-1553:a5 55        lda ioOutPtr
-1555:f0 43        beq ioSuccess
-1557:         ioFlushAlways:
-1557:20 cc ff     jsr CLRCHN
-155a:a2 02        ldx #2
-155c:20 c9 ff     jsr CHKOUT
-155f:b0 1e        bcs :done
-1561:         
-1561:a5 55        lda ioOutPtr    ; try to write entire buffer
-1563:a2 00        ldx #<ioBuf     ; invariant: 0; this is page aligned
-1565:a0 1d        ldy #>ioBuf
-1567:20 b1 fe     jsr MCIOUT
-156a:b0 06        bcs :slow       ; not supported
-156c:         
-156c:e4 55        cpx ioOutPtr    ; did we write everything?
-156e:f0 0f        beq :done
-1570:80 02        bra :loop       ; byte bang the rest
-1572:         
-1572:         :slow
-1572:a2 00        ldx #0          ; byte bang
-1574:         :loop
-1574:bd 00 1d     lda ioBuf,x
-1577:20 d2 ff     jsr CHROUT
-157a:e8           inx
-157b:e4 55        cpx ioOutPtr
-157d:d0 f5        bne :loop
-157f:         :done
-157f:64 55        stz ioOutPtr
-1581:20 cc ff     jsr CLRCHN
-1584:a6 51        ldx ioLFN
-1586:f0 03        beq :noread
-1588:20 c6 ff     jsr CHKIN
-158b:         :noread
-158b:20 b7 ff     jsr READST
-158e:c9 00        cmp #0
-1590:f0 08        beq ioSuccess
-1592:85 54        sta ioStatus
-1594:a9 0e        lda #errorIO
-1596:85 43        sta error
-1598:38           sec
-1599:60           rts
-159a:         ioSuccess:
-159a:18           clc
-159b:60           rts
+149f:f0 03        beq :zero       ; do not redirect from 0
+14a1:4c c6 ff     jmp CHKIN       ; this also becomes our current input
+14a4:         :zero
+14a4:60           rts
+14a5:         
+14a5:         ;
+14a5:         ; allocate device secondary
+14a5:         ; result in Y
+14a5:         ioAlloc:
+14a5:a9 01        lda #$01
+14a7:a0 00        ldy #0
+14a9:18           clc
+14aa:         :scan
+14aa:24 57        bit ioFDS
+14ac:f0 04        beq :done
+14ae:c8           iny
+14af:0a           asl
+14b0:90 f8        bcc :scan
+14b2:         :done
+14b2:05 57        ora ioFDS
+14b4:85 57        sta ioFDS
+14b6:60           rts
+14b7:         
+14b7:         ;
+14b7:         ; deallocate device secondary in Y
+14b7:         ioDealloc:
+14b7:a9 01        lda #$01
+14b9:         :shift
+14b9:c0 00        cpy #0
+14bb:f0 04        beq :done
+14bd:0a           asl
+14be:88           dey
+14bf:d0 f8        bne :shift
+14c1:         :done
+14c1:49 ff        eor #$ff        ; clear the bit
+14c3:25 57        and ioFDS
+14c5:85 57        sta ioFDS
+14c7:60           rts
+14c8:         
+14c8:         ;
+14c8:         ; read a line of input from current file
+14c8:         ; if ioLFN is 0 on return, at end of all files and nothing read
+14c8:         ioReadLine:
+14c8:a5 54        lda ioStatus    ; check last eof
+14ca:f0 0a        beq :next       ; no eof, continue
+14cc:         
+14cc:20 5b 14     jsr ioPop
+14cf:a5 51        lda ioLFN
+14d1:f0 02        beq :done
+14d3:80 f3        bra ioReadLine
+14d5:         
+14d5:         :done
+14d5:60           rts             ; end of all files
+14d6:         
+14d6:         :next
+14d6:f8           sed             ; increment bcd line number
+14d7:18           clc
+14d8:a5 52        lda ioLine
+14da:69 01        adc #$01
+14dc:85 52        sta ioLine
+14de:a5 53        lda ioLine+1
+14e0:69 00        adc #0
+14e2:85 53        sta ioLine+1
+14e4:d8           cld
+14e5:         
+14e5:a0 00        ldy #0
+14e7:20 cf ff     jsr CHRIN       ; read first, check error
+14ea:8d 00 20     sta lineBuf
+14ed:20 07 15     jsr ioReadStatus
+14f0:d0 10        bne :eol
+14f2:ad 00 20     lda lineBuf
+14f5:         :loop               ; this means if line does not end in CR, we can fail
+14f5:c9 0d        cmp #13         ; cr
+14f7:f0 09        beq :eol
+14f9:20 cf ff     jsr CHRIN
+14fc:c8           iny
+14fd:99 00 20     sta lineBuf,y        
+1500:d0 f3        bne :loop
+1502:         
+1502:         :eol
+1502:a9 00        lda #0
+1504:99 00 20     sta lineBuf,y
+1507:         
+1507:         ioReadStatus:
+1507:20 b7 ff     jsr READST
+150a:85 54        sta ioStatus
+150c:89 bf        bit #$bf        ; everything except eof
+150e:f0 04        beq :done
+1510:a9 0e        lda #errorIO
+1512:85 43        sta error
+1514:         :done
+1514:89 ff        bit #$ff        ; leave Z=0 if EOF
+1516:60           rts
+1517:         
+1517:         ;
+1517:         ; emit binary output
+1517:         ioEmit:
+1517:86 6d        stx emitX
+1519:84 6e        sty emitY
+151b:a4 55        ldy ioOutPtr
+151d:99 00 1d     sta ioBuf,y
+1520:c8           iny
+1521:84 55        sty ioOutPtr
+1523:18           clc             ; no error
+1524:d0 03        bne :out
+1526:20 4f 15     jsr ioFlushAlways
+1529:         :out
+1529:a6 6d        ldx emitX
+152b:a4 6e        ldy emitY
+152d:60           rts
+152e:         
+152e:         ;
+152e:         ; emit listing output
+152e:         ioEmitListing:
+152e:20 39 16     jsr ioHex
+1531:a9 20        lda #32
+1533:20 17 15     jsr ioEmit
+1536:b0 12        bcs :out
+1538:e6 56        inc ioColumn
+153a:a5 56        lda ioColumn
+153c:c9 08        cmp #8
+153e:90 0a        bcc :out
+1540:a9 0d        lda #13
+1542:20 17 15     jsr ioEmit
+1545:b0 03        bcs :out
+1547:20 db 15     jsr ioListing
+154a:         :out
+154a:60           rts
+154b:         
+154b:         
+154b:         ;
+154b:         ; flush any unwritten output
+154b:         ioFlush:
+154b:a5 55        lda ioOutPtr
+154d:f0 43        beq ioSuccess
+154f:         ioFlushAlways:
+154f:20 cc ff     jsr CLRCHN
+1552:a2 02        ldx #2
+1554:20 c9 ff     jsr CHKOUT
+1557:b0 1e        bcs :done
+1559:         
+1559:a5 55        lda ioOutPtr    ; try to write entire buffer
+155b:a2 00        ldx #<ioBuf     ; invariant: 0; this is page aligned
+155d:a0 1d        ldy #>ioBuf
+155f:20 b1 fe     jsr MCIOUT
+1562:b0 06        bcs :slow       ; not supported
+1564:         
+1564:e4 55        cpx ioOutPtr    ; did we write everything?
+1566:f0 0f        beq :done
+1568:80 02        bra :loop       ; byte bang the rest
+156a:         
+156a:         :slow
+156a:a2 00        ldx #0          ; byte bang
+156c:         :loop
+156c:bd 00 1d     lda ioBuf,x
+156f:20 d2 ff     jsr CHROUT
+1572:e8           inx
+1573:e4 55        cpx ioOutPtr
+1575:d0 f5        bne :loop
+1577:         :done
+1577:64 55        stz ioOutPtr
+1579:20 cc ff     jsr CLRCHN
+157c:a6 51        ldx ioLFN
+157e:f0 03        beq :noread
+1580:20 c6 ff     jsr CHKIN
+1583:         :noread
+1583:20 b7 ff     jsr READST
+1586:c9 00        cmp #0
+1588:f0 08        beq ioSuccess
+158a:85 54        sta ioStatus
+158c:a9 0e        lda #errorIO
+158e:85 43        sta error
+1590:38           sec
+1591:60           rts
+1592:         ioSuccess:
+1592:18           clc
+1593:60           rts
+1594:         
+1594:         ;
+1594:         ; flush output buffer and close
+1594:         ioClose:
+1594:20 4b 15     jsr ioFlush
+1597:a9 02        lda #2
+1599:4c c3 ff     jmp CLOSE
 159c:         
 159c:         ;
-159c:         ; flush output buffer and close
-159c:         ioClose:
-159c:20 53 15     jsr ioFlush
-159f:a9 02        lda #2
-15a1:4c c3 ff     jmp CLOSE
-15a4:         
-15a4:         ;
-15a4:         ; close all disk before exiting abnormally
-15a4:         ioCloseAll:
-15a4:             ; preserve filename and line number for error
-15a4:a5 52        lda ioLine
-15a6:8d 00 20     sta lineBuf
-15a9:a5 53        lda ioLine+1
-15ab:8d 01 20     sta lineBuf+1
-15ae:a5 50        lda ioNameL
-15b0:8d 02 20     sta lineBuf+2
-15b3:a5 48        lda ioName
-15b5:8d 03 20     sta lineBuf+3
-15b8:a5 49        lda ioName+1
-15ba:8d 04 20     sta lineBuf+4
-15bd:         
-15bd:20 9c 15     jsr ioClose
-15c0:         :loop
-15c0:a5 51        lda ioLFN
-15c2:f0 05        beq :done
-15c4:20 63 14     jsr ioPop
-15c7:80 f7        bra :loop
-15c9:         :done
-15c9:ad 00 20     lda lineBuf
-15cc:85 52        sta ioLine
-15ce:ad 01 20     lda lineBuf+1
-15d1:85 53        sta ioLine+1
-15d3:ad 02 20     lda lineBuf+2
-15d6:85 50        sta ioNameL
-15d8:ad 03 20     lda lineBuf+3
-15db:85 48        sta ioName
-15dd:ad 04 20     lda lineBuf+4
-15e0:85 49        sta ioName+1
-15e2:         
-15e2:60           rts
-15e3:         
-15e3:         ;
-15e3:         ; emit listing address, reset column count
-15e3:         ioListing:
-15e3:a5 3a        lda pass
-15e5:10 15        bpl :silent     ; $80 must be set in pass for this output
-15e7:a5 58        lda lineIfs
-15e9:30 11        bmi :silent     ; do not list if'd out
-15eb:a5 2a        lda pc+1        ; PC:
-15ed:20 41 16     jsr ioHex
-15f0:a5 29        lda pc
-15f2:20 41 16     jsr ioHex
-15f5:a9 3a        lda #':
-15f7:20 1f 15     jsr ioEmit
-15fa:64 56        stz ioColumn
-15fc:         :silent
-15fc:60           rts
-15fd:         
-15fd:         ;
-15fd:         ; pad trailing spaced per ioColumn
-15fd:         ioPadListing:
-15fd:a9 03        lda #3
-15ff:38           sec
-1600:e5 56        sbc ioColumn
-1602:90 0c        bcc :nextLine
-1604:aa           tax
-1605:18           clc
-1606:         :loop
-1606:ca           dex
-1607:30 1f        bmi :done
-1609:a0 03        ldy #3
-160b:20 1e 16     jsr :spaces
-160e:80 f6        bra :loop
-1610:         :nextLine
-1610:a9 0d        lda #13         ; cr
-1612:20 1f 15     jsr ioEmit
-1615:b0 11        bcs :done
-1617:a0 0d        ldy #13         ; xxxx:aa bb cc
-1619:20 1e 16     jsr :spaces
-161c:80 e8        bra :loop
-161e:         :spaces
-161e:a9 20        lda #32         ; space
-1620:20 1f 15     jsr ioEmit
-1623:b0 03        bcs :done
-1625:88           dey
-1626:d0 f6        bne :spaces
-1628:         :done
-1628:60           rts
-1629:         
-1629:         ;
-1629:         ; print hex byte in A
-1629:         ioPrintHex:
-1629:85 36        sta scratch
-162b:4a           lsr
-162c:4a           lsr
-162d:4a           lsr
-162e:4a           lsr
-162f:20 36 16     jsr :digit
-1632:a5 36        lda scratch
-1634:29 0f        and #$0f
-1636:         :digit
-1636:c9 0a        cmp #10
-1638:90 02        bcc :num
-163a:69 06        adc #6          ; add 7 (C=1)
-163c:         :num
-163c:69 30        adc #'0
-163e:4c d2 ff     jmp CHROUT
-1641:         
-1641:         ;
-1641:         ; emit hex byte in A
-1641:         ioHex:
-1641:85 36        sta scratch
-1643:4a           lsr
-1644:4a           lsr
-1645:4a           lsr
-1646:4a           lsr
-1647:20 4e 16     jsr :digit
-164a:a5 36        lda scratch
-164c:29 0f        and #$0f
-164e:         :digit
-164e:c9 0a        cmp #10
-1650:90 02        bcc :num
-1652:69 06        adc #6
-1654:         :num
-1654:69 30        adc #'0
-1656:4c 1f 15     jmp ioEmit
-1659:         
-1659:         ;
-1659:         ; print 0 terminated string in X/Y
-1659:         ; uses ptr
-1659:         ioPrint:
-1659:86 30        stx ptr
-165b:84 31        sty ptr+1
-165d:a0 00        ldy #0
-165f:         :loop
-165f:b1 30        lda (ptr),y
-1661:f0 06        beq :done
-1663:20 d2 ff     jsr CHROUT
-1666:c8           iny
-1667:d0 f6        bne :loop
-1669:         :done
-1669:60           rts
-166a:         
-166a:         ;
-166a:         ; print errror message
-166a:         ioPrintErr:
-166a:a5 43        lda error
-166c:0a           asl
-166d:aa           tax
-166e:bd 78 16     lda :table,x
-1671:bc 79 16     ldy :table+1,x
-1674:aa           tax
-1675:4c 59 16     jmp ioPrint
-1678:         :table
-1678:             ; keep syncd with error.asm
-1678:98 16        .dw :fine
-167a:9d 16        .dw :dupLabel
-167c:a7 16        .dw :star
-167e:b1 16        .dw :backward
-1680:bf 16        .dw :eval
-1682:ce 16        .dw :assign
-1684:dc 16        .dw :dotOp
-1686:ee 16        .dw :op
-1688:f9 16        .dw :mode
-168a:0a 17        .dw :rel
-168c:1e 17        .dw :parse
-168e:2b 17        .dw :noArg
-1690:38 17        .dw :emit
-1692:47 17        .dw :dotArg
-1694:59 17        .dw :io
-1696:62 17        .dw :tooMany
-1698:         :fine
-1698:46 49 4e 45 00 
+159c:         ; close all disk before exiting abnormally
+159c:         ioCloseAll:
+159c:             ; preserve filename and line number for error
+159c:a5 52        lda ioLine
+159e:8d 00 20     sta lineBuf
+15a1:a5 53        lda ioLine+1
+15a3:8d 01 20     sta lineBuf+1
+15a6:a5 50        lda ioNameL
+15a8:8d 02 20     sta lineBuf+2
+15ab:a5 48        lda ioName
+15ad:8d 03 20     sta lineBuf+3
+15b0:a5 49        lda ioName+1
+15b2:8d 04 20     sta lineBuf+4
+15b5:         
+15b5:20 94 15     jsr ioClose
+15b8:         :loop
+15b8:a5 51        lda ioLFN
+15ba:f0 05        beq :done
+15bc:20 5b 14     jsr ioPop
+15bf:80 f7        bra :loop
+15c1:         :done
+15c1:ad 00 20     lda lineBuf
+15c4:85 52        sta ioLine
+15c6:ad 01 20     lda lineBuf+1
+15c9:85 53        sta ioLine+1
+15cb:ad 02 20     lda lineBuf+2
+15ce:85 50        sta ioNameL
+15d0:ad 03 20     lda lineBuf+3
+15d3:85 48        sta ioName
+15d5:ad 04 20     lda lineBuf+4
+15d8:85 49        sta ioName+1
+15da:         
+15da:60           rts
+15db:         
+15db:         ;
+15db:         ; emit listing address, reset column count
+15db:         ioListing:
+15db:a5 3a        lda pass
+15dd:10 15        bpl :silent     ; $80 must be set in pass for this output
+15df:a5 58        lda lineIfs
+15e1:30 11        bmi :silent     ; do not list if'd out
+15e3:a5 2a        lda pc+1        ; PC:
+15e5:20 39 16     jsr ioHex
+15e8:a5 29        lda pc
+15ea:20 39 16     jsr ioHex
+15ed:a9 3a        lda #':
+15ef:20 17 15     jsr ioEmit
+15f2:64 56        stz ioColumn
+15f4:         :silent
+15f4:60           rts
+15f5:         
+15f5:         ;
+15f5:         ; pad trailing spaced per ioColumn
+15f5:         ioPadListing:
+15f5:a9 03        lda #3
+15f7:38           sec
+15f8:e5 56        sbc ioColumn
+15fa:90 0c        bcc :nextLine
+15fc:aa           tax
+15fd:18           clc
+15fe:         :loop
+15fe:ca           dex
+15ff:30 1f        bmi :done
+1601:a0 03        ldy #3
+1603:20 16 16     jsr :spaces
+1606:80 f6        bra :loop
+1608:         :nextLine
+1608:a9 0d        lda #13         ; cr
+160a:20 17 15     jsr ioEmit
+160d:b0 11        bcs :done
+160f:a0 0d        ldy #13         ; xxxx:aa bb cc
+1611:20 16 16     jsr :spaces
+1614:80 e8        bra :loop
+1616:         :spaces
+1616:a9 20        lda #32         ; space
+1618:20 17 15     jsr ioEmit
+161b:b0 03        bcs :done
+161d:88           dey
+161e:d0 f6        bne :spaces
+1620:         :done
+1620:60           rts
+1621:         
+1621:         ;
+1621:         ; print hex byte in A
+1621:         ioPrintHex:
+1621:85 36        sta scratch
+1623:4a           lsr
+1624:4a           lsr
+1625:4a           lsr
+1626:4a           lsr
+1627:20 2e 16     jsr :digit
+162a:a5 36        lda scratch
+162c:29 0f        and #$0f
+162e:         :digit
+162e:c9 0a        cmp #10
+1630:90 02        bcc :num
+1632:69 06        adc #6          ; add 7 (C=1)
+1634:         :num
+1634:69 30        adc #'0
+1636:4c d2 ff     jmp CHROUT
+1639:         
+1639:         ;
+1639:         ; emit hex byte in A
+1639:         ioHex:
+1639:85 36        sta scratch
+163b:4a           lsr
+163c:4a           lsr
+163d:4a           lsr
+163e:4a           lsr
+163f:20 46 16     jsr :digit
+1642:a5 36        lda scratch
+1644:29 0f        and #$0f
+1646:         :digit
+1646:c9 0a        cmp #10
+1648:90 02        bcc :num
+164a:69 06        adc #6
+164c:         :num
+164c:69 30        adc #'0
+164e:4c 17 15     jmp ioEmit
+1651:         
+1651:         ;
+1651:         ; print 0 terminated string in X/Y
+1651:         ; uses ptr
+1651:         ioPrint:
+1651:86 30        stx ptr
+1653:84 31        sty ptr+1
+1655:a0 00        ldy #0
+1657:         :loop
+1657:b1 30        lda (ptr),y
+1659:f0 06        beq :done
+165b:20 d2 ff     jsr CHROUT
+165e:c8           iny
+165f:d0 f6        bne :loop
+1661:         :done
+1661:60           rts
+1662:         
+1662:         ;
+1662:         ; print errror message
+1662:         ioPrintErr:
+1662:a5 43        lda error
+1664:0a           asl
+1665:aa           tax
+1666:bd 70 16     lda :table,x
+1669:bc 71 16     ldy :table+1,x
+166c:aa           tax
+166d:4c 51 16     jmp ioPrint
+1670:         :table
+1670:             ; keep syncd with error.asm
+1670:90 16        .dw :fine
+1672:95 16        .dw :dupLabel
+1674:9f 16        .dw :star
+1676:a9 16        .dw :backward
+1678:b7 16        .dw :eval
+167a:c6 16        .dw :assign
+167c:d4 16        .dw :dotOp
+167e:e6 16        .dw :op
+1680:f1 16        .dw :mode
+1682:02 17        .dw :rel
+1684:16 17        .dw :parse
+1686:23 17        .dw :noArg
+1688:30 17        .dw :emit
+168a:3f 17        .dw :dotArg
+168c:51 17        .dw :io
+168e:5a 17        .dw :tooMany
+1690:         :fine
+1690:46 49 4e 45 00 
                  .db 'fine',0
-169d:         :dupLabel
-169d:44 55 50 20 4c 41 42 45 
-16a5:4c 00        .db 'dup label',0
-16a7:         :star
-16a7:53 54 41 52 20 45 58 50 
-16af:52 00        .db 'star expr',0
-16b1:         :backward
-16b1:50 43 20 4d 4f 56 45 44 
-16b9:20 42 41 43 4b 00 
+1695:         :dupLabel
+1695:44 55 50 20 4c 41 42 45 
+169d:4c 00        .db 'dup label',0
+169f:         :star
+169f:53 54 41 52 20 45 58 50 
+16a7:52 00        .db 'star expr',0
+16a9:         :backward
+16a9:50 43 20 4d 4f 56 45 44 
+16b1:20 42 41 43 4b 00 
                  .db 'pc moved back',0
-16bf:         :eval
-16bf:42 41 44 20 45 58 50 52 
-16c7:45 53 53 49 4f 4e 00 
+16b7:         :eval
+16b7:42 41 44 20 45 58 50 52 
+16bf:45 53 53 49 4f 4e 00 
                  .db 'bad expression',0
-16ce:         :assign
-16ce:42 41 44 20 41 53 53 49 
-16d6:47 4d 45 4e 54 00 
+16c6:         :assign
+16c6:42 41 44 20 41 53 53 49 
+16ce:47 4d 45 4e 54 00 
                  .db 'bad assigment',0
-16dc:         :dotOp
-16dc:55 4e 4b 4e 4f 57 4e 20 
-16e4:50 53 45 55 44 4f 20 4f 
-16ec:50 00        .db 'unknown pseudo op',0
-16ee:         :op
-16ee:55 4e 4b 4e 4f 57 4e 20 
-16f6:4f 50 00     .db 'unknown op',0
-16f9:         :mode
-16f9:42 41 44 20 41 44 44 52 
-1701:45 53 53 20 4d 4f 44 45 
-1709:00           .db 'bad address mode',0
-170a:         :rel
-170a:42 52 41 4e 43 48 20 4f 
-1712:55 54 20 4f 46 20 52 41 
-171a:4e 47 45 00 
+16d4:         :dotOp
+16d4:55 4e 4b 4e 4f 57 4e 20 
+16dc:50 53 45 55 44 4f 20 4f 
+16e4:50 00        .db 'unknown pseudo op',0
+16e6:         :op
+16e6:55 4e 4b 4e 4f 57 4e 20 
+16ee:4f 50 00     .db 'unknown op',0
+16f1:         :mode
+16f1:42 41 44 20 41 44 44 52 
+16f9:45 53 53 20 4d 4f 44 45 
+1701:00           .db 'bad address mode',0
+1702:         :rel
+1702:42 52 41 4e 43 48 20 4f 
+170a:55 54 20 4f 46 20 52 41 
+1712:4e 47 45 00 
                  .db 'branch out of range',0
-171e:         :parse
-171e:53 59 4e 54 41 58 20 45 
-1726:52 52 4f 52 00 
+1716:         :parse
+1716:53 59 4e 54 41 58 20 45 
+171e:52 52 4f 52 00 
                  .db 'syntax error',0
-172b:         :noArg
-172b:41 52 47 20 45 58 50 45 
-1733:43 54 45 44 00 
+1723:         :noArg
+1723:41 52 47 20 45 58 50 45 
+172b:43 54 45 44 00 
                  .db 'arg expected',0
-1738:         :emit
-1738:49 4f 20 57 52 49 54 45 
-1740:20 45 52 52 4f 52 00 
+1730:         :emit
+1730:49 4f 20 57 52 49 54 45 
+1738:20 45 52 52 4f 52 00 
                  .db 'io write error',0
-1747:         :dotArg
-1747:42 41 44 20 50 53 45 55 
-174f:44 4f 20 4f 50 20 41 52 
-1757:47 00        .db 'bad pseudo op arg',0
-1759:         :io
-1759:49 4f 20 45 52 52 4f 52 
-1761:00           .db 'io error',0
-1762:         :tooMany
-1762:54 4f 4f 20 4d 41 4e 59 
-176a:20 4f 50 45 4e 20 46 49 
-1772:4c 45 53 00 
+173f:         :dotArg
+173f:42 41 44 20 50 53 45 55 
+1747:44 4f 20 4f 50 20 41 52 
+174f:47 00        .db 'bad pseudo op arg',0
+1751:         :io
+1751:49 4f 20 45 52 52 4f 52 
+1759:00           .db 'io error',0
+175a:         :tooMany
+175a:54 4f 4f 20 4d 41 4e 59 
+1762:20 4f 50 45 4e 20 46 49 
+176a:4c 45 53 00 
                  .db 'too many open files',0
-1776:         
-1776:             .in 'isns.asm'
-1776:             .in 'zp.asm'
-1776:             .fi ; zpAsm
-1776:         
-1776:             .in 'mode.asm'
-1776:             .fi ; modeAsm
-1776:         
-1776:         
-1776:         
-1776:         ;
-1776:         ; return isn token at lineBuf,x
-1776:         ; isnOp: result
-1776:         ; C: not found
-1776:         isnGet:
-1776:             ; A,B,C = a-'A', b-'A', c-'A'
-1776:             ; 
-1776:             ; bit fedcba9876543210
-1776:             ;     0AAAAABBBBBCCCCC
-1776:             ; ex "LDA" is $2c60
-1776:             ;
-1776:bd 00 20     lda lineBuf,x
-1779:38           sec
-177a:e9 41        sbc #'a
-177c:0a           asl
-177d:0a           asl
-177e:85 63        sta isn2
-1780:bd 01 20     lda lineBuf+1,x
-1783:38           sec
-1784:e9 41        sbc #'a
-1786:85 62        sta isn1
-1788:4a           lsr
-1789:4a           lsr
-178a:4a           lsr
-178b:04 63        tsb isn2
-178d:a5 62        lda isn1
-178f:0a           asl
-1790:0a           asl
-1791:0a           asl
-1792:0a           asl
-1793:0a           asl
-1794:85 62        sta isn1
-1796:bd 02 20     lda lineBuf+2,x
-1799:38           sec
-179a:e9 41        sbc #'a
-179c:04 62        tsb isn1
-179e:         
-179e:             ; incr=1 element (2 bytes per entry)
-179e:a0 02        ldy #2
-17a0:84 61        sty incr
-17a2:         
-17a2:         :loop
-17a2:a5 63        lda isn2        ; hi cmp
-17a4:d9 71 18     cmp isns+1,y
-17a7:d0 07        bne :cmp        ; if =, continue with lo cmp
-17a9:         
-17a9:a5 62        lda isn1        ; lo cmp
-17ab:d9 70 18     cmp isns,y
-17ae:f0 11        beq :found      ; if =, found
-17b0:         
-17b0:         :cmp
-17b0:90 05        bcc :lo         ; needle < haystack location?
-17b2:20 c5 17     jsr :next       ; no: extra advance to do it twice
-17b5:b0 09        bcs :not
-17b7:         
-17b7:         :lo
-17b7:20 c5 17     jsr :next       ; advance
-17ba:b0 04        bcs :not
-17bc:         
-17bc:06 61        asl incr        ; double incr for next advance
-17be:90 e2        bcc :loop
-17c0:         :not
-17c0:60           rts             ; invariant: C=1
-17c1:         
-17c1:         :found
-17c1:18           clc             ; C=0 to indicate found
-17c2:84 27        sty isnOp
-17c4:60           rts
-17c5:         
-17c5:         :next
-17c5:98           tya             ; y += incr
-17c6:18           clc
-17c7:65 61        adc incr        ; C=1 if over
-17c9:a8           tay
-17ca:60           rts
-17cb:         
-17cb:         ;
-17cb:         ; resolve deduced address mode and instruction
-17cb:         opResolve:
-17cb:a6 27        ldx isnOp
-17cd:bd 71 19     lda ops+1,x
-17d0:f0 2e        beq :imp
-17d2:85 31        sta ptr+1
-17d4:bd 70 19     lda ops,x
-17d7:85 30        sta ptr
-17d9:         
-17d9:             ; can we zp this?
-17d9:a5 2c        lda arg+1       ; no, it is a 16 bit arg
-17db:d0 15        bne :try
-17dd:         
-17dd:a5 28        lda isnMode     ; does this have a potential zp version?
-17df:c9 05        cmp #5
-17e1:b0 0f        bcs :try        ; no
-17e3:         
-17e3:69 0a        adc #10         ; try the zp form
-17e5:85 28        sta isnMode
-17e7:20 f2 17     jsr :try
-17ea:90 20        bcc :out        ; we win (or it was relative)
-17ec:         
-17ec:a5 28        lda isnMode
-17ee:e9 0a        sbc #10
-17f0:85 28        sta isnMode     ; continue with original absolute
-17f2:         
-17f2:         :try
-17f2:a4 28        ldy isnMode
-17f4:b1 30        lda (ptr),y
-17f6:d0 11        bne :found      ; found it
-17f8:         
-17f8:a0 08        ldy #modeRel
-17fa:b1 30        lda (ptr),y
-17fc:d0 0b        bne :found
-17fe:         
-17fe:80 0d        bra :err
-1800:             
-1800:         :imp
-1800:a4 28        ldy isnMode     ; has to be modeImp
-1802:c0 07        cpy #modeImp
-1804:d0 07        bne :err
-1806:bd 70 19     lda ops,x
-1809:             ; fall thru
-1809:         
-1809:         :found
-1809:84 28        sty isnMode
-180b:18           clc
-180c:         :out
-180c:60           rts
-180d:         
-180d:         :err
-180d:38           sec
-180e:60           rts
-180f:         
-180f:             .in 'isns-table.asm'
+176e:         
+176e:             .in 'isns.asm'
+176e:             .in 'zp.asm'
+176e:             .fi ; zpAsm
+176e:         
+176e:             .in 'mode.asm'
+176e:             .fi ; modeAsm
+176e:         
+176e:         
+176e:         
+176e:         ;
+176e:         ; return isn token at lineBuf,x
+176e:         ; isnOp: result
+176e:         ; C: not found
+176e:         isnGet:
+176e:             ; A,B,C = a-'A', b-'A', c-'A'
+176e:             ; 
+176e:             ; bit fedcba9876543210
+176e:             ;     0AAAAABBBBBCCCCC
+176e:             ; ex "LDA" is $2c60
+176e:             ;
+176e:bd 00 20     lda lineBuf,x
+1771:38           sec
+1772:e9 41        sbc #'a
+1774:0a           asl
+1775:0a           asl
+1776:85 63        sta isn2
+1778:bd 01 20     lda lineBuf+1,x
+177b:38           sec
+177c:e9 41        sbc #'a
+177e:85 62        sta isn1
+1780:4a           lsr
+1781:4a           lsr
+1782:4a           lsr
+1783:04 63        tsb isn2
+1785:a5 62        lda isn1
+1787:0a           asl
+1788:0a           asl
+1789:0a           asl
+178a:0a           asl
+178b:0a           asl
+178c:85 62        sta isn1
+178e:bd 02 20     lda lineBuf+2,x
+1791:38           sec
+1792:e9 41        sbc #'a
+1794:04 62        tsb isn1
+1796:         
+1796:             ; incr=1 element (2 bytes per entry)
+1796:a0 02        ldy #2
+1798:84 61        sty incr
+179a:         
+179a:         :loop
+179a:a5 63        lda isn2        ; hi cmp
+179c:d9 69 18     cmp isns+1,y
+179f:d0 07        bne :cmp        ; if =, continue with lo cmp
+17a1:         
+17a1:a5 62        lda isn1        ; lo cmp
+17a3:d9 68 18     cmp isns,y
+17a6:f0 11        beq :found      ; if =, found
+17a8:         
+17a8:         :cmp
+17a8:90 05        bcc :lo         ; needle < haystack location?
+17aa:20 bd 17     jsr :next       ; no: extra advance to do it twice
+17ad:b0 09        bcs :not
+17af:         
+17af:         :lo
+17af:20 bd 17     jsr :next       ; advance
+17b2:b0 04        bcs :not
+17b4:         
+17b4:06 61        asl incr        ; double incr for next advance
+17b6:90 e2        bcc :loop
+17b8:         :not
+17b8:60           rts             ; invariant: C=1
+17b9:         
+17b9:         :found
+17b9:18           clc             ; C=0 to indicate found
+17ba:84 27        sty isnOp
+17bc:60           rts
+17bd:         
+17bd:         :next
+17bd:98           tya             ; y += incr
+17be:18           clc
+17bf:65 61        adc incr        ; C=1 if over
+17c1:a8           tay
+17c2:60           rts
+17c3:         
+17c3:         ;
+17c3:         ; resolve deduced address mode and instruction
+17c3:         opResolve:
+17c3:a6 27        ldx isnOp
+17c5:bd 69 19     lda ops+1,x
+17c8:f0 2e        beq :imp
+17ca:85 31        sta ptr+1
+17cc:bd 68 19     lda ops,x
+17cf:85 30        sta ptr
+17d1:         
+17d1:             ; can we zp this?
+17d1:a5 2c        lda arg+1       ; no, it is a 16 bit arg
+17d3:d0 15        bne :try
+17d5:         
+17d5:a5 28        lda isnMode     ; does this have a potential zp version?
+17d7:c9 05        cmp #5
+17d9:b0 0f        bcs :try        ; no
+17db:         
+17db:69 0a        adc #10         ; try the zp form
+17dd:85 28        sta isnMode
+17df:20 ea 17     jsr :try
+17e2:90 20        bcc :out        ; we win (or it was relative)
+17e4:         
+17e4:a5 28        lda isnMode
+17e6:e9 0a        sbc #10
+17e8:85 28        sta isnMode     ; continue with original absolute
+17ea:         
+17ea:         :try
+17ea:a4 28        ldy isnMode
+17ec:b1 30        lda (ptr),y
+17ee:d0 11        bne :found      ; found it
+17f0:         
+17f0:a0 08        ldy #modeRel
+17f2:b1 30        lda (ptr),y
+17f4:d0 0b        bne :found
+17f6:         
+17f6:80 0d        bra :err
+17f8:             
+17f8:         :imp
+17f8:a4 28        ldy isnMode     ; has to be modeImp
+17fa:c0 07        cpy #modeImp
+17fc:d0 07        bne :err
+17fe:bd 68 19     lda ops,x
+1801:             ; fall thru
+1801:         
+1801:         :found
+1801:84 28        sty isnMode
+1803:18           clc
+1804:         :out
+1804:60           rts
+1805:         
+1805:         :err
+1805:38           sec
+1806:60           rts
+1807:         
+1807:             .in 'isns-table.asm'
+1807:00 00 00 00 00 00 00 00 
 180f:00 00 00 00 00 00 00 00 
 1817:00 00 00 00 00 00 00 00 
 181f:00 00 00 00 00 00 00 00 
@@ -2976,432 +2973,431 @@
 184f:00 00 00 00 00 00 00 00 
 1857:00 00 00 00 00 00 00 00 
 185f:00 00 00 00 00 00 00 00 
-1867:00 00 00 00 00 00 00 00 
-186f:00       *=*%100
-1870:         isns:
+1867:00       *=*%100
+1868:         isns:
+1868:00 00        .dw $0000
+186a:51 2e        .dw $2e51 ; 02 lsr
+186c:32 04        .dw $0432 ; 04 bbs
+186e:f2 4e        .dw $4ef2 ; 06 txs
 1870:00 00        .dw $0000
-1872:51 2e        .dw $2e51 ; 02 lsr
-1874:32 04        .dw $0432 ; 04 bbs
-1876:f2 4e        .dw $4ef2 ; 06 txs
+1872:22 48        .dw $4822 ; 0a sbc
+1874:75 09        .dw $0975 ; 0c clv
+1876:ff 7f        .dw $7fff
 1878:00 00        .dw $0000
-187a:22 48        .dw $4822 ; 0a sbc
-187c:75 09        .dw $0975 ; 0c clv
+187a:6f 3d        .dw $3d6f ; 12 plp
+187c:eb 05        .dw $05eb ; 14 bpl
 187e:ff 7f        .dw $7fff
 1880:00 00        .dw $0000
-1882:6f 3d        .dw $3d6f ; 12 plp
-1884:eb 05        .dw $05eb ; 14 bpl
+1882:78 4a        .dw $4a78 ; 1a sty
+1884:a2 21        .dw $21a2 ; 1c inc
 1886:ff 7f        .dw $7fff
 1888:00 00        .dw $0000
-188a:78 4a        .dw $4a78 ; 1a sty
-188c:a2 21        .dw $21a2 ; 1c inc
+188a:ef 3c        .dw $3cef ; 22 php
+188c:90 04        .dw $0490 ; 24 beq
 188e:ff 7f        .dw $7fff
 1890:00 00        .dw $0000
-1892:ef 3c        .dw $3cef ; 22 php
-1894:90 04        .dw $0490 ; 24 beq
+1892:81 49        .dw $4981 ; 2a smb
+1894:82 0c        .dw $0c82 ; 2c dec
 1896:ff 7f        .dw $7fff
 1898:00 00        .dw $0000
-189a:81 49        .dw $4981 ; 2a smb
-189c:82 0c        .dw $0c82 ; 2c dec
+189a:cb 45        .dw $45cb ; 32 rol
+189c:b2 06        .dw $06b2 ; 34 bvs
 189e:ff 7f        .dw $7fff
-18a0:00 00        .dw $0000
-18a2:cb 45        .dw $45cb ; 32 rol
-18a4:b2 06        .dw $06b2 ; 34 bvs
+18a0:62 00        .dw $0062 ; 38 adc
+18a2:21 4e        .dw $4e21 ; 3a trb
+18a4:51 26        .dw $2651 ; 3c jsr
 18a6:ff 7f        .dw $7fff
-18a8:62 00        .dw $0062 ; 38 adc
-18aa:21 4e        .dw $4e21 ; 3a trb
-18ac:51 26        .dw $2651 ; 3c jsr
-18ae:ff 7f        .dw $7fff
+18a8:00 00        .dw $0000
+18aa:20 3a        .dw $3a20 ; 42 ora
+18ac:42 04        .dw $0442 ; 44 bcc
+18ae:08 58        .dw $5808 ; 46 wai
 18b0:00 00        .dw $0000
-18b2:20 3a        .dw $3a20 ; 42 ora
-18b4:42 04        .dw $0442 ; 44 bcc
-18b6:08 58        .dw $5808 ; 46 wai
+18b2:83 48        .dw $4883 ; 4a sed
+18b4:f7 09        .dw $09f7 ; 4c cpx
+18b6:ff 7f        .dw $7fff
 18b8:00 00        .dw $0000
-18ba:83 48        .dw $4883 ; 4a sed
-18bc:f7 09        .dw $09f7 ; 4c cpx
+18ba:78 3d        .dw $3d78 ; 52 ply
+18bc:2a 06        .dw $062a ; 54 brk
 18be:ff 7f        .dw $7fff
 18c0:00 00        .dw $0000
-18c2:78 3d        .dw $3d78 ; 52 ply
-18c4:2a 06        .dw $062a ; 54 brk
+18c2:17 4c        .dw $4c17 ; 5a tax
+18c4:b8 21        .dw $21b8 ; 5c iny
 18c6:ff 7f        .dw $7fff
 18c8:00 00        .dw $0000
-18ca:17 4c        .dw $4c17 ; 5a tax
-18cc:b8 21        .dw $21b8 ; 5c iny
+18ca:f8 3c        .dw $3cf8 ; 62 phy
+18cc:88 05        .dw $0588 ; 64 bmi
 18ce:ff 7f        .dw $7fff
 18d0:00 00        .dw $0000
-18d2:f8 3c        .dw $3cf8 ; 62 phy
-18d4:88 05        .dw $0588 ; 64 bmi
+18d2:6f 4a        .dw $4a6f ; 6a stp
+18d4:98 0c        .dw $0c98 ; 6c dey
 18d6:ff 7f        .dw $7fff
 18d8:00 00        .dw $0000
-18da:6f 4a        .dw $4a6f ; 6a stp
-18dc:98 0c        .dw $0c98 ; 6c dey
+18da:68 46        .dw $4668 ; 72 rti
+18dc:63 09        .dw $0963 ; 74 cld
 18de:ff 7f        .dw $7fff
-18e0:00 00        .dw $0000
-18e2:68 46        .dw $4668 ; 72 rti
-18e4:63 09        .dw $0963 ; 74 cld
+18e0:4b 02        .dw $024b ; 78 asl
+18e2:57 4e        .dw $4e57 ; 7a tsx
+18e4:77 2c        .dw $2c77 ; 7c ldx
 18e6:ff 7f        .dw $7fff
-18e8:4b 02        .dw $024b ; 78 asl
-18ea:57 4e        .dw $4e57 ; 7a tsx
-18ec:77 2c        .dw $2c77 ; 7c ldx
-18ee:ff 7f        .dw $7fff
+18e8:00 00        .dw $0000
+18ea:cf 35        .dw $35cf ; 82 nop
+18ec:42 04        .dw $0442 ; 84 bcc
+18ee:00 4f        .dw $4f00 ; 86 tya
 18f0:00 00        .dw $0000
-18f2:cf 35        .dw $35cf ; 82 nop
-18f4:42 04        .dw $0442 ; 84 bcc
-18f6:00 4f        .dw $4f00 ; 86 tya
+18f2:82 48        .dw $4882 ; 8a sec
+18f4:8f 09        .dw $098f ; 8c cmp
+18f6:ff 7f        .dw $7fff
 18f8:00 00        .dw $0000
-18fa:82 48        .dw $4882 ; 8a sec
-18fc:8f 09        .dw $098f ; 8c cmp
+18fa:77 3d        .dw $3d77 ; 92 plx
+18fc:20 06        .dw $0620 ; 94 bra
 18fe:ff 7f        .dw $7fff
 1900:00 00        .dw $0000
-1902:77 3d        .dw $3d77 ; 92 plx
-1904:20 06        .dw $0620 ; 94 bra
+1902:79 4a        .dw $4a79 ; 9a stz
+1904:b7 21        .dw $21b7 ; 9c inx
 1906:ff 7f        .dw $7fff
 1908:00 00        .dw $0000
-190a:79 4a        .dw $4a79 ; 9a stz
-190c:b7 21        .dw $21b7 ; 9c inx
+190a:f7 3c        .dw $3cf7 ; a2 phx
+190c:13 05        .dw $0513 ; a4 bit
 190e:ff 7f        .dw $7fff
 1910:00 00        .dw $0000
-1912:f7 3c        .dw $3cf7 ; a2 phx
-1914:13 05        .dw $0513 ; a4 bit
+1912:60 4a        .dw $4a60 ; aa sta
+1914:97 0c        .dw $0c97 ; ac dex
 1916:ff 7f        .dw $7fff
 1918:00 00        .dw $0000
-191a:60 4a        .dw $4a60 ; aa sta
-191c:97 0c        .dw $0c97 ; ac dex
+191a:d1 45        .dw $45d1 ; b2 ror
+191c:62 09        .dw $0962 ; b4 clc
 191e:ff 7f        .dw $7fff
-1920:00 00        .dw $0000
-1922:d1 45        .dw $45d1 ; b2 ror
-1924:62 09        .dw $0962 ; b4 clc
+1920:a3 01        .dw $01a3 ; b8 and
+1922:41 4e        .dw $4e41 ; ba tsb
+1924:60 2c        .dw $2c60 ; bc lda
 1926:ff 7f        .dw $7fff
-1928:a3 01        .dw $01a3 ; b8 and
-192a:41 4e        .dw $4e41 ; ba tsb
-192c:60 2c        .dw $2c60 ; bc lda
+1928:00 00        .dw $0000
+192a:e0 3c        .dw $3ce0 ; c2 pha
+192c:52 04        .dw $0452 ; c4 bcs
 192e:ff 7f        .dw $7fff
 1930:00 00        .dw $0000
-1932:e0 3c        .dw $3ce0 ; c2 pha
-1934:52 04        .dw $0452 ; c4 bcs
+1932:88 48        .dw $4888 ; ca sei
+1934:f8 09        .dw $09f8 ; cc cpy
 1936:ff 7f        .dw $7fff
 1938:00 00        .dw $0000
-193a:88 48        .dw $4888 ; ca sei
-193c:f8 09        .dw $09f8 ; cc cpy
+193a:81 45        .dw $4581 ; d2 rmb
+193c:a2 06        .dw $06a2 ; d4 bvc
 193e:ff 7f        .dw $7fff
 1940:00 00        .dw $0000
-1942:81 45        .dw $4581 ; d2 rmb
-1944:a2 06        .dw $06a2 ; d4 bvc
+1942:18 4c        .dw $4c18 ; da tay
+1944:8f 25        .dw $258f ; dc jmp
 1946:ff 7f        .dw $7fff
 1948:00 00        .dw $0000
-194a:18 4c        .dw $4c18 ; da tay
-194c:8f 25        .dw $258f ; dc jmp
+194a:60 3d        .dw $3d60 ; e2 pla
+194c:a4 05        .dw $05a4 ; e4 bne
 194e:ff 7f        .dw $7fff
 1950:00 00        .dw $0000
-1952:60 3d        .dw $3d60 ; e2 pla
-1954:a4 05        .dw $05a4 ; e4 bne
+1952:77 4a        .dw $4a77 ; ea stx
+1954:d1 11        .dw $11d1 ; ec eor
 1956:ff 7f        .dw $7fff
 1958:00 00        .dw $0000
-195a:77 4a        .dw $4a77 ; ea stx
-195c:d1 11        .dw $11d1 ; ec eor
+195a:72 46        .dw $4672 ; f2 rts
+195c:68 09        .dw $0968 ; f4 cli
 195e:ff 7f        .dw $7fff
-1960:00 00        .dw $0000
-1962:72 46        .dw $4672 ; f2 rts
-1964:68 09        .dw $0968 ; f4 cli
+1960:31 04        .dw $0431 ; f8 bbr
+1962:e0 4e        .dw $4ee0 ; fa txa
+1964:78 2c        .dw $2c78 ; fc ldy
 1966:ff 7f        .dw $7fff
-1968:31 04        .dw $0431 ; f8 bbr
-196a:e0 4e        .dw $4ee0 ; fa txa
-196c:78 2c        .dw $2c78 ; fc ldy
-196e:ff 7f        .dw $7fff
-1970:         
-1970:         ops:
+1968:         
+1968:         ops:
+1968:00 00     .dw 0
+196a:08 1c     .dw :lsr
+196c:a8 1a     .dw :bbs
+196e:9a 00     .dw $9a ; txs
 1970:00 00     .dw 0
-1972:10 1c     .dw :lsr
-1974:b0 1a     .dw :bbs
-1976:9a 00     .dw $9a ; txs
+1972:58 1c     .dw :sbc
+1974:b8 00     .dw $b8 ; clv
+1976:00 00     .dw 0
 1978:00 00     .dw 0
-197a:60 1c     .dw :sbc
-197c:b8 00     .dw $b8 ; clv
+197a:28 00     .dw $28 ; plp
+197c:18 1b     .dw :bpl
 197e:00 00     .dw 0
 1980:00 00     .dw 0
-1982:28 00     .dw $28 ; plp
-1984:20 1b     .dw :bpl
+1982:98 1c     .dw :sty
+1984:a8 1b     .dw :inc
 1986:00 00     .dw 0
 1988:00 00     .dw 0
-198a:a0 1c     .dw :sty
-198c:b0 1b     .dw :inc
+198a:08 00     .dw $08 ; php
+198c:d8 1a     .dw :beq
 198e:00 00     .dw 0
 1990:00 00     .dw 0
-1992:08 00     .dw $08 ; php
-1994:e0 1a     .dw :beq
+1992:68 1c     .dw :smb
+1994:88 1b     .dw :dec
 1996:00 00     .dw 0
 1998:00 00     .dw 0
-199a:70 1c     .dw :smb
-199c:90 1b     .dw :dec
+199a:38 1c     .dw :rol
+199c:48 1b     .dw :bvs
 199e:00 00     .dw 0
-19a0:00 00     .dw 0
-19a2:40 1c     .dw :rol
-19a4:50 1b     .dw :bvs
+19a0:68 1a     .dw :adc
+19a2:b8 1c     .dw :trb
+19a4:c8 1b     .dw :jsr
 19a6:00 00     .dw 0
-19a8:70 1a     .dw :adc
-19aa:c0 1c     .dw :trb
-19ac:d0 1b     .dw :jsr
-19ae:00 00     .dw 0
+19a8:00 00     .dw 0
+19aa:18 1c     .dw :ora
+19ac:b8 1a     .dw :bcc
+19ae:cb 00     .dw $cb ; wai
 19b0:00 00     .dw 0
-19b2:20 1c     .dw :ora
-19b4:c0 1a     .dw :bcc
-19b6:cb 00     .dw $cb ; wai
+19b2:f8 00     .dw $f8 ; sed
+19b4:68 1b     .dw :cpx
+19b6:00 00     .dw 0
 19b8:00 00     .dw 0
-19ba:f8 00     .dw $f8 ; sed
-19bc:70 1b     .dw :cpx
+19ba:7a 00     .dw $7a ; ply
+19bc:00 00     .dw $00 ; brk
 19be:00 00     .dw 0
 19c0:00 00     .dw 0
-19c2:7a 00     .dw $7a ; ply
-19c4:00 00     .dw $00 ; brk
+19c2:aa 00     .dw $aa ; tax
+19c4:c8 00     .dw $c8 ; iny
 19c6:00 00     .dw 0
 19c8:00 00     .dw 0
-19ca:aa 00     .dw $aa ; tax
-19cc:c8 00     .dw $c8 ; iny
+19ca:5a 00     .dw $5a ; phy
+19cc:f8 1a     .dw :bmi
 19ce:00 00     .dw 0
 19d0:00 00     .dw 0
-19d2:5a 00     .dw $5a ; phy
-19d4:00 1b     .dw :bmi
+19d2:db 00     .dw $db ; stp
+19d4:88 00     .dw $88 ; dey
 19d6:00 00     .dw 0
 19d8:00 00     .dw 0
-19da:db 00     .dw $db ; stp
-19dc:88 00     .dw $88 ; dey
+19da:40 00     .dw $40 ; rti
+19dc:d8 00     .dw $d8 ; cld
 19de:00 00     .dw 0
-19e0:00 00     .dw 0
-19e2:40 00     .dw $40 ; rti
-19e4:d8 00     .dw $d8 ; cld
+19e0:88 1a     .dw :asl
+19e2:ba 00     .dw $ba ; tsx
+19e4:e8 1b     .dw :ldx
 19e6:00 00     .dw 0
-19e8:90 1a     .dw :asl
-19ea:ba 00     .dw $ba ; tsx
-19ec:f0 1b     .dw :ldx
-19ee:00 00     .dw 0
+19e8:00 00     .dw 0
+19ea:ea 00     .dw $ea ; nop
+19ec:b8 1a     .dw :bcc
+19ee:98 00     .dw $98 ; tya
 19f0:00 00     .dw 0
-19f2:ea 00     .dw $ea ; nop
-19f4:c0 1a     .dw :bcc
-19f6:98 00     .dw $98 ; tya
+19f2:38 00     .dw $38 ; sec
+19f4:58 1b     .dw :cmp
+19f6:00 00     .dw 0
 19f8:00 00     .dw 0
-19fa:38 00     .dw $38 ; sec
-19fc:60 1b     .dw :cmp
+19fa:fa 00     .dw $fa ; plx
+19fc:28 1b     .dw :bra
 19fe:00 00     .dw 0
 1a00:00 00     .dw 0
-1a02:fa 00     .dw $fa ; plx
-1a04:30 1b     .dw :bra
+1a02:a8 1c     .dw :stz
+1a04:e8 00     .dw $e8 ; inx
 1a06:00 00     .dw 0
 1a08:00 00     .dw 0
-1a0a:b0 1c     .dw :stz
-1a0c:e8 00     .dw $e8 ; inx
+1a0a:da 00     .dw $da ; phx
+1a0c:e8 1a     .dw :bit
 1a0e:00 00     .dw 0
 1a10:00 00     .dw 0
-1a12:da 00     .dw $da ; phx
-1a14:f0 1a     .dw :bit
+1a12:78 1c     .dw :sta
+1a14:ca 00     .dw $ca ; dex
 1a16:00 00     .dw 0
 1a18:00 00     .dw 0
-1a1a:80 1c     .dw :sta
-1a1c:ca 00     .dw $ca ; dex
+1a1a:48 1c     .dw :ror
+1a1c:18 00     .dw $18 ; clc
 1a1e:00 00     .dw 0
-1a20:00 00     .dw 0
-1a22:50 1c     .dw :ror
-1a24:18 00     .dw $18 ; clc
+1a20:78 1a     .dw :and
+1a22:c8 1c     .dw :tsb
+1a24:d8 1b     .dw :lda
 1a26:00 00     .dw 0
-1a28:80 1a     .dw :and
-1a2a:d0 1c     .dw :tsb
-1a2c:e0 1b     .dw :lda
+1a28:00 00     .dw 0
+1a2a:48 00     .dw $48 ; pha
+1a2c:c8 1a     .dw :bcs
 1a2e:00 00     .dw 0
 1a30:00 00     .dw 0
-1a32:48 00     .dw $48 ; pha
-1a34:d0 1a     .dw :bcs
+1a32:78 00     .dw $78 ; sei
+1a34:78 1b     .dw :cpy
 1a36:00 00     .dw 0
 1a38:00 00     .dw 0
-1a3a:78 00     .dw $78 ; sei
-1a3c:80 1b     .dw :cpy
+1a3a:28 1c     .dw :rmb
+1a3c:38 1b     .dw :bvc
 1a3e:00 00     .dw 0
 1a40:00 00     .dw 0
-1a42:30 1c     .dw :rmb
-1a44:40 1b     .dw :bvc
+1a42:a8 00     .dw $a8 ; tay
+1a44:b8 1b     .dw :jmp
 1a46:00 00     .dw 0
 1a48:00 00     .dw 0
-1a4a:a8 00     .dw $a8 ; tay
-1a4c:c0 1b     .dw :jmp
+1a4a:68 00     .dw $68 ; pla
+1a4c:08 1b     .dw :bne
 1a4e:00 00     .dw 0
 1a50:00 00     .dw 0
-1a52:68 00     .dw $68 ; pla
-1a54:10 1b     .dw :bne
+1a52:88 1c     .dw :stx
+1a54:98 1b     .dw :eor
 1a56:00 00     .dw 0
 1a58:00 00     .dw 0
-1a5a:90 1c     .dw :stx
-1a5c:a0 1b     .dw :eor
+1a5a:60 00     .dw $60 ; rts
+1a5c:58 00     .dw $58 ; cli
 1a5e:00 00     .dw 0
-1a60:00 00     .dw 0
-1a62:60 00     .dw $60 ; rts
-1a64:58 00     .dw $58 ; cli
+1a60:98 1a     .dw :bbr
+1a62:8a 00     .dw $8a ; txa
+1a64:f8 1b     .dw :ldy
 1a66:00 00     .dw 0
-1a68:a0 1a     .dw :bbr
-1a6a:8a 00     .dw $8a ; txa
-1a6c:00 1c     .dw :ldy
-1a6e:00 00     .dw 0
-1a70:         :adc
-1a70:6d 00 7d 79 00 00 69 00 
-1a78:00 00 65 61 75 00 72 71 
-1a80:          .db $6d,$00,$7d,$79,$00,$00,$69,$00,$00,$00,$65,$61,$75,$00,$72,$71
-1a80:         :and
-1a80:2d 00 3d 39 00 00 29 00 
-1a88:00 00 25 21 35 00 32 31 
-1a90:          .db $2d,$00,$3d,$39,$00,$00,$29,$00,$00,$00,$25,$21,$35,$00,$32,$31
-1a90:         :asl
-1a90:0e 00 1e 00 00 00 00 0a 
-1a98:00 00 06 00 16 00 00 00 
-1aa0:          .db $0e,$00,$1e,$00,$00,$00,$00,$0a,$00,$00,$06,$00,$16,$00,$00,$00
-1aa0:         :bbr
-1aa0:00 00 00 00 00 00 00 00 
-1aa8:00 0f 00 00 00 00 00 00 
-1ab0:          .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$0f,$00,$00,$00,$00,$00,$00
-1ab0:         :bbs
-1ab0:00 00 00 00 00 00 00 00 
-1ab8:00 8f 00 00 00 00 00 00 
-1ac0:          .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$8f,$00,$00,$00,$00,$00,$00
-1ac0:         :bcc
-1ac0:00 00 00 00 00 00 00 00 
-1ac8:90 00 00 00 00 00 00 00 
-1ad0:          .db $00,$00,$00,$00,$00,$00,$00,$00,$90,$00,$00,$00,$00,$00,$00,$00
-1ad0:         :bcs
-1ad0:00 00 00 00 00 00 00 00 
-1ad8:b0 00 00 00 00 00 00 00 
-1ae0:          .db $00,$00,$00,$00,$00,$00,$00,$00,$b0,$00,$00,$00,$00,$00,$00,$00
-1ae0:         :beq
-1ae0:00 00 00 00 00 00 00 00 
-1ae8:f0 00 00 00 00 00 00 00 
-1af0:          .db $00,$00,$00,$00,$00,$00,$00,$00,$f0,$00,$00,$00,$00,$00,$00,$00
-1af0:         :bit
-1af0:2c 00 3c 00 00 00 89 00 
-1af8:00 00 24 00 34 00 00 00 
-1b00:          .db $2c,$00,$3c,$00,$00,$00,$89,$00,$00,$00,$24,$00,$34,$00,$00,$00
-1b00:         :bmi
-1b00:00 00 00 00 00 00 00 00 
-1b08:30 00 00 00 00 00 00 00 
-1b10:          .db $00,$00,$00,$00,$00,$00,$00,$00,$30,$00,$00,$00,$00,$00,$00,$00
-1b10:         :bne
-1b10:00 00 00 00 00 00 00 00 
-1b18:d0 00 00 00 00 00 00 00 
-1b20:          .db $00,$00,$00,$00,$00,$00,$00,$00,$d0,$00,$00,$00,$00,$00,$00,$00
-1b20:         :bpl
-1b20:00 00 00 00 00 00 00 00 
-1b28:10 00 00 00 00 00 00 00 
-1b30:          .db $00,$00,$00,$00,$00,$00,$00,$00,$10,$00,$00,$00,$00,$00,$00,$00
-1b30:         :bra
-1b30:00 00 00 00 00 00 00 00 
-1b38:80 00 00 00 00 00 00 00 
-1b40:          .db $00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$00,$00,$00,$00,$00
-1b40:         :bvc
-1b40:00 00 00 00 00 00 00 00 
-1b48:50 00 00 00 00 00 00 00 
-1b50:          .db $00,$00,$00,$00,$00,$00,$00,$00,$50,$00,$00,$00,$00,$00,$00,$00
-1b50:         :bvs
-1b50:00 00 00 00 00 00 00 00 
-1b58:70 00 00 00 00 00 00 00 
-1b60:          .db $00,$00,$00,$00,$00,$00,$00,$00,$70,$00,$00,$00,$00,$00,$00,$00
-1b60:         :cmp
-1b60:cd 00 dd d9 00 00 c9 00 
-1b68:00 00 c5 c1 d5 00 d2 d1 
-1b70:          .db $cd,$00,$dd,$d9,$00,$00,$c9,$00,$00,$00,$c5,$c1,$d5,$00,$d2,$d1
-1b70:         :cpx
-1b70:ec 00 00 00 00 00 e0 00 
-1b78:00 00 e4 00 00 00 00 00 
-1b80:          .db $ec,$00,$00,$00,$00,$00,$e0,$00,$00,$00,$e4,$00,$00,$00,$00,$00
-1b80:         :cpy
-1b80:cc 00 00 00 00 00 c0 00 
-1b88:00 00 c4 00 00 00 00 00 
-1b90:          .db $cc,$00,$00,$00,$00,$00,$c0,$00,$00,$00,$c4,$00,$00,$00,$00,$00
-1b90:         :dec
-1b90:ce 00 de 00 00 00 00 3a 
-1b98:00 00 c6 00 d6 00 00 00 
-1ba0:          .db $ce,$00,$de,$00,$00,$00,$00,$3a,$00,$00,$c6,$00,$d6,$00,$00,$00
-1ba0:         :eor
-1ba0:4d 00 5d 59 00 00 49 00 
-1ba8:00 00 45 41 55 00 52 51 
-1bb0:          .db $4d,$00,$5d,$59,$00,$00,$49,$00,$00,$00,$45,$41,$55,$00,$52,$51
-1bb0:         :inc
-1bb0:ee 00 fe 00 00 00 00 1a 
-1bb8:00 00 e6 00 f6 00 00 00 
-1bc0:          .db $ee,$00,$fe,$00,$00,$00,$00,$1a,$00,$00,$e6,$00,$f6,$00,$00,$00
-1bc0:         :jmp
-1bc0:4c 7c 00 00 6c 00 00 00 
-1bc8:00 00 00 00 00 00 00 00 
-1bd0:          .db $4c,$7c,$00,$00,$6c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-1bd0:         :jsr
-1bd0:20 00 00 00 00 00 00 00 
-1bd8:00 00 00 00 00 00 00 00 
-1be0:          .db $20,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-1be0:         :lda
-1be0:ad 00 bd b9 00 00 a9 00 
-1be8:00 00 a5 a1 b5 00 b2 b1 
-1bf0:          .db $ad,$00,$bd,$b9,$00,$00,$a9,$00,$00,$00,$a5,$a1,$b5,$00,$b2,$b1
-1bf0:         :ldx
-1bf0:ae 00 00 be 00 00 a2 00 
-1bf8:00 00 a6 00 00 b6 00 00 
-1c00:          .db $ae,$00,$00,$be,$00,$00,$a2,$00,$00,$00,$a6,$00,$00,$b6,$00,$00
-1c00:         :ldy
-1c00:ac 00 bc 00 00 00 a0 00 
-1c08:00 00 a4 00 b4 00 00 00 
-1c10:          .db $ac,$00,$bc,$00,$00,$00,$a0,$00,$00,$00,$a4,$00,$b4,$00,$00,$00
-1c10:         :lsr
-1c10:4e 00 5e 00 00 00 00 4a 
-1c18:00 00 46 00 56 00 00 00 
-1c20:          .db $4e,$00,$5e,$00,$00,$00,$00,$4a,$00,$00,$46,$00,$56,$00,$00,$00
-1c20:         :ora
-1c20:0d 00 1d 19 00 00 09 00 
-1c28:00 00 05 01 15 00 12 11 
-1c30:          .db $0d,$00,$1d,$19,$00,$00,$09,$00,$00,$00,$05,$01,$15,$00,$12,$11
-1c30:         :rmb
-1c30:00 00 00 00 00 07 00 00 
-1c38:00 00 00 00 00 00 00 00 
-1c40:          .db $00,$00,$00,$00,$00,$07,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-1c40:         :rol
-1c40:2e 00 3e 00 00 00 00 2a 
-1c48:00 00 26 00 36 00 00 00 
-1c50:          .db $2e,$00,$3e,$00,$00,$00,$00,$2a,$00,$00,$26,$00,$36,$00,$00,$00
-1c50:         :ror
-1c50:6e 00 7e 00 00 00 00 6a 
-1c58:00 00 66 00 76 00 00 00 
-1c60:          .db $6e,$00,$7e,$00,$00,$00,$00,$6a,$00,$00,$66,$00,$76,$00,$00,$00
-1c60:         :sbc
-1c60:ed 00 fd f9 00 00 e9 00 
-1c68:00 00 e5 e1 f5 00 f2 f1 
-1c70:          .db $ed,$00,$fd,$f9,$00,$00,$e9,$00,$00,$00,$e5,$e1,$f5,$00,$f2,$f1
-1c70:         :smb
-1c70:00 00 00 00 00 87 00 00 
-1c78:00 00 00 00 00 00 00 00 
-1c80:          .db $00,$00,$00,$00,$00,$87,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-1c80:         :sta
-1c80:8d 00 9d 99 00 00 00 00 
-1c88:00 00 85 81 95 00 92 91 
-1c90:          .db $8d,$00,$9d,$99,$00,$00,$00,$00,$00,$00,$85,$81,$95,$00,$92,$91
-1c90:         :stx
-1c90:8e 00 00 00 00 00 00 00 
-1c98:00 00 86 00 00 96 00 00 
-1ca0:          .db $8e,$00,$00,$00,$00,$00,$00,$00,$00,$00,$86,$00,$00,$96,$00,$00
-1ca0:         :sty
-1ca0:8c 00 00 00 00 00 00 00 
-1ca8:00 00 84 00 94 00 00 00 
-1cb0:          .db $8c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$84,$00,$94,$00,$00,$00
-1cb0:         :stz
-1cb0:9c 00 9e 00 00 00 00 00 
-1cb8:00 00 64 00 74 00 00 00 
-1cc0:          .db $9c,$00,$9e,$00,$00,$00,$00,$00,$00,$00,$64,$00,$74,$00,$00,$00
-1cc0:         :trb
-1cc0:1c 00 00 00 00 00 00 00 
-1cc8:00 00 14 00 00 00 00 00 
-1cd0:          .db $1c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00
-1cd0:         :tsb
-1cd0:0c 00 00 00 00 00 00 00 
-1cd8:00 00 04 00 00 00 00 00 
-1ce0:          .db $0c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$04,$00,$00,$00,$00,$00
-1ce0:         ; size=$0470
-1ce0:         
-1ce0:         
-1ce0:             .in 'memory.asm'
-1ce0:         ;
-1ce0:         ; runtime data
-1ce0:         ; include LAST
-1ce0:         
-1ce0:             .or *%$100
+1a68:         :adc
+1a68:6d 00 7d 79 00 00 69 00 
+1a70:00 00 65 61 75 00 72 71 
+1a78:          .db $6d,$00,$7d,$79,$00,$00,$69,$00,$00,$00,$65,$61,$75,$00,$72,$71
+1a78:         :and
+1a78:2d 00 3d 39 00 00 29 00 
+1a80:00 00 25 21 35 00 32 31 
+1a88:          .db $2d,$00,$3d,$39,$00,$00,$29,$00,$00,$00,$25,$21,$35,$00,$32,$31
+1a88:         :asl
+1a88:0e 00 1e 00 00 00 00 0a 
+1a90:00 00 06 00 16 00 00 00 
+1a98:          .db $0e,$00,$1e,$00,$00,$00,$00,$0a,$00,$00,$06,$00,$16,$00,$00,$00
+1a98:         :bbr
+1a98:00 00 00 00 00 00 00 00 
+1aa0:00 0f 00 00 00 00 00 00 
+1aa8:          .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$0f,$00,$00,$00,$00,$00,$00
+1aa8:         :bbs
+1aa8:00 00 00 00 00 00 00 00 
+1ab0:00 8f 00 00 00 00 00 00 
+1ab8:          .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$8f,$00,$00,$00,$00,$00,$00
+1ab8:         :bcc
+1ab8:00 00 00 00 00 00 00 00 
+1ac0:90 00 00 00 00 00 00 00 
+1ac8:          .db $00,$00,$00,$00,$00,$00,$00,$00,$90,$00,$00,$00,$00,$00,$00,$00
+1ac8:         :bcs
+1ac8:00 00 00 00 00 00 00 00 
+1ad0:b0 00 00 00 00 00 00 00 
+1ad8:          .db $00,$00,$00,$00,$00,$00,$00,$00,$b0,$00,$00,$00,$00,$00,$00,$00
+1ad8:         :beq
+1ad8:00 00 00 00 00 00 00 00 
+1ae0:f0 00 00 00 00 00 00 00 
+1ae8:          .db $00,$00,$00,$00,$00,$00,$00,$00,$f0,$00,$00,$00,$00,$00,$00,$00
+1ae8:         :bit
+1ae8:2c 00 3c 00 00 00 89 00 
+1af0:00 00 24 00 34 00 00 00 
+1af8:          .db $2c,$00,$3c,$00,$00,$00,$89,$00,$00,$00,$24,$00,$34,$00,$00,$00
+1af8:         :bmi
+1af8:00 00 00 00 00 00 00 00 
+1b00:30 00 00 00 00 00 00 00 
+1b08:          .db $00,$00,$00,$00,$00,$00,$00,$00,$30,$00,$00,$00,$00,$00,$00,$00
+1b08:         :bne
+1b08:00 00 00 00 00 00 00 00 
+1b10:d0 00 00 00 00 00 00 00 
+1b18:          .db $00,$00,$00,$00,$00,$00,$00,$00,$d0,$00,$00,$00,$00,$00,$00,$00
+1b18:         :bpl
+1b18:00 00 00 00 00 00 00 00 
+1b20:10 00 00 00 00 00 00 00 
+1b28:          .db $00,$00,$00,$00,$00,$00,$00,$00,$10,$00,$00,$00,$00,$00,$00,$00
+1b28:         :bra
+1b28:00 00 00 00 00 00 00 00 
+1b30:80 00 00 00 00 00 00 00 
+1b38:          .db $00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$00,$00,$00,$00,$00
+1b38:         :bvc
+1b38:00 00 00 00 00 00 00 00 
+1b40:50 00 00 00 00 00 00 00 
+1b48:          .db $00,$00,$00,$00,$00,$00,$00,$00,$50,$00,$00,$00,$00,$00,$00,$00
+1b48:         :bvs
+1b48:00 00 00 00 00 00 00 00 
+1b50:70 00 00 00 00 00 00 00 
+1b58:          .db $00,$00,$00,$00,$00,$00,$00,$00,$70,$00,$00,$00,$00,$00,$00,$00
+1b58:         :cmp
+1b58:cd 00 dd d9 00 00 c9 00 
+1b60:00 00 c5 c1 d5 00 d2 d1 
+1b68:          .db $cd,$00,$dd,$d9,$00,$00,$c9,$00,$00,$00,$c5,$c1,$d5,$00,$d2,$d1
+1b68:         :cpx
+1b68:ec 00 00 00 00 00 e0 00 
+1b70:00 00 e4 00 00 00 00 00 
+1b78:          .db $ec,$00,$00,$00,$00,$00,$e0,$00,$00,$00,$e4,$00,$00,$00,$00,$00
+1b78:         :cpy
+1b78:cc 00 00 00 00 00 c0 00 
+1b80:00 00 c4 00 00 00 00 00 
+1b88:          .db $cc,$00,$00,$00,$00,$00,$c0,$00,$00,$00,$c4,$00,$00,$00,$00,$00
+1b88:         :dec
+1b88:ce 00 de 00 00 00 00 3a 
+1b90:00 00 c6 00 d6 00 00 00 
+1b98:          .db $ce,$00,$de,$00,$00,$00,$00,$3a,$00,$00,$c6,$00,$d6,$00,$00,$00
+1b98:         :eor
+1b98:4d 00 5d 59 00 00 49 00 
+1ba0:00 00 45 41 55 00 52 51 
+1ba8:          .db $4d,$00,$5d,$59,$00,$00,$49,$00,$00,$00,$45,$41,$55,$00,$52,$51
+1ba8:         :inc
+1ba8:ee 00 fe 00 00 00 00 1a 
+1bb0:00 00 e6 00 f6 00 00 00 
+1bb8:          .db $ee,$00,$fe,$00,$00,$00,$00,$1a,$00,$00,$e6,$00,$f6,$00,$00,$00
+1bb8:         :jmp
+1bb8:4c 7c 00 00 6c 00 00 00 
+1bc0:00 00 00 00 00 00 00 00 
+1bc8:          .db $4c,$7c,$00,$00,$6c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+1bc8:         :jsr
+1bc8:20 00 00 00 00 00 00 00 
+1bd0:00 00 00 00 00 00 00 00 
+1bd8:          .db $20,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+1bd8:         :lda
+1bd8:ad 00 bd b9 00 00 a9 00 
+1be0:00 00 a5 a1 b5 00 b2 b1 
+1be8:          .db $ad,$00,$bd,$b9,$00,$00,$a9,$00,$00,$00,$a5,$a1,$b5,$00,$b2,$b1
+1be8:         :ldx
+1be8:ae 00 00 be 00 00 a2 00 
+1bf0:00 00 a6 00 00 b6 00 00 
+1bf8:          .db $ae,$00,$00,$be,$00,$00,$a2,$00,$00,$00,$a6,$00,$00,$b6,$00,$00
+1bf8:         :ldy
+1bf8:ac 00 bc 00 00 00 a0 00 
+1c00:00 00 a4 00 b4 00 00 00 
+1c08:          .db $ac,$00,$bc,$00,$00,$00,$a0,$00,$00,$00,$a4,$00,$b4,$00,$00,$00
+1c08:         :lsr
+1c08:4e 00 5e 00 00 00 00 4a 
+1c10:00 00 46 00 56 00 00 00 
+1c18:          .db $4e,$00,$5e,$00,$00,$00,$00,$4a,$00,$00,$46,$00,$56,$00,$00,$00
+1c18:         :ora
+1c18:0d 00 1d 19 00 00 09 00 
+1c20:00 00 05 01 15 00 12 11 
+1c28:          .db $0d,$00,$1d,$19,$00,$00,$09,$00,$00,$00,$05,$01,$15,$00,$12,$11
+1c28:         :rmb
+1c28:00 00 00 00 00 07 00 00 
+1c30:00 00 00 00 00 00 00 00 
+1c38:          .db $00,$00,$00,$00,$00,$07,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+1c38:         :rol
+1c38:2e 00 3e 00 00 00 00 2a 
+1c40:00 00 26 00 36 00 00 00 
+1c48:          .db $2e,$00,$3e,$00,$00,$00,$00,$2a,$00,$00,$26,$00,$36,$00,$00,$00
+1c48:         :ror
+1c48:6e 00 7e 00 00 00 00 6a 
+1c50:00 00 66 00 76 00 00 00 
+1c58:          .db $6e,$00,$7e,$00,$00,$00,$00,$6a,$00,$00,$66,$00,$76,$00,$00,$00
+1c58:         :sbc
+1c58:ed 00 fd f9 00 00 e9 00 
+1c60:00 00 e5 e1 f5 00 f2 f1 
+1c68:          .db $ed,$00,$fd,$f9,$00,$00,$e9,$00,$00,$00,$e5,$e1,$f5,$00,$f2,$f1
+1c68:         :smb
+1c68:00 00 00 00 00 87 00 00 
+1c70:00 00 00 00 00 00 00 00 
+1c78:          .db $00,$00,$00,$00,$00,$87,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+1c78:         :sta
+1c78:8d 00 9d 99 00 00 00 00 
+1c80:00 00 85 81 95 00 92 91 
+1c88:          .db $8d,$00,$9d,$99,$00,$00,$00,$00,$00,$00,$85,$81,$95,$00,$92,$91
+1c88:         :stx
+1c88:8e 00 00 00 00 00 00 00 
+1c90:00 00 86 00 00 96 00 00 
+1c98:          .db $8e,$00,$00,$00,$00,$00,$00,$00,$00,$00,$86,$00,$00,$96,$00,$00
+1c98:         :sty
+1c98:8c 00 00 00 00 00 00 00 
+1ca0:00 00 84 00 94 00 00 00 
+1ca8:          .db $8c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$84,$00,$94,$00,$00,$00
+1ca8:         :stz
+1ca8:9c 00 9e 00 00 00 00 00 
+1cb0:00 00 64 00 74 00 00 00 
+1cb8:          .db $9c,$00,$9e,$00,$00,$00,$00,$00,$00,$00,$64,$00,$74,$00,$00,$00
+1cb8:         :trb
+1cb8:1c 00 00 00 00 00 00 00 
+1cc0:00 00 14 00 00 00 00 00 
+1cc8:          .db $1c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00
+1cc8:         :tsb
+1cc8:0c 00 00 00 00 00 00 00 
+1cd0:00 00 04 00 00 00 00 00 
+1cd8:          .db $0c,$00,$00,$00,$00,$00,$00,$00,$00,$00,$04,$00,$00,$00,$00,$00
+1cd8:         ; size=$0470
+1cd8:         
+1cd8:         
+1cd8:             .in 'memory.asm'
+1cd8:         ;
+1cd8:         ; runtime data
+1cd8:         ; include LAST
+1cd8:         
+1cd8:             .or *%$100
 1d00:         ioBuf:          ; binary output buffer
 1d00:             .or *+$100
 1e00:         ioStack:        ; source file stack

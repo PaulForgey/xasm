@@ -46,10 +46,8 @@ begin:
 :got
     jsr ioCopySourceName
     sta inputOpt        ; source filename length
-    lda ptr
-    sta inputName
-    lda ptr+1
-    sta inputName+1
+    stx inputName
+    sty inputName+1
 
     jsr getOpt          ; output
     cmp #0
@@ -65,10 +63,8 @@ begin:
     beq :nolistOpt
     jsr ioCopyListName
     sta listOpt
-    lda ptr
-    sta listName
-    lda ptr+1
-    sta listName+1
+    stx listName
+    sty listName+1
 :nolistOpt
 
 asmPass:
