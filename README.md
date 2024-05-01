@@ -14,6 +14,16 @@ Features:
 - Multiple source files using `.in`
 - Can generate a listing file
 
+## Building
+
+Prequisites:
+- go
+- x16emu
+
+Makefile will create a disk/ directory for the emulator to run in, copy (or update) the ASCII source files from asm/ into their PETSCII forms in disk/. The emulator is invoked to assemble into XASM2 with listing file XASM2.LST.
+
+The `dist` target will copy this output to bin/xasm.prg and bin/xasm.lst, with the listing file converted into ASCII form.
+
 ## Sample Program
 
 Create `hello.asm`:
@@ -317,19 +327,4 @@ Data byte. Emits an 8 bit value. Mutiple values may be separated with commas. St
 	.db >msbFirst,<msbFirst
 	.db * ; low 8 bits of PC
 ```
-
-## Self Building
-A GitHub action to self build as a PR check and generate the binary and listing for releases is planned.
-
-In the meantime, the recommended manual process to self test is this:
-
-```
-^ xasm
-? xasm.asm;@:xasm2
-^ xasm2
-? xasm.asm;@:xasm3
-verify "xasm3",8,1
-```
-
-There is also `test.asm` whose resulting listing output should be compared to verify proper opcode generation.
 
