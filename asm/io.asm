@@ -638,8 +638,7 @@ ioPrint:
 ;
 ; print errror message
 ioPrintErr:
-    lda error
-    tax
+    ldx error
     lda :table,x
     ldy :table+1,x
     tax

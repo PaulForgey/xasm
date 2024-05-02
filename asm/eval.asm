@@ -17,16 +17,16 @@ eDone:
 ;
 ; normalize petscii in A into lineBuf,x
 ePet:
-    sta linePet
+    sta scratch
     and #$e0
     cmp #$60        ; %011xxxxx -> %110xxxxx
     bne :nopet
-    lda linePet
+    lda scratch
     eor #$a0
     sta lineBuf,x
     rts
 :nopet
-    lda linePet
+    lda scratch
     rts
 
 ;

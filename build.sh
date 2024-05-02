@@ -19,6 +19,10 @@ cp -f disk/XASM disk/XASM2
 printf "XASM.ASM;@:XASM2;@:XASM.LST\0" > disk/args
 run
 
+cp -f disk/XASM2 disk/XASM3
+run
+cmp disk/XASM2 disk/XASM3 || exit 1
+
 printf "TEST.ASM;;@:TEST.LST\0" > disk/args
 run
 
