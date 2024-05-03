@@ -3,7 +3,7 @@ ASMS=	$(wildcard asm/*.asm)
 PETS=	$(patsubst asm/%,disk/%,$(ASMS))
 
 .PHONY: all
-all: disk disk/XASM2 disk/XASM.LST disk/TEST.LST
+all: disk disk/XASM2 disk/XASM.LST
 
 .PHONY: pets
 pets: disk $(PETS)
@@ -15,8 +15,11 @@ dist: disk/XASM2 disk/XASM.LST disk/TEST.LST
 	cp -f disk/XASM2 bin/xasm.prg
 
 .PHONY: test
-test: test.lst
+test: disk/XASM2 test.lst
 	cmp test.lst bin/test.lst || diff test.lst bin/test.lst
+
+disk/TEST.LST : disk/XASM2 disk/test.asm
+	./test.sh
 
 test.lst : disk/TEST.LST
 	./pet $< > $@
@@ -24,7 +27,7 @@ test.lst : disk/TEST.LST
 disk:
 	mkdir -p disk
 
-disk/XASM2 disk/XASM.LST disk/TEST.LST : disk/xasm disk/test.asm $(PETS)
+disk/XASM2 disk/XASM.LST : disk/xasm $(PETS)
 	./build.sh
 
 disk/xasm: bin/xasm.prg

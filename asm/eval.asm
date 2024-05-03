@@ -420,8 +420,7 @@ eExecOne:
     bne :true
     lda arg
     cmp term
-    bne :true
-    bra :false
+    beq :false
 
 :true
     lda #$ff
@@ -677,9 +676,9 @@ eResolveSym:
     lda symLength
     beq :skip       ; empty label in sequence means do not adjust scope
 
-    phy
+    sty emitY
     jsr symGet
-    ply
+    ldy emitY
 
     lda ptr
     sta symScope
