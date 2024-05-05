@@ -328,3 +328,13 @@ Data byte. Emits an 8 bit value. Mutiple values may be separated with commas. St
 	.db * ; low 8 bits of PC
 ```
 
+`.df`
+
+Data float. Emits 5 byte compacted BASIC style floating point. Unlike the other directives, no expressions are allowed here, only floating point contants parseable by BASIC. Mutiple values may be separated with commas.
+
+```
+    .df 9.81,5.0    ; writes $84,$1c,$f5,$c2,$8f,
+                    ; $83,$20,$00,$00,$00
+    .df 2.0         ; writes $82,$00,$00,$00,$00
+```
+

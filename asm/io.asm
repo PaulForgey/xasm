@@ -60,24 +60,43 @@ ioError:
 :status
     .db ',status=$',0
 
+appendPtr:
+    sta (ptr),y
+    iny
+    rts
+
+comma:
+    lda #',
+    bra appendPtr
+
+commaS:
+    jsr comma
+    lda #'s
+    bra appendPtr
+
+commaP:
+    jsr comma
+    lda #'p
+    bra appendPtr
+
+commaR:
+    jsr comma
+    lda #'r
+    bra appendPtr
+
+commaW:
+    jsr comma
+    lda #'w
+    bra appendPtr
+
 ;
 ; make a copy of a/x/y with ,p,w appended
 ; result in a/x/y
 ioCopyDestName:
     jsr ioCopyName
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'p
-    sta (ptr),y
-    iny
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'w
-    sta (ptr),y
-    iny
-
+    jsr commaP
+    jsr commaW
+copyOut:
     tya
     ldy ptr+1
     rts
@@ -86,22 +105,9 @@ ioCopyDestName:
 ; make a copy of a/x/y with ,s,w appended
 ioCopyListName:
     jsr ioCopyName
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'s
-    sta (ptr),y
-    iny
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'w
-    sta (ptr),y
-    iny
-
-    tya
-    ldy ptr+1
-    rts
+    jsr commaS
+    jsr commaW
+    bra copyOut
 
 ;
 ; make a copy of a/x/y with ,s,r appended
@@ -109,22 +115,9 @@ ioCopyListName:
 ioCopySourceName:
     jsr ioStringOut
     jsr ioCopyName
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'s
-    sta (ptr),y
-    iny
-    lda #',
-    sta (ptr),y
-    iny
-    lda #'r
-    sta (ptr),y
-    iny
-
-    tya
-    ldy ptr+1
-    rts    
+    jsr commaS
+    jsr commaR
+    bra copyOut
 
 ioCopyName:
     stx string
