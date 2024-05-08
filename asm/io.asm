@@ -7,7 +7,7 @@ ioInit:
     jsr CLALL
     stz ioLFN
     stz ioNameL
-    stz ioStatus
+    stz ioBufStatus
     stz error
     stz ioLine
     stz ioLine+1
@@ -21,6 +21,11 @@ ioInit:
     sta emit
     lda #>:null
     sta emit+1
+    ldx #$0f        ; initialize io buffers
+:loop
+    stz ioBufs,x
+    dex
+    bpl :loop
 :null
     clc
     rts
@@ -48,17 +53,9 @@ ioError:
     jsr ioPrintHex
     lda #32
     jsr CHROUT
-    jsr ioPrintErr
-    ldx #<:status
-    ldy #>:status
-    jsr ioPrint
-    lda ioStatus
-    jsr ioPrintHex
-    lda #10         ; cr
+    jsr errPrint
+    lda #13         ; cr
     jmp CHROUT
-
-:status
-    .db ',status=$',0
 
 appendPtr:
     sta (ptr),y
@@ -172,7 +169,6 @@ ioOpenDest:
     jsr SETLFS
     jsr OPEN
     bcc :opened
-    sta ioStatus
     lda #errors:io
     sta error
 :opened
@@ -196,7 +192,23 @@ ioPush:
     sta ioStack,y
     dey
 
-    lda ioStatus    ; status
+    lda ioBufStatus ; buffer status
+    sta ioStack,y
+    dey
+
+    lda ioInPtr     ; buffer position
+    sta ioStack,y
+    dey
+
+    lda ioIn+1      ; buffer
+    sta ioStack,y
+    dey
+
+    lda ioIn
+    sta ioStack,y
+    dey
+
+    lda ioBufLen    ; buffer length
     sta ioStack,y
     dey
 
@@ -247,10 +259,13 @@ ioPush:
     bcs :error      ; now current file for reading
     stz ioLine
     stz ioLine+1
+
+    stz ioInPtr
+    stz ioBufLen
+
     jmp ioReadStatus
 
 :error
-    sta ioStatus
     lda #errors:io
     sta error
     rts
@@ -292,9 +307,24 @@ ioPop:
     lda ioStack,y
     sta ioName+1
 
-    iny             ; status
+    iny             ; buffer length
     lda ioStack,y
-    sta ioStatus
+    sta ioBufLen
+
+    iny             ; buffer
+    lda ioStack,y
+    sta ioIn
+    iny
+    lda ioStack,y
+    sta ioIn+1
+
+    iny             ; buffer position
+    lda ioStack,y
+    sta ioInPtr
+
+    iny             ; buffer status
+    lda ioStack,y
+    sta ioBufStatus
 
     iny
     lda ioStack,y   ; device
@@ -324,9 +354,27 @@ ioAlloc:
     iny
     asl
     bcc :scan
+    rts
 :done
-    ora ioFDS
-    sta ioFDS
+    tsb ioFDS
+    tya             ; potentially allocate input buffer
+    asl
+    tax
+    lda ioBufs+1,x
+    bne :alloced
+
+    lda #$80        ; allocate a buffer
+    jsr symPush
+    lda ptr
+    sta ioBufs,x
+    lda ptr+1
+    sta ioBufs+1,x
+
+:alloced            ; allocated
+    sta ioIn+1
+    lda ioBufs,x
+    sta ioIn
+    clc
     rts
 
 ;
@@ -340,27 +388,13 @@ ioDealloc:
     dey
     bne :shift
 :done
-    eor #$ff        ; clear the bit
-    and ioFDS
-    sta ioFDS
+    trb ioFDS
     rts
 
 ;
 ; read a line of input from current file
 ; if ioLFN is 0 on return, at end of all files and nothing read
 ioReadLine:
-    lda ioStatus    ; check last eof
-    beq :next       ; no eof, continue
-
-    jsr ioPop
-    lda ioLFN
-    beq :done
-    bra ioReadLine
-
-:done
-    rts             ; end of all files
-
-:next
     sed             ; increment bcd line number
     clc
     lda ioLine
@@ -371,27 +405,39 @@ ioReadLine:
     sta ioLine+1
     cld
 
-    ldy #0
-    jsr CHRIN       ; read first, check error
-    sta lineBuf
-    jsr ioReadStatus
-    bne :eol
-    lda lineBuf
-:loop               ; this means if line does not end in CR, we can fail
-    cmp #13         ; cr
-    beq :eol
-    jsr CHRIN
-    iny
-    sta lineBuf,y        
-    bne :loop
+    stz scratch
+:loop
+    jsr ioRead      ; read from input buffer until CR or EOF
+    ldx scratch
+    bcs :readerr
+    inc scratch
+    cmp #13         ; CR?
+    beq :linedone
+    sta lineBuf,x
+    bra :loop
+:readerr
+    lda scratch     ; if we read something, deal with it
+    bne :linedone
 
-:eol
-    lda #0
-    sta lineBuf,y
+    lda error       ; non eof error?
+    bne :done
 
+    jsr ioPop       ; eof; pop this input
+    lda ioLFN
+    bne ioReadLine  ; continue previous input
+:done
+    rts
+
+:linedone
+    stz lineBuf,x   ; mark end of line
+    rts
+
+;
+; call READST, set error if not EOF
+; Z=1 if all clear
 ioReadStatus:
     jsr READST
-    sta ioStatus
+    sta ioBufStatus
     bit #$bf        ; everything except eof
     beq :done
     lda #errors:io
@@ -399,6 +445,57 @@ ioReadStatus:
 :done
     bit #$ff        ; leave Z=0 if EOF
     rts
+
+;
+; read byte from input buffer, refilling if needed
+ioRead:
+    ldy ioInPtr
+    cpy ioBufLen
+    beq :refill
+    inc ioInPtr
+    lda (ioIn),y
+    clc
+    rts
+:refill
+    stz ioInPtr     ; reset input
+    stz ioBufLen
+    lda ioBufStatus ; check for end of file
+    bne :end
+    lda #$80        ; read max 128 bytes into buffer
+    ldx ioIn
+    ldy ioIn+1
+    clc
+    jsr MACPTR
+    bcs :bytes      ; unsupported or error
+    cpx #0
+    beq :eof        ; end of file
+    stx ioBufLen
+    jsr ioReadStatus
+    bra ioRead
+:bytes
+    jsr ioReadStatus
+    bne :end
+    ldy #0
+:loop
+    jsr CHRIN
+    sta (ioIn),y
+    jsr ioReadStatus
+    bne :bytesdone  ; error or eof
+    iny
+    bpl :loop       ; read max 128 bytes
+:partial
+    sty ioBufLen
+    bra ioRead
+:bytesdone
+    cpy #0
+    bne :partial    ; if we made progress, use partial read
+:end
+    sec
+    rts
+:eof
+    lda #$40
+    sta ioBufStatus
+    bra :end
 
 ;
 ; emit binary output
@@ -475,7 +572,6 @@ ioFlushAlways:
     jsr READST
     cmp #0
     beq ioSuccess
-    sta ioStatus
     lda #errors:io
     sta error
     sec
@@ -628,80 +724,4 @@ ioPrint:
 :done
     rts
 
-;
-; print errror message
-ioPrintErr:
-    ldx error
-    lda :table,x
-    ldy :table+1,x
-    tax
-    jmp ioPrint
-:table
-errors:
-:fine	=*-errors
-    .dw :strings:fine
-:dupLabel=*-errors
-    .dw :strings:dupLabel
-:star	=*-errors
-    .dw :strings:star
-:backward=*-errors
-    .dw :strings:backward
-:eval	=*-errors
-    .dw :strings:eval
-:assign	=*-errors
-    .dw :strings:assign
-:dotOp	=*-errors
-    .dw :strings:dotOp
-:op	=*-errors
-    .dw :strings:op
-:mode	=*-errors
-    .dw :strings:mode
-:rel	=*-errors
-    .dw :strings:rel
-:parse	=*-errors
-    .dw :strings:parse
-:noArg	=*-errors
-    .dw :strings:noArg
-:emit	=*-errors
-    .dw :strings:emit
-:dotArg	=*-errors
-    .dw :strings:dotArg
-:io	=*-errors
-    .dw :strings:io
-:tooMany=*-errors
-    .dw :strings:tooMany
-
-errors:strings:
-:fine
-    .db 'fine',0
-:dupLabel
-    .db 'dup label',0
-:star
-    .db 'star expr',0
-:backward
-    .db 'pc moved back',0
-:eval
-    .db 'bad expression',0
-:assign
-    .db 'bad assigment',0
-:dotOp
-    .db 'unknown pseudo op',0
-:op
-    .db 'unknown op',0
-:mode
-    .db 'bad address mode',0
-:rel
-    .db 'branch out of range',0
-:parse
-    .db 'syntax error',0
-:noArg
-    .db 'arg expected',0
-:emit
-    .db 'io write error',0
-:dotArg
-    .db 'bad pseudo op arg',0
-:io
-    .db 'io error',0
-:tooMany
-    .db 'too many open files',0
 

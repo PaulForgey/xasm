@@ -257,6 +257,7 @@ getOpt:
     .in 'eval.asm'
     .in 'line.asm'
     .in 'io.asm'
+    .in 'error.asm'
     .in 'isns.asm'
     .in 'memory.asm'
 
