@@ -40,7 +40,10 @@ lineIfd     = $45   ; if destiny stack
 error       = $46   ; error code
 ioName      = $47   ; current filename
 ioNameL     = $49   ; current filename length
-ioOutPtr    = $4a   ; output buffer
+ioOutPtr    = $4a   ; output buffer position
+ioInPtr     = $4b   ; input buffer position
+ioIn        = $4c   ; input buffer pointer
+
 
     .fi ; zpAsm
 

@@ -14,7 +14,9 @@ ioFDS:          ; allocation bitmap of channels
     .or *+1
 ioLFN:          ; current logical file number
     .or *+1
-ioStatus:       ; input status
+ioBufStatus:    ; input buffer status
+    .or *+1
+ioBufLen:       ; input buffer total bytes read
     .or *+1
 asmSP:          ; stack frame we started with
     .or *+1
@@ -29,18 +31,20 @@ pc:             ; pc
 inputOpt:       ; input filename length
     .or *+1
 inputName:      ; input filename
-	.or *+2
+    .or *+2
 listOpt:        ; listing filename length
     .or *+1
 listName:       ; listing filename
-	.or *+2
+    .or *+2
 outOpt:         ; output filename length
     .or *+1
 outName:        ; output filename
-	.or *+2
+    .or *+2
 tScope:         ; save scope
     .or *+2
-    .or *%$100	; page align
+ioBufs:         ; allocated io buffers
+    .or *+$10
+    .or *%$100  ; page align
 ioBuf:          ; binary output buffer
     .or *+$100
 ioStack:        ; source file stack
