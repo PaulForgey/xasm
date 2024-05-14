@@ -305,7 +305,11 @@ Else-If. If no conditional assembly inside the `.if` directive has yet ran and t
 
 `.in`
 
-Include. Includes a soure file. The filename, like a `.db` string, must be withing single 'quotes'.
+Include. Includes a soure file. The filename must be within single 'quotes'.
+
+`.ib`
+
+Include binary. Includes data from binary file. The filename must be within single 'quotes'.
 
 `.dw`
 

@@ -31,7 +31,7 @@ eState      = $3c   ; current eval state
 labelPtr    = $3d   ; label pointer in lineBuf
 
     ; globals
-ioPtr       = $3f   ; source file stack pointer
+ioBufStatus = $3f   ; reading io status
 pass        = $40   ; assembly pass
 symEnd      = $41   ; allocation point for symbols
 ePtr        = $43   ; eval stack pointer
@@ -43,6 +43,7 @@ ioNameL     = $49   ; current filename length
 ioOutPtr    = $4a   ; output buffer position
 ioInPtr     = $4b   ; input buffer position
 ioIn        = $4c   ; input buffer pointer
+ioBufLen    = $4e   ; reading buffer length
 
 
     .fi ; zpAsm

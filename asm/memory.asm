@@ -6,6 +6,8 @@ fpack:          ; 5 bytes of space for packed floating point number
     .or *+5
 emit:           ; emit vector
     .or *+2
+ioPtr:          ; io stack pointer
+    .or *+1
 ioDev:          ; current disk device
     .or *+1
 ioLine:         ; current line
@@ -13,10 +15,6 @@ ioLine:         ; current line
 ioFDS:          ; allocation bitmap of channels
     .or *+1
 ioLFN:          ; current logical file number
-    .or *+1
-ioBufStatus:    ; input buffer status
-    .or *+1
-ioBufLen:       ; input buffer total bytes read
     .or *+1
 asmSP:          ; stack frame we started with
     .or *+1
