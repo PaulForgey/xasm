@@ -31,6 +31,15 @@ ioInit:
     rts
 
 ;
+; write a byte via the emit vector
+ioEmit:
+    inc pc
+    bne :lo
+    inc pc+1
+:lo
+    jmp (emit)
+
+;
 ; close all files and display error
 ioError:
     jsr ioCloseAll
@@ -498,8 +507,24 @@ ioRead:
     bra :end
 
 ;
-; emit binary output
-ioEmit:
+; copy
+ioCopy:
+    lda error
+    bne :done
+    jsr ioRead
+    bcs :done
+    jsr ioEmit
+    bcc ioCopy
+:done
+    lda error
+    beq :out
+    jmp ioPop
+:out
+    rts
+
+;
+; emit byte to output (binary or listing char)
+ioEmitBin:
     stx emitX
     sty emitY
     ldy ioOutPtr
@@ -519,14 +544,14 @@ ioEmit:
 ioEmitListing:
     jsr ioHex
     lda #32
-    jsr ioEmit
+    jsr ioEmitBin
     bcs :out
     inc ioColumn
     lda ioColumn
     cmp #8
     bcc :out
     lda #13
-    jsr ioEmit
+    jsr ioEmitBin
     bcs :out
     jsr ioListing
 :out
@@ -634,7 +659,7 @@ ioListing:
     lda pc
     jsr ioHex
     lda #':
-    jsr ioEmit
+    jsr ioEmitBin
     stz ioColumn
 :silent
     rts
@@ -656,14 +681,14 @@ ioPadListing:
     bra :loop
 :nextLine
     lda #13         ; cr
-    jsr ioEmit
+    jsr ioEmitBin
     bcs :done
     ldy #13         ; xxxx:aa bb cc
     jsr :spaces
     bra :loop
 :spaces
     lda #32         ; space
-    jsr ioEmit
+    jsr ioEmitBin
     bcs :done
     dey
     bne :spaces
@@ -706,7 +731,7 @@ ioHex:
     adc #6
 :num
     adc #'0
-    jmp ioEmit
+    jmp ioEmitBin
 
 ;
 ; print 0 terminated string in X/Y

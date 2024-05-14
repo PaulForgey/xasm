@@ -113,12 +113,12 @@ asmPass:
     beq :listed         ; eof
     cmp #13
     beq :listed         ; cr
-    jsr ioEmit
+    jsr ioEmitBin
     inx
     bne :listLine
 :listed
     lda #13
-    jsr ioEmit
+    jsr ioEmitBin
     bra :line
 
 :next
@@ -135,9 +135,9 @@ asmPass:
     jsr ioOpenDest      ; open
     jsr asmError        ; poll for error
 
-    lda #<ioEmit        ; connect the output hose
+    lda #<ioEmitBin     ; connect the output hose
     sta emit
-    lda #>ioEmit
+    lda #>ioEmitBin
     sta emit+1
     jmp asmPass         ; go around again
 

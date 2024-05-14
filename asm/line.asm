@@ -340,7 +340,8 @@ lineAsm:
 
 :IB
     jsr lineGetName
-    rts             ; XXX write binary file
+    jsr ioPush
+    jmp ioCopy
 
 :IF
     jsr lineAssertToken
@@ -426,16 +427,9 @@ lineTruth:
 ; emit byte
 ; pc incremented, (emit) called
 lineEmit:
-    inc pc          ; pc++
-    bne :lo
-    inc pc+1
-:lo
-    jsr :doEmit
+    jsr ioEmit
     bcs lineEmitError
     rts
-
-:doEmit
-    jmp (emit)
 
 lineOpError:
     lda #errors:op
