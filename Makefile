@@ -15,7 +15,7 @@ dist: disk/XASM2 disk/XASM.LST disk/TEST.LST
 	cp -f disk/XASM2 bin/xasm.prg
 
 .PHONY: test
-test: disk/XASM2 test.lst
+test: all test.lst
 	cmp test.lst bin/test.lst || diff test.lst bin/test.lst
 
 disk/TEST.LST : disk/XASM2 disk/test.asm
@@ -50,4 +50,7 @@ pet: cmd/pet/*.go
 gen: cmd/gen/*.go
 	go build ./cmd/gen
 
+.PHONY: x16emu
+x16emu:
+	docker build -t paulforgey/x16emu x16emu
 

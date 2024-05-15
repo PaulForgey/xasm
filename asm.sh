@@ -9,7 +9,7 @@ RUN
 POWEROFF
 EOF
 
-x16emu -fsroot disk -bas build.in -echo raw | ./pet
+./x16emu.sh -fsroot disk -bas build.in -echo raw | ./pet
 
 }
 
