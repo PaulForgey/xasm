@@ -2,6 +2,7 @@
 
 . ./asm.sh
 
+printf "XASM.ASM;@:XASM2;@:XASM.LST\0" > disk/args
 cp -f disk/XASM2 disk/XASM3
 run
 cmp disk/XASM2 disk/XASM3 || exit 1

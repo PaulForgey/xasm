@@ -18,7 +18,7 @@ Features:
 
 Prequisites:
 - go
-- x16emu
+- docker
 
 Makefile will create a disk/ directory for the emulator to run in, copy (or update) the ASCII source files from asm/ into their PETSCII forms in disk/. The emulator is invoked to assemble into XASM2 with listing file XASM2.LST.
 
