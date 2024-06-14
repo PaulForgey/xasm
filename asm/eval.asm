@@ -40,34 +40,34 @@ eEval:
 
 :loop
     lda lineBuf,x
-    beq eDone       ; eof
+    BEQ eDone       ; eof
     cmp #',
-    beq eDone
+    BEQ eDone
     cmp #';
-    beq eDone
+    BEQ eDone
     cmp #')
-    beq eDone
+    BEQ eDone
 
     ldy eState
-    bne :op
+    BNE :op
 
 :init
     jsr eIsDec
-    bcs :dec
+    BCS :dec
     jsr eIsSym
-    beq :tosym
+    BEQ :tosym
     cmp #'%
-    beq :bin
+    BEQ :bin
     cmp #'$
-    beq :hex
+    BEQ :hex
     cmp #'(
-    beq :sub
+    BEQ :sub
     cmp #'*
-    beq :pc
+    BEQ :pc
     cmp #'_
-    beq :accumB
+    BEQ :accum
     cmp #''
-    beq :charB
+    BEQ :char
     
     ldy #$80        ; indicate unary
     sty eOp
@@ -94,12 +94,6 @@ eEval:
     
     bra :opone
 
-:accumB
-    jmp :accum
-
-:charB
-    jmp :char
-
 :optwo
     lda lineBuf,x
     cmp #'=
@@ -113,11 +107,11 @@ eEval:
 :opone
     jsr ePush
     stz eState
-    bra :loop
+    JMP :loop
 
 :dec
     jsr eIsDec
-    bcc :term       ; not a decimal digit?
+    BCC :term       ; not a decimal digit?
     jsr eDec
     inx
     bne :dec
@@ -125,14 +119,14 @@ eEval:
 :hex
     inx
     jsr eIsHex
-    bcc :term       ; not a hex digit?
+    BCC :term       ; not a hex digit?
     jsr eHex
     bra :hex
     
 :bin
     inx
     jsr eIsBin
-    bne :term       ; not a binary digit?
+    BNE :term       ; not a binary digit?
     jsr eBin
     bra :bin
 
@@ -148,12 +142,12 @@ eEval:
 :sub
     inx             ; skip '('
     jsr eEval       ; evaluate subexpression
-    bcs :out
+    BCS :out
     lda lineBuf,x
     cmp #')
-    bne :term
+    BNE :term
     inx             ; consume ')'
-    bra :term
+    JMP :term
 
 :pc
     inx             ; skip '*'
@@ -161,7 +155,7 @@ eEval:
     sta arg
     lda pc+1
     sta arg+1
-    bra :term
+    JMP :term
 
 :accum
     inx             ; skip '*'
@@ -169,7 +163,7 @@ eEval:
     sta arg
     lda accum+1
     sta arg+1
-    bra :term
+    JMP :term
 
 :char
     inx             ; skip '
@@ -177,22 +171,22 @@ eEval:
     inx             ; consume
     sta arg
     stz arg+1
-    bra :term
+    JMP :term
 
 :termsym
     stx labelEnd
     jsr eResolveSym ; resolve label value into arg
-    bcs :out
+    BCS :out
     ldx labelEnd
     ; fall thru
 
 :term
     jsr eExec       ; pop and execute what we have so far
-    bcs :out
+    BCS :out
     lda #esOp       ; now in op state
     sta eState
     stz eOp         ; clear op, and not unary
-    jmp :loop
+    JMP :loop
 
 :out    
     rts
@@ -210,74 +204,41 @@ eExec:
 eExecOne:
     jsr ePop
     lda eOp
-    beq :assign
+    BEQ :assign
     cmp #'+
-    beq :add
+    BEQ :add
     cmp #'-
-    beq :sub
+    BEQ :sub
     cmp #$80+'- ; unary -
-    beq :sub
+    BEQ :sub
     cmp #'&
-    beq :and
+    BEQ :and
     cmp #'^
-    beq :xorb
+    BEQ :xor
     cmp #'.
-    beq :or
+    BEQ :or
     cmp #$80+'! ; unary '!'
-    beq :notb
+    BEQ :not
     cmp #$80+'< ; unary '<'
-    beq :lob
+    BEQ :lo
     cmp #$80+'> ; unary '>'
-    beq :hib
+    BEQ :hi
     cmp #'=
-    beq :eqb
+    BEQ :eq
     cmp #'>
-    beq :gtb
+    BEQ :gt
     cmp #'<
-    beq :ltb
+    BEQ :lt
     cmp #$40+'> ; >=
-    beq :geb
+    BEQ :ge
     cmp #$40+'< ; <=
-    beq :leb
+    BEQ :le
     cmp #$40+'! ; !=
-    beq :neb
+    BEQ :ne
     cmp #'%
-    beq :alignb
+    BEQ :align
     sec
     rts
-
-:xorb
-    jmp :xor
-
-:notb
-    jmp :not
-
-:lob
-    jmp :lo
-
-:hib
-    jmp :hi
-
-:eqb
-    jmp :eq
-
-:gtb
-    jmp :gt
-
-:ltb
-    jmp :lt
-
-:geb
-    jmp :ge
-
-:leb
-    jmp :le
-
-:neb
-    jmp :ne
-
-:alignb
-    jmp :align
 
 ;
 ; arg=arg
@@ -463,7 +424,7 @@ eExecOne:
     and arg
     sta arg
     stz arg+1
-    jmp :add
+    JMP :add
 
 ;
 ; add decimal digit in lineBuf,x to arg
