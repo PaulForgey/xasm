@@ -734,7 +734,8 @@ lineIsn:
 
 :rel
     lda pass
-    beq :pass0      ; no check in first pass    
+    bit #$a0
+    beq :pass0      ; no check until final pass
 
     lda pc          ; relative
     clc
