@@ -18,6 +18,8 @@ options=$bf00
     stx asmSP
     jsr ioInit
     jsr symInit
+    jsr hiInit
+    jsr macInit
     stz pass
     stz listOpt
     stz outOpt
@@ -25,6 +27,7 @@ options=$bf00
     stz lineIfd
     lda #$ff
     sta ePtr
+    stz inMac
     bra begin
 
 usage:
@@ -74,7 +77,7 @@ asmPass:
     ldx inputName
     ldy inputName+1
     lda inputOpt
-    jsr ioPush
+    jsr ioPushFile
 
     stz pc
     lda #$10
@@ -94,7 +97,7 @@ asmPass:
     jsr ioListing       ; possibly show pc for listing
     jsr ioReadLine      ; read next line
     jsr asmError        ; poll for error
-    lda ioLFN           ; check for EOF
+    lda input:lfn       ; check for EOF
     beq :next
 
     jsr lineAsm         ; assemble line
@@ -121,14 +124,42 @@ asmPass:
     jsr ioEmitBin
     bra :line
 
-:next
-    lda pass            ; maybe done if non-z pass
-    bne :listing
-    inc                 ; pass++
-    sta pass
+:looping
+    lda #errors:looping
+    sta error
+    jmp asmError
 
+:next
+    lda pass
+    inc pass
+    bit #$ff
+    beq asmPass         ; pass 0 always goes around again
+
+    lda #$40            ; check for additional passes
+    trb pass
+    beq :output         ; ready for output
+
+    lda pass            ; check for excessive rescans
+    cmp #10
+    bcs :looping
+
+    bra asmPass
+
+:output
+    lda pass
+    bit #$a0
+    beq :noclose        ; no output files open
+
+    jsr ioClose         ; flush and close output or listing
+    jsr asmError
+
+:noclose
     lda outOpt          ; do we have output?
     beq :listing        ; no, skip to listing (if enabled)
+
+    lda #$20            ; indicate writing binary
+    tsb pass
+    bne :listing        ; done writing binary
 
     ldx outName         ; set up output filename
     ldy outName+1
@@ -142,14 +173,9 @@ asmPass:
     jmp asmPass         ; go around again
 
 :listing
-    jsr ioClose         ; flush and close output or listing
-    jsr asmError
-
-    lda pass
-    bmi asmDone         ; listed, we are done
-    inc
-    ora #$80
-    sta pass
+    lda #$80            ; indicate listing
+    tsb pass
+    bne asmDone         ; done listing
 
     lda listOpt
     beq asmDone         ; no listing, we are done
@@ -205,6 +231,7 @@ asmDone:
 
 exit:
     ldx #0              ; zero out options buf on our way out
+    stx $00
 :fill
     stz options,x
     inx
@@ -222,11 +249,12 @@ asmError:
     rts
 
 usageStr:
-    .db 'usage: xasm input.asm[;output][;listing]',0
+    .db 'usage: ?input.asm[;output][;listing]',13
+    .db 'github.com/PaulForgey/xasm',13,0
 passStr:
     .db 13,'pass:',0
 symendStr:
-    .db 13,'symEnd=$',0
+    .db 13,'symend=$',0
 pcStr:
     .db 13,'pc=$',0
 
@@ -257,6 +285,8 @@ getOpt:
     .in 'eval.asm'
     .in 'line.asm'
     .in 'io.asm'
+    .in 'himem.asm'
+    .in 'macro.asm'
     .in 'error.asm'
     .in 'isns.asm'
     .in 'memory.asm'

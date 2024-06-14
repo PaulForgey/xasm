@@ -8,6 +8,12 @@ lineAsm:
     stx lineSP
     stz arg
     stz arg+1
+
+    lda inMac       ; recording a macro?
+    beq lineAsm2
+    jmp macLine     ; yes, feed this line to it
+
+lineAsm2:
     ldx #0
 
 :start
@@ -48,8 +54,11 @@ lineAsm:
 
     jsr lineEval    ; eval rhs
 
-    ldy #5          ; store evaluated result
-    lda arg
+    ldy #4          ; store evaluated result
+    lda #$81        ; this is not pc assigned
+    sta (assign),y
+    iny
+    lda arg         ; store arg
     sta (assign),y
     iny
     lda arg+1
@@ -60,6 +69,8 @@ lineAsm:
     lda lineBuf,x
     cmp #'*
     beq :star
+    cmp #'_
+    beq :accum
     cmp #'.
     beq :dot
 
@@ -76,6 +87,19 @@ lineAsm:
 :backwardError
     lda #errors:backward
     sta error
+    rts
+
+:accum
+    inx             ; skip '_'
+    jsr lineNextTokenExit
+    cmp #'=
+    bne :assignError
+    inx
+    jsr lineEval
+    lda arg         ; accum=arg
+    sta accum
+    lda arg+1
+    sta accum+1
     rts
 
 :star
@@ -128,6 +152,9 @@ lineAsm:
     beq :O
     cmp #'d
     beq :D
+    cmp #'m
+    beq :M
+
     ; fall thru
 
 :dotOpError
@@ -140,6 +167,12 @@ lineAsm:
     beq :EI
     cpy #'l
     beq :EL
+
+    bit lineIfs
+    bmi :opdone     ; if'd out
+
+    cpy #'m
+    beq :EMb
     bra :dotOpError
 
 :F
@@ -174,6 +207,11 @@ lineAsm:
     beq :DFb
     bra :dotOpError
 
+:M
+    cpy #'a
+    beq :MAb
+    bra :dotOpError
+
 :ORb
     jmp :OR
 
@@ -194,6 +232,12 @@ lineAsm:
 
 :DFb
     jmp :DF
+
+:MAb
+    jmp :MA
+
+:EMb
+    jmp :EM
 
 :EL
     bit lineIfd     ; have we chosen our destiny
@@ -336,11 +380,11 @@ lineAsm:
 
 :IN
     jsr lineGetName
-    jmp ioPush
+    jmp ioPushFile
 
 :IB
     jsr lineGetName
-    jsr ioPush
+    jsr ioPushFile
     jmp ioCopy
 
 :IF
@@ -368,39 +412,109 @@ lineAsm:
     ror lineIfd     ; and this is our destiny at this level
     rts
 
+:assignErrorB
+    jmp :assignError
+
+:inMacError
+    lda #errors:inMac
+    sta error
+    rts
+
+:MA
+    jsr lineAssertEnd
+    lda ptr+1       ; check we have a label
+    beq :assignErrorB
+    lda inMac       ; are we already doing a macro?
+    bne :inMacError
+    lda pass
+    bne :MApass     ; pass 0 only
+    ldy #4
+    lda #$02        ; indicate macro
+    sta (ptr),y
+    iny
+    lda bank
+    sta (ptr),y     ; note the bank and himem area we start
+    iny
+    lda himem
+    sta (ptr),y
+    iny
+    lda himem+1
+    sta (ptr),y
+:MApass
+    inc inMac       ; and we're now recording
+    rts
+
+:noMacError
+    lda #errors:noMac
+    sta error
+    rts
+
+:EM
+    jsr lineAssertEnd
+    lda inMac       ; are we doing a macro?
+    beq :noMacError
+    lda pass
+    bne :out        ; pass 0 only
+    lda #0          ; write our terminating 0
+    jsr hiWrite
+:out
+    stz inMac
+    rts
+
 ;
 ; resolve label field into ptr, adjusting symScope if necessary
 linePinLabel:
     stz labelPtr
     jsr eResolveSym
     lda lineBuf
-    cmp #58         ; ':'
+    cmp #':
     beq :local
     lda ptr
     sta symScope    ; this becomes our new scope
     lda ptr+1
     sta symScope+1
 :local
-    lda pass
-    bne :out        ; if pass >0, just return it
     bit lineIfs
     bmi :out        ; if'd out, just return it
     ldy #4
     lda (ptr),y
-    bne :dupLabel
-    lda #1
+    bne :check
+    lda #$01        ; indicate label
     sta (ptr),y
     iny
+:setpc
     lda pc
     sta (ptr),y     ; initially store pc
     iny
     lda pc+1
     sta (ptr),y     ; may be set later with =expr
+
 :out
     ldx labelEnd    ; restore x
     rts
 
-:dupLabel
+:check
+    ldx pass        ; pass 0 should see these all first time
+    beq lineDupLabel
+    cmp #$01        ; label (not macro or assigment) moved?
+    bne :out
+
+    iny
+    lda (ptr),y
+    cmp pc
+    bne :moved      ; yes
+    iny
+    lda (ptr),y
+    cmp pc+1
+    beq :out        ; no
+
+:moved
+    lda #$40        ; flag we need another pass
+    tsb pass
+    ldy #5
+    bra :setpc      ; and update
+
+lineDupLabel:
     lda #errors:dupLabel
     sta error
     jmp lineExit
@@ -413,14 +527,13 @@ lineEmitError:
 ;
 ; normalize non-0 to $8xxx for if checking
 lineTruth:
-    lda #$ff
-    bit arg
+    lda arg
+    ora arg+1
     bne :true
-    bit arg+1
-    beq :false
+    rts
 :true
+    lda #$ff
     sta arg+1
-:false
     rts
 
 ;
@@ -440,7 +553,26 @@ lineOpError:
 ; isn (arg) part
 lineIsn:
     jsr isnGet
-    bcs lineOpError
+    bcc :isn
+
+    stx labelPtr
+:macend
+    jsr eIsSym
+    bne :macended
+    inx
+    bne :macend
+:macended
+    stx labelEnd
+    jsr eResolveSym ; see if it exists as macro name
+    bcs lineOpError ; not a macro name
+    ldy #4
+    lda (ptr),y
+    cmp #$02
+    bne lineOpError ; not a macro name
+    ldx labelEnd
+    jmp macPlay     ; replay the macro data
+
+:isn
     lda #modeImp
     sta isnMode     ; assume implied
     stz isnBit      ; start not assuming bit instruction
@@ -758,7 +890,7 @@ lineAssertToken:
 
 ;
 ; call eEval and fast exit on error
-lineEval
+lineEval:
     jsr eEval
     bcc :out
     lda #errors:eval
@@ -766,4 +898,3 @@ lineEval
     bra lineExit
 :out
     rts
-

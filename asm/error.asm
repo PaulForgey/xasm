@@ -43,6 +43,14 @@ errors:
     .dw :strings:io
 :tooMany=*-errors
     .dw :strings:tooMany
+:noMem=*-errors
+    .dw :strings:noMem
+:inMac=*-errors
+    .dw :strings:inMac
+:noMac=*-errors
+    .dw :strings:noMac
+:looping=*-errors
+    .dw :strings:looping
 
 errors:strings:
 :fine
@@ -56,7 +64,7 @@ errors:strings:
 :eval
     .db 'bad expression',0
 :assign
-    .db 'bad assigment',0
+    .db 'label expected',0
 :dotOp
     .db 'unknown pseudo op',0
 :op
@@ -77,4 +85,11 @@ errors:strings:
     .db 'io error',0
 :tooMany
     .db 'too many open files',0
-
+:noMem
+    .db 'out of macro space',0
+:inMac
+    .db 'already inside a macro def',0
+:noMac
+    .db 'not inside a macro def',0
+:looping
+    .db 'too many passes',0

@@ -54,9 +54,7 @@ eEval:
 :init
     jsr eIsDec
     bcs :dec
-    jsr eIsAlpha
-    bcs :tosym
-    cmp #':
+    jsr eIsSym
     beq :tosym
     cmp #'%
     beq :bin
@@ -66,8 +64,10 @@ eEval:
     beq :sub
     cmp #'*
     beq :pc
+    cmp #'_
+    beq :accumB
     cmp #''
-    beq :char
+    beq :charB
     
     ldy #$80        ; indicate unary
     sty eOp
@@ -93,6 +93,12 @@ eEval:
     beq :optwo
     
     bra :opone
+
+:accumB
+    jmp :accum
+
+:charB
+    jmp :char
 
 :optwo
     lda lineBuf,x
@@ -154,6 +160,14 @@ eEval:
     lda pc          ; arg=pc
     sta arg
     lda pc+1
+    sta arg+1
+    bra :term
+
+:accum
+    inx             ; skip '*'
+    lda accum       ; arg=accum
+    sta arg
+    lda accum+1
     sta arg+1
     bra :term
 
@@ -376,6 +390,7 @@ eExecOne:
     lda arg+1
     cmp term+1
     bcc :true
+    bne :false
     lda arg
     cmp term
     bcc :true
@@ -387,6 +402,7 @@ eExecOne:
     lda term+1
     cmp arg+1
     bcc :true
+    bne :false
     lda term
     cmp arg
     bcc :true
@@ -398,6 +414,7 @@ eExecOne:
     lda term+1
     cmp arg+1
     bcc :false
+    bne :true
     lda term
     cmp arg
     bcc :false
@@ -408,6 +425,7 @@ eExecOne:
     lda arg+1
     cmp term+1
     bcc :false
+    bne :true
     lda arg
     cmp term
     bcc :false
@@ -650,6 +668,9 @@ eIsSym:
     jsr eIsDec
     bcs :yes
     cmp #':
+    beq :zero
+    cmp #'@
+:zero
     rts
 :yes
     bit #0          ; set zero
@@ -714,12 +735,24 @@ eResolveSym:
     rts
 
 :next
-    tya             ; point symLabel at lineBuf+y
+    lda lineBuf,y
+    cmp #'@         ; @ is a special case
+    bne :label
+
+    iny             ; consume @
+    lda ioPtr       ; reach into file/line including or playing us
     clc
-    adc #<lineBuf
+    adc #input:name-input
     sta symLabel
-    lda #0
-    adc #>lineBuf
+    lda #>ioStack
+    sta symLabel+1  ; ioStack is page aligned
+    lda #5
+    sta symLength
+    rts
+
+:label
+    sty symLabel    ; point symLabel at lineBuf+y
+    lda #>lineBuf   ; lineBuf is page aligned
     sta symLabel+1
     stz symLength   ; reset length=0
 

@@ -9,17 +9,18 @@ ptr         = $27
 isn1        = $22
 isn2        = $23
 incr        = $24
-optPtr      = $25
+commaPtr    = $29
 labelEnd    = $29
 
     ; global scratch, calls elsewhere will not alter
 emitX       = $2a   ; X preservation during emit
 emitY       = $2b   ; Y preservation during emit
 isnBit      = $2c   ; bit # of bit instruction
+optPtr      = $2d
 
     ; params
-symScope    = $2d   ; scope label entry (first entry at symbols is root)
-symLength   = $2f   ; label string length
+symScope    = $2e   ; scope label entry (first entry at symbols is root)
+symLength   = $30   ; label string length
 symLabel    = $31   ; label string
 isnOp       = $33   ; parsed opcode
 isnMode     = $34   ; parsed address mode candidate (never initially zp)
@@ -31,20 +32,15 @@ eState      = $3c   ; current eval state
 labelPtr    = $3d   ; label pointer in lineBuf
 
     ; globals
-ioBufStatus = $3f   ; reading io status
 pass        = $40   ; assembly pass
 symEnd      = $41   ; allocation point for symbols
 ePtr        = $43   ; eval stack pointer
 lineIfs     = $44   ; if stack
 lineIfd     = $45   ; if destiny stack
 error       = $46   ; error code
-ioName      = $47   ; current filename
-ioNameL     = $49   ; current filename length
 ioOutPtr    = $4a   ; output buffer position
-ioInPtr     = $4b   ; input buffer position
-ioIn        = $4c   ; input buffer pointer
-ioBufLen    = $4e   ; reading buffer length
-
+ioIn        = $4b   ; input buffer pointer
+argPtr      = $4d   ; macro arg stack
+argN        = $4f   ; argN into workspace
 
     .fi ; zpAsm
-

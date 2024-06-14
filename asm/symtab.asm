@@ -20,7 +20,10 @@ symInit:
 ; 00-01:    next (0 if end)
 ; 02-03:    scope (parent entry, or 0)
 ; 04:       caller status
-; 05-06:    value
+; 05-07:    value
+; 08-09:    filename declared in
+; 0a:       filename length
+; 0b-0c:    line number declared in
 
 ;
 ; enter or return existing symbol entry
@@ -59,8 +62,8 @@ symGet:
 :notFound
     ; push our scoped entry
     ; ptr = symEnd
-    ; symEnd += 7
-    lda #7
+    ; symEnd += $d
+    lda #$d
     jsr symPush
 
 
@@ -109,6 +112,16 @@ symGet:
     iny
     tya
     sta (ptr),y
+
+    ; copy name/nameLen/line
+    ldy #8+4
+    ldx #4
+:fileLine
+    lda input:name,x
+    sta (ptr),y
+    dey
+    dex
+    bpl :fileLine
 
     rts
 
@@ -177,10 +190,9 @@ strGet:
     lda hashTable+1,x
     sta ptr+1
     
-    ldy #0
     lda nptr
-    sta (ptr),y
-    iny
+    sta (ptr)
+    ldy #1
     lda nptr+1
     sta (ptr),y
     iny
@@ -290,4 +302,5 @@ strEqual:
     beq :loop
 :out
     rts
+
 
