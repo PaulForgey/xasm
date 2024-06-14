@@ -8,6 +8,7 @@ Xasm is a disk based two pass assembler. The output is written directly to the o
 
 Features:
 
+- Macros
 - Conditional assembly
 - Full expression support
 - 65c02 instructions
@@ -29,8 +30,7 @@ The `dist` target will copy this output to bin/xasm.prg and bin/xasm.lst, with t
 Create `hello.asm`:
 
 ```
-	.or $2000
-	.dw *		; load ,8,1 header
+	.dw $2000		; load ,8,1 header
 	.or $2000
 
 CHROUT	=$ffd2
@@ -47,7 +47,7 @@ start:
 	rts
 
 hello:
-	.db 13,`Hello!`,13,0
+	.db 13,'Hello!',13,0
 ```
 
 Assemble:
@@ -57,7 +57,7 @@ ready.
 ^xasm
 
 searching for xasm
-loading from $0801 to $1c70
+loading from $0801 to $20d4
 ready.
 run
 ? hello.asm;hello
@@ -181,8 +181,6 @@ code:
 	rts
 ```
 
-
-
 ### Operators
 
 There is no operator precedence among binary operators, and they are evaluated left to right. Use ( parenthesis ) to specify order of operation if needed. Unary operators have higher precedence.
@@ -248,6 +246,49 @@ header:
 	*=2062
 start:
 ```
+
+## Accumulator
+
+The special `←` (ISO `_`) symbol can hold temporary results or return values from macros.
+
+Example:
+
+```
+    ← = label-(*+2)
+    ← = (← < $80) . (!←  < $80)
+    .if ←
+    bra label
+    .el
+    jmp label
+    .fi
+```
+
+## Calling file and line
+
+The special `@` symbol stands in for the file and line info of the macro's invocation or the `.in` directive including the
+current file. It is intended to allow local labels in macros without disturbing the calling scope.
+
+Example:
+
+```
+ISBRANCH    .ma
+    ← = @0-(*+2)
+    ← = (← < $80) . (!← < $80)
+    .em
+
+BNE .ma
+    ISBRANCH @0
+    .if ←
+        bne @0
+    .el
+        beq :@:not
+        jmp @0
+:@:not:
+    .fi
+    .em
+```
+
+(This also illustrates why the assembler may make more than two passes)
 
 ## Directives
 
@@ -341,4 +382,31 @@ Data float. Emits 5 byte compacted BASIC style floating point. Unlike the other 
                     ; $83,$20,$00,$00,$00
     .df 2.0         ; writes $82,$00,$00,$00,$00
 ```
+
+`.ma`
+
+Macro definition. The label is the macro name. All following lines record into the macro until an `.em` directive.
+Inside the macro definition, up to 10 arguments may be referred to using @0 through @9.
+
+To save memory, the recorded macro will not contain more than one consecutive whitespace, nor any `;` indicated comments.
+As the macro recorder is not a context aware parser, take care string literals inside `.db` directives do not contain specific
+whitespace or the `;` character.
+
+To invoke a macro, simply use its name in the instruction field, and any arguments specified are comma delimited.
+
+```
+TWOCHARS    .ma
+    lda @0
+    jsr CHROUT
+    lda @1
+    jsr CHROUT
+    .em
+
+    ; print "a" followed by the character in $60
+    TWOCHARS #'a,$60
+```
+
+`.em`
+
+End macro definition.
 

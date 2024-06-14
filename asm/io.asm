@@ -5,27 +5,28 @@
 ; initialize
 ioInit:
     jsr CLALL
-    stz ioLFN
-    stz ioNameL
-    stz ioBufStatus
+    ldx #input:size-1
+:inloop
+    stz input,x
+    dex
+    bpl :inloop
     stz error
-    stz ioLine
-    stz ioLine+1
     stz ioOutPtr
     stz ioFDS
-    lda #$ff
-    sta ioPtr
+    stz ioIn
+    stz ioIn+1
+    stz ioPtr
     lda #8          ; default to device 8
-    sta ioDev
+    sta input:dev
     lda #<:null
     sta emit
     lda #>:null
     sta emit+1
     ldx #$0f        ; initialize io buffers
-:loop
+:bufloop
     stz ioBufs,x
     dex
-    bpl :loop
+    bpl :bufloop
 :null
     clc
     rts
@@ -45,105 +46,121 @@ ioError:
     jsr ioCloseAll
     lda #13         ; cr
     jsr CHROUT
-    ldy #0
-:print
-    cpy ioNameL
-    beq :printed
-    lda (ioName),y  ; print "filename:"
-    jsr CHROUT
-    iny
-    bne :print
-:printed
-    lda #':
-    jsr CHROUT
-    lda ioLine+1
-    jsr ioPrintHex
-    lda ioLine
-    jsr ioPrintHex
+    jsr ioFileLine
     lda #32
     jsr CHROUT
     jsr errPrint
     lda #13         ; cr
     jmp CHROUT
 
-appendPtr:
-    sta (ptr),y
+;
+; print filename and line number
+ioFileLine:
+    lda input:name
+    ldy input:name+1
+    sta ptr
+    sty ptr+1
+    ldy #0
+:print
+    cpy input:nameLen
+    beq :printed
+    lda (ptr),y     ; print "filename:"
+    jsr CHROUT
     iny
+    bne :print
+:printed
+    lda #':
+    jsr CHROUT
+    lda input:line+1
+    jsr ioPrintHex
+    lda input:line
+    jsr ioPrintHex
     rts
 
-comma:
-    lda #',
-    bra appendPtr
+ioSuffix:
+:pw .db ',p,w'
+:sw .db ',s,w'
+:sr .db ',s,r'
 
-commaS:
-    jsr comma
-    lda #'s
-    bra appendPtr
+;
+; copy a/x/y to eStack
+ioBufferName:
+    stx symLabel
+    sty symLabel+1
+    sta symLength
+    ldy #0
+:copy
+    lda (symLabel),y
+    sta eStack,y
+    iny
+    cpy symLength
+    bne :copy
+    stz symLabel        ; point symLabel at eStack
+    lda #>eStack
+    sta symLabel+1
+    rts
 
-commaP:
-    jsr comma
-    lda #'p
-    bra appendPtr
+;
+; append 4 byte suffix from x/y to buffered name
+ioSuffixName:
+    stx ptr
+    sty ptr+1
+    ldy #0
+    ldx symLength
+:loop
+    lda (ptr),y
+    sta eStack,x
+    inx
+    iny
+    cpy #4
+    bne :loop
+    stx symLength
+    rts
 
-commaR:
-    jsr comma
-    lda #'r
-    bra appendPtr
-
-commaW:
-    jsr comma
-    lda #'w
-    bra appendPtr
+;
+; intern eStack/symLength to same copy
+; result in a/x/y
+ioStoreName:
+    jsr strGet
+    lda ptr
+    clc
+    adc #5
+    tax
+    lda ptr+1
+    adc #0
+    tay
+    lda symLength
+    rts
 
 ;
 ; make a copy of a/x/y with ,p,w appended
 ; result in a/x/y
 ioCopyDestName:
-    jsr ioCopyName
-    jsr commaP
-    jsr commaW
-copyOut:
-    tya
-    ldy ptr+1
-    rts
+    jsr ioBufferName
+    ldx #<ioSuffix:pw
+    ldy #>ioSuffix:pw
+    jsr ioSuffixName
+    bra ioStoreName
 
 ;
 ; make a copy of a/x/y with ,s,w appended
 ioCopyListName:
-    jsr ioCopyName
-    jsr commaS
-    jsr commaW
-    bra copyOut
+    jsr ioBufferName
+    ldx #<ioSuffix:sw
+    ldy #>ioSuffix:sw
+    jsr ioSuffixName
+    bra ioStoreName
 
 ;
 ; make a copy of a/x/y with ,s,r appended
 ; result in a/(ptr)
 ioCopySourceName:
     jsr ioStringOut
-    jsr ioCopyName
-    jsr commaS
-    jsr commaR
-    bra copyOut
-
-ioCopyName:
-    stx string
-    sty string+1
-    tay
-    clc
-    adc #4
-    jsr symPush
-    sty scratch
-    ldy #0
-:loop
-    cpy scratch
-    beq :done
-    lda (string),y
-    sta (ptr),y
-    iny
-    bne :loop
-:done
-    ldx ptr
-    rts
+    jsr ioBufferName
+    ldx #<ioSuffix:sr
+    ldy #>ioSuffix:sr
+    jsr ioSuffixName
+    bra ioStoreName
 
 ;
 ; print string a/x/y with CR
@@ -173,7 +190,7 @@ ioStringOut:
 ioOpenDest:
     jsr SETNAM
     lda #2
-    ldx ioDev
+    ldx input:dev
     ldy #2
     jsr SETLFS
     jsr OPEN
@@ -184,71 +201,50 @@ ioOpenDest:
     rts
 
 ;
-; push input file a/x/y
+; push current input state
 ioPush:
+    lda ioIn        ; copy zp shadow
+    ldy ioIn+1
+    sta input:in
+    sty input:in+1
+
+    ldy ioPtr       ; push input state block
+    ldx #input:size-1
+:loop
+    lda input,x
+    dey
+    sta ioStack,y
+    dex
+    bpl :loop
+
+    sty ioPtr       ; mark new stack location
+    stz input:inPtr ; reset buffered input
+    stz input:bufLen
+    rts
+
+;
+; push input file a/x/y
+ioPushFile:
     sta scratch
     stx ptr
     sty ptr+1
     jsr CLRCHN
+    jsr ioPush
 
-    ldy ioPtr       ; push current state
+    lda #<ioReadFile
+    ldy #>ioReadFile
+    sta input:read
+    sty input:read+1
 
-    lda ioLFN       ; push current LFN (zero is done)
-    sta ioStack,y
-    dey
-
-    lda ioDev       ; device
-    sta ioStack,y
-    dey
-
-    lda ioBufStatus ; buffer status
-    sta ioStack,y
-    dey
-
-    lda ioInPtr     ; buffer position
-    sta ioStack,y
-    dey
-
-    lda ioIn+1      ; buffer
-    sta ioStack,y
-    dey
-
-    lda ioIn
-    sta ioStack,y
-    dey
-
-    lda ioBufLen    ; buffer length
-    sta ioStack,y
-    dey
-
-    lda ioName+1    ; filename
-    sta ioStack,y
-    dey
-    lda ioName
-    sta ioStack,y
-    dey
-
-    lda ioNameL     ; filename length
-    sta ioStack,y
-    dey
-
-    lda ioLine+1    ; line
-    sta ioStack,y
-    dey
-    lda ioLine
-    sta ioStack,y
-    dey
-
-    sty ioPtr       ; current state all pushed
 
     ; TODO: parse for @device:
 
     lda scratch     ; scratch/ptr -> nameL/name
-    sta ioNameL
+    sta input:nameLen
     ldx ptr
-    stx ioName
     ldy ptr+1
-    sty ioName+1
+    stx input:name
+    sty input:name+1
     jsr SETNAM      ; filename
 
     jsr ioAlloc     ; device secondary in Y
@@ -256,21 +252,19 @@ ioPush:
     iny
     iny
     iny             ; ..and add 3 to it (we use 2 for the output)
-    ldx ioDev
+    ldx input:dev
     tya             ; use LFN=device secondary
-    sta ioLFN
+    sta input:lfn
     jsr SETLFS
 
     jsr OPEN        ; open the file
     bcs :error
-    ldx ioLFN
+    ldx input:lfn
     jsr CHKIN
     bcs :error      ; now current file for reading
-    stz ioLine
-    stz ioLine+1
 
-    stz ioInPtr
-    stz ioBufLen
+    stz input:line  ; reset to line 0
+    stz input:line+1
 
     jmp ioReadStatus
 
@@ -288,63 +282,34 @@ ioPush:
 ; pop current file state
 ioPop:
     jsr CLRCHN      ; disconnect existing
-    lda ioLFN
-    jsr CLOSE       ; close current logical file
-    ldy ioLFN
+    lda input:lfn
+    cmp #2          ; 0: eof, 1: macro playback
+    bcc :noclose
+    jsr CLOSE       ; close current logical file (if using a file)
+    ldy input:lfn
     dey
     dey
     dey
     jsr ioDealloc   ; deallocate device secondary
+:noclose
 
-    ldy ioPtr
-
-    iny             ; line number
+    ldy ioPtr       ; copy input block from stack
+    ldx #0
+:loop
     lda ioStack,y
-    sta ioLine
     iny
-    lda ioStack,y
-    sta ioLine+1
+    sta input,x
+    inx
+    cpx #input:size
+    bne :loop
+    sty ioPtr       ; stack info popped
 
-    iny             ; filename length
-    lda ioStack,y
-    sta ioNameL
-
-    iny             ; filename
-    lda ioStack,y
-    sta ioName
-    iny
-    lda ioStack,y
-    sta ioName+1
-
-    iny             ; buffer length
-    lda ioStack,y
-    sta ioBufLen
-
-    iny             ; buffer
-    lda ioStack,y
+    lda input:in    ; copy shadow zp
+    ldy input:in+1
     sta ioIn
-    iny
-    lda ioStack,y
-    sta ioIn+1
+    sty ioIn+1
 
-    iny             ; buffer position
-    lda ioStack,y
-    sta ioInPtr
-
-    iny             ; buffer status
-    lda ioStack,y
-    sta ioBufStatus
-
-    iny
-    lda ioStack,y   ; device
-    sta ioDev
-
-    iny             ; LFN
-    ldx ioStack,y
-    stx ioLFN
-    
-    sty ioPtr
-
+    ldx input:lfn
     beq :zero       ; do not redirect from 0
     jmp CHKIN       ; this also becomes our current input
 :zero
@@ -406,12 +371,12 @@ ioDealloc:
 ioReadLine:
     sed             ; increment bcd line number
     clc
-    lda ioLine
+    lda input:line
     adc #$01
-    sta ioLine
-    lda ioLine+1
+    sta input:line
+    lda input:line+1
     adc #0
-    sta ioLine+1
+    sta input:line+1
     cld
 
     stz scratch
@@ -432,7 +397,7 @@ ioReadLine:
     bne :done
 
     jsr ioPop       ; eof; pop this input
-    lda ioLFN
+    lda input:lfn
     bne ioReadLine  ; continue previous input
 :done
     rts
@@ -446,7 +411,7 @@ ioReadLine:
 ; Z=1 if all clear
 ioReadStatus:
     jsr READST
-    sta ioBufStatus
+    sta input:status
     bit #$bf        ; everything except eof
     beq :done
     lda #errors:io
@@ -456,19 +421,24 @@ ioReadStatus:
     rts
 
 ;
-; read byte from input buffer, refilling if needed
+; read byte
 ioRead:
-    ldy ioInPtr
-    cpy ioBufLen
+    jmp (input:read)
+
+;
+; read byte from input buffer, refilling if needed
+ioReadFile:
+    ldy input:inPtr
+    cpy input:bufLen
     beq :refill
-    inc ioInPtr
+    inc input:inPtr
     lda (ioIn),y
     clc
     rts
 :refill
-    stz ioInPtr     ; reset input
-    stz ioBufLen
-    lda ioBufStatus ; check for end of file
+    stz input:inPtr ; reset input
+    stz input:bufLen
+    lda input:status ; check for end of file
     bne :end
     lda #$80        ; read max 128 bytes into buffer
     ldx ioIn
@@ -478,7 +448,7 @@ ioRead:
     bcs :bytes      ; unsupported or error
     cpx #0
     beq :eof        ; end of file
-    stx ioBufLen
+    stx input:bufLen
     jsr ioReadStatus
     bra ioRead
 :bytes
@@ -493,7 +463,7 @@ ioRead:
     iny
     bpl :loop       ; read max 128 bytes
 :partial
-    sty ioBufLen
+    sty input:bufLen
     bra ioRead
 :bytesdone
     cpy #0
@@ -503,11 +473,11 @@ ioRead:
     rts
 :eof
     lda #$40
-    sta ioBufStatus
+    sta input:status
     bra :end
 
 ;
-; copy
+; copy current input file to output until end or error
 ioCopy:
     lda error
     bne :done
@@ -590,7 +560,7 @@ ioFlushAlways:
 :done
     stz ioOutPtr
     jsr CLRCHN
-    ldx ioLFN
+    ldx input:lfn
     beq :noread
     jsr CHKIN
 :noread
@@ -616,34 +586,34 @@ ioClose:
 ; close all disk before exiting abnormally
 ioCloseAll:
     ; preserve filename and line number for error
-    lda ioLine
-    sta lineBuf
-    lda ioLine+1
-    sta lineBuf+1
-    lda ioNameL
-    sta lineBuf+2
-    lda ioName
-    sta lineBuf+3
-    lda ioName+1
-    sta lineBuf+4
+    ldx #4
+:save
+    lda input:name,x
+    sta lineBuf,x
+    dex
+    bpl :save
 
     jsr ioClose
+    jsr CLRCHN
+
 :loop
-    lda ioLFN
+    lda input:lfn
     beq :done
+
+    jsr ioFileLine  ; print file and line stack
+    lda #13
+    jsr CHROUT
+
     jsr ioPop
     bra :loop
 :done
-    lda lineBuf
-    sta ioLine
-    lda lineBuf+1
-    sta ioLine+1
-    lda lineBuf+2
-    sta ioNameL
-    lda lineBuf+3
-    sta ioName
-    lda lineBuf+4
-    sta ioName+1
+
+    ldx #4
+:restore
+    lda lineBuf,x
+    sta input:name,x
+    dex
+    bpl :restore
 
     rts
 
@@ -748,5 +718,4 @@ ioPrint:
     bne :loop
 :done
     rts
-
 
