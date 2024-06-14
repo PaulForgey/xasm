@@ -11,6 +11,7 @@ zero:
 
     .in 'zp.asm'
     .in 'kernal.asm'
+    .in 'xasm-macros.asm'
 
 options=$bf00
 

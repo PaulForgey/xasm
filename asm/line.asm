@@ -40,16 +40,16 @@ lineAsm2:
     jsr lineNextTokenExit
 
     cmp #'=
-    bne :op
+    BNE :op
 
     bit lineIfs
-    bmi :opdone
+    BMI :opdone
 
     inx             ; skip '='
     lda ptr
     sta assign      ; assign=ptr
     lda ptr+1
-    beq :assignError
+    BEQ :assignError
     sta assign+1
 
     jsr lineEval    ; eval rhs
@@ -68,14 +68,14 @@ lineAsm2:
 :op
     lda lineBuf,x
     cmp #'*
-    beq :star
+    BEQ :star
     cmp #'_
-    beq :accum
+    BEQ :accum
     cmp #'.
-    beq :dot
+    BEQ :dot
 
     bit lineIfs
-    bmi :opdone     ; if'd out
+    BMI :opdone     ; if'd out
 
     jmp lineIsn
 
@@ -93,7 +93,7 @@ lineAsm2:
     inx             ; skip '_'
     jsr lineNextTokenExit
     cmp #'=
-    bne :assignError
+    BNE :assignError
     inx
     jsr lineEval
     lda arg         ; accum=arg
@@ -106,7 +106,7 @@ lineAsm2:
     inx             ; skip '*'
     jsr lineNextTokenExit
     cmp #'=
-    bne :opdone
+    BNE :opdone
     inx             ; consume '='
     inc pass        ; cannot be forward reference
     jsr lineEval
@@ -115,11 +115,11 @@ lineAsm2:
 :starloop
     lda arg+1
     cmp pc+1
-    bcc :backwardError
+    BCC :backwardError
     bne :stardo
     lda arg
     cmp pc
-    bcc :backwardError
+    BCC :backwardError
     beq :stardone
 :stardo
     lda #0
@@ -139,21 +139,21 @@ lineAsm2:
     inx             ; skip the two (if not present, we will err anyway)
 
     cmp #'e
-    beq :E
+    BEQ :E
     cmp #'f
-    beq :F
+    BEQ :F
     cmp #'i
-    beq :I
+    BEQ :I
 
     bit lineIfs
-    bmi :opdone     ; if'd out
+    BMI :opdone     ; if'd out
 
     cmp #'o
-    beq :O
+    BEQ :O
     cmp #'d
-    beq :D
+    BEQ :D
     cmp #'m
-    beq :M
+    BEQ :M
 
     ; fall thru
 
@@ -164,80 +164,53 @@ lineAsm2:
 
 :E
     cpy #'i
-    beq :EI
+    BEQ :EI
     cpy #'l
-    beq :EL
+    BEQ :EL
 
     bit lineIfs
-    bmi :opdone     ; if'd out
+    BMI :opdone     ; if'd out
 
     cpy #'m
-    beq :EMb
-    bra :dotOpError
+    BEQ :EM
+    JMP :dotOpError
 
 :F
     cpy #'i
-    beq :FI
-    bra :dotOpError
+    BEQ :FI
+    JMP :dotOpError
 
 :O
     cpy #'r
-    beq :ORb
-    bra :dotOpError
+    BEQ :OR
+    JMP :dotOpError
 
 :I
     cpy #'f
-    beq :IFb
-    
+    BEQ :IF
+
     bit lineIfs
-    bmi :opdone     ; if'd out
-    
+    BMI :opdone     ; if'd out
+
     cpy #'n
-    beq :INb
+    BEQ :IN
     cpy #'b
-    beq :IBb
-    bra :dotOpError
+    BEQ :IB
+    JMP :dotOpError
   
 :D
     cpy #'b
-    beq :DBb
+    BEQ :DB
     cpy #'w
-    beq :DWb
+    BEQ :DW
     cpy #'f
-    beq :DFb
-    bra :dotOpError
+    BEQ :DF
+    JMP :dotOpError
 
 :M
     cpy #'a
-    beq :MAb
-    bra :dotOpError
-
-:ORb
-    jmp :OR
-
-:IFb
-    jmp :IF
-
-:INb
-    jmp :IN
-    
-:IBb
-    jmp :IB
-    
-:DBb
-    jmp :DB
-    
-:DWb
-    jmp :DW
-
-:DFb
-    jmp :DF
-
-:MAb
-    jmp :MA
-
-:EMb
-    jmp :EM
+    BEQ :MA
+    JMP :dotOpError
 
 :EL
     bit lineIfd     ; have we chosen our destiny
@@ -423,9 +396,9 @@ lineAsm2:
 :MA
     jsr lineAssertEnd
     lda ptr+1       ; check we have a label
-    beq :assignErrorB
+    BEQ :assignError
     lda inMac       ; are we already doing a macro?
-    bne :inMacError
+    BNE :inMacError
     lda pass
     bne :MApass     ; pass 0 only
     ldy #4
@@ -452,7 +425,7 @@ lineAsm2:
 :EM
     jsr lineAssertEnd
     lda inMac       ; are we doing a macro?
-    beq :noMacError
+    BEQ :noMacError
     lda pass
     bne :out        ; pass 0 only
     lda #0          ; write our terminating 0
@@ -495,7 +468,7 @@ linePinLabel:
 
 :check
     ldx pass        ; pass 0 should see these all first time
-    beq lineDupLabel
+    BEQ lineDupLabel
     cmp #$01        ; label (not macro or assigment) moved?
     bne :out
 
@@ -553,7 +526,7 @@ lineOpError:
 ; isn (arg) part
 lineIsn:
     jsr isnGet
-    bcc :isn
+    BCC :isn
 
     stx labelPtr
 :macend
@@ -586,11 +559,11 @@ lineIsn:
 
 :notbitn
     jsr lineNextToken
-    beq :gob        ; implied
+    BEQ :go         ; implied
     cmp #'#
-    beq :imm
+    BEQ :imm
     cmp #'(
-    beq :ind
+    BEQ :ind
 
     jsr lineEval
 
@@ -599,15 +572,15 @@ lineIsn:
 
     lda lineBuf,x
     cmp #',
-    bne :gob
+    BNE :go
     inx             ; consume ,
     lda lineBuf,x
     jsr ePet
     and #$7f        ; normalize case
     cmp #'x
-    beq :absx
+    BEQ :absx
     cmp #'y
-    beq :absy
+    BEQ :absy
 
     lda arg
     sta argZ        ; zp,rel
@@ -615,7 +588,7 @@ lineIsn:
 
     lda #modeBitRel
     sta isnMode
-    jmp :go
+    JMP :go
 
 :modeError:
     lda #errors:mode
@@ -626,16 +599,13 @@ lineIsn:
     inx             ; consume 'x'
     lda #modeAbsX   ; abs,x
     sta isnMode
-    bra :gob
+    JMP :go
 
 :absy
     inx             ; consume 'y'
     lda #modeAbsY   ; abs,y
     sta isnMode
-    ; fall thru
-
-:gob
-    jmp :go
+    JMP :go
 
 :imm
     inx             ; skip #
@@ -643,7 +613,7 @@ lineIsn:
 
     lda #modeImm    ; imm
     sta isnMode
-    bra :go
+    JMP :go
 
 :ind
     inx             ; skip (
@@ -654,11 +624,11 @@ lineIsn:
     
     lda lineBuf,x
     cmp #',
-    beq :indx
+    BEQ :indx
     cmp #')
-    beq :indy
+    BEQ :indy
     
-    bra :modeError
+    JMP :modeError
     
 :indx
     inx             ; skip ,
@@ -666,28 +636,28 @@ lineIsn:
     jsr ePet
     and #$7f
     cmp #'x
-    bne :modeError
+    BNE :modeError
     inx
     lda lineBuf,x
     cmp #')
-    bne :modeError
+    BNE :modeError
     inx
 
     lda #modeAbsIndX ; (ind,x)
     sta isnMode
-    bra :go
+    JMP :go
 
 :indy
     inx             ; skip )
     lda lineBuf,x
     cmp #',
-    bne :go         ; presume (ind)
+    BNE :go         ; presume (ind)
     inx
     lda lineBuf,x
     jsr ePet
     and #$7f
     cmp #'y
-    bne :modeError
+    BNE :modeError
     inx
 
     lda #modeZeroIndY
@@ -715,19 +685,19 @@ lineIsn:
 :notbit
     lda isnOp
     cmp #$54        ; BRK is special
-    beq :brk
+    BEQ :brk
 
     jsr opResolve   ; opcode in a
-    bcs :modeErrorb
+    BCS :modeError
 
     adc isnBit      ; if bitn, adjust
     jsr lineEmit    ; opcode
 
     lda isnMode
     cmp #modeRel
-    beq :rel
+    BEQ :rel
     cmp #modeBitRel
-    bne :notrel
+    BNE :notrel
 
     lda argZ
     jsr lineEmit    ; zp arg of bitRel
@@ -735,7 +705,7 @@ lineIsn:
 :rel
     lda pass
     bit #$a0
-    beq :pass0      ; no check until final pass
+    BEQ :pass0      ; no check until final pass
 
     lda pc          ; relative
     clc
@@ -759,7 +729,7 @@ lineIsn:
     ldx #$00
 :checkBack
     cpx arg+1
-    bne :relError
+    BNE :relError
 
 :pass0
     jmp lineEmit    ; send it
@@ -767,23 +737,20 @@ lineIsn:
 :brk
     lda isnMode
     cmp #modeImp
-    bne :modeErrorb
+    BNE :modeError
     lda #0
     jmp lineEmit    ; emit the single $00
 
-:modeErrorb
-    jmp :modeError
-
 :notrel
     cmp #modeImp
-    beq :done
+    BEQ :done
 
     lda arg         ; low byte or zp
     jsr lineEmit
 
     lda isnMode
     cmp #5
-    bcs :done
+    BCS :done
 
     lda arg+1       ; high byte
     jmp lineEmit
