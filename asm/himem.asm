@@ -79,8 +79,9 @@ hiRead
 ; unread last hiRead
 ; call only once after hiRead
 hiUnread
-    dec input:himem
-    bne :out
+    lda input:himem
+    bne :hi
     dec input:himem+1
-:out
+:hi
+    dec input:himem
     rts
