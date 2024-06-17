@@ -376,6 +376,7 @@ eExecOne:
     lda arg+1
     cmp term+1
     bcc :true
+    bne :false
     lda arg
     cmp term
     bcc :true
@@ -387,6 +388,7 @@ eExecOne:
     lda term+1
     cmp arg+1
     bcc :true
+    bne :false
     lda term
     cmp arg
     bcc :true
@@ -398,6 +400,7 @@ eExecOne:
     lda term+1
     cmp arg+1
     bcc :false
+    bne :true
     lda term
     cmp arg
     bcc :false
@@ -408,6 +411,7 @@ eExecOne:
     lda arg+1
     cmp term+1
     bcc :false
+    bne :true
     lda arg
     cmp term
     bcc :false
