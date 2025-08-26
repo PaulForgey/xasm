@@ -52,5 +52,6 @@ gen: cmd/gen/*.go
 
 .PHONY: x16emu
 x16emu:
-	docker build -t paulforgey/x16emu x16emu
+	docker buildx create --use
+	docker buildx build --load --platform linux/amd64 -t paulforgey/x16emu x16emu
 
